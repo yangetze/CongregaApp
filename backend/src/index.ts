@@ -52,6 +52,10 @@ apiRouter.get("/events", eventController.getEvents);
 
 app.use("/api", apiRouter);
 
+app.get("/", (req, res) => {
+    res.send("CongregaApp API is running. Try /api/people or /api/events");
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
