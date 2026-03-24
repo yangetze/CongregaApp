@@ -5,6 +5,8 @@ import AdminOrganizationsPage from './pages/admin/AdminOrganizationsPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
 import OrgLayout from './pages/org/OrgLayout';
 import OrgDashboardPage from './pages/org/OrgDashboardPage';
+import OrgParticipantsPage from './pages/people/OrgParticipantsPage';
+import OrgFinancesPage from './pages/org/OrgFinancesPage';
 
 function App() {
   return (
@@ -24,8 +26,8 @@ function App() {
         <Route path="/org/:orgId" element={<OrgLayout />}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<OrgDashboardPage />} />
-          <Route path="participants" element={<div className="p-8"><h2 className="text-2xl font-bold">Participantes (Proximamente)</h2></div>} />
-          <Route path="finances" element={<div className="p-8"><h2 className="text-2xl font-bold">Finanzas (Proximamente)</h2></div>} />
+          <Route path="participants" element={<OrgParticipantsPage />} />
+          <Route path="finances" element={<OrgFinancesPage />} />
         </Route>
 
         {/* Fallback 404 */}
