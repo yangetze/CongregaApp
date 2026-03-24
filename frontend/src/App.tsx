@@ -2,9 +2,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import HomePage from './pages/HomePage';
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminOrganizationsPage from './pages/admin/AdminOrganizationsPage';
+import AdminCreateOrganizationPage from './pages/admin/AdminCreateOrganizationPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
-import AdminPaymentMethodsPage from './pages/admin/AdminPaymentMethodsPage';
-import AdminEventStatusesPage from './pages/admin/AdminEventStatusesPage';
+import AdminMaintenancePage from './pages/admin/AdminMaintenancePage';
 import OrgLayout from './pages/org/OrgLayout';
 import OrgDashboardPage from './pages/org/OrgDashboardPage';
 import OrgParticipantsPage from './pages/people/OrgParticipantsPage';
@@ -24,9 +24,9 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Navigate to="organizations" replace />} />
           <Route path="organizations" element={<AdminOrganizationsPage />} />
+          <Route path="organizations/new" element={<AdminCreateOrganizationPage />} />
           <Route path="users" element={<AdminUsersPage />} />
-          <Route path="payment-methods" element={<AdminPaymentMethodsPage />} />
-          <Route path="event-statuses" element={<AdminEventStatusesPage />} />
+          <Route path="maintenance" element={<AdminMaintenancePage />} />
         </Route>
 
         {/* Dashboard Organización */}
