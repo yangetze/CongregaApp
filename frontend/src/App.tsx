@@ -25,6 +25,9 @@ function App() {
           <Route index element={<Navigate to="organizations" replace />} />
           <Route path="organizations" element={<AdminOrganizationsPage />} />
           <Route path="organizations/new" element={<AdminCreateOrganizationPage />} />
+          <Route path="payment-methods" element={<AdminMaintenancePage />} />
+          <Route path="event-statuses" element={<AdminMaintenancePage />} />
+          <Route path="currencies" element={<AdminMaintenancePage />} />
           <Route path="users" element={<AdminUsersPage />} />
           <Route path="maintenance" element={<AdminMaintenancePage />} />
         </Route>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Settings, CreditCard, Activity, DollarSign, Database, Plus, Edit2, Save, X } from 'lucide-react';
@@ -7,7 +8,36 @@ import { Badge } from '@/components/ui/badge';
 type TabType = 'variables' | 'currencies' | 'payment-methods' | 'statuses';
 
 export default function AdminMaintenancePage() {
+    const location = useLocation();
+    const navigate = useNavigate();
+
     const [activeTab, setActiveTab] = useState<TabType>('variables');
+
+    // Sync tab with URL
+    useEffect(() => {
+        if (location.pathname.includes('/payment-methods')) {
+            setActiveTab('payment-methods');
+        } else if (location.pathname.includes('/event-statuses')) {
+            setActiveTab('statuses');
+        } else if (location.pathname.includes('/currencies')) {
+            setActiveTab('currencies');
+        } else {
+            setActiveTab('variables');
+        }
+    }, [location]);
+
+    const handleTabChange = (tab: TabType) => {
+        setActiveTab(tab);
+        if (tab === 'payment-methods') {
+            navigate('/admin/payment-methods');
+        } else if (tab === 'statuses') {
+            navigate('/admin/event-statuses');
+        } else if (tab === 'currencies') {
+            navigate('/admin/currencies');
+        } else {
+            navigate('/admin/maintenance');
+        }
+    };
 
     // Data states
     const [variables, setVariables] = useState<any[]>([]);
@@ -80,25 +110,25 @@ export default function AdminMaintenancePage() {
             {/* Tabs */}
             <div className="flex space-x-1 border-b border-surface-border">
                 <button
-                    onClick={() => setActiveTab('variables')}
+                    onClick={() => handleTabChange('variables')}
                     className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeTab === 'variables' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
                 >
                     <div className="flex items-center gap-2"><Database className="w-4 h-4" /> Variables Globales</div>
                 </button>
                 <button
-                    onClick={() => setActiveTab('currencies')}
+                    onClick={() => handleTabChange('currencies')}
                     className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeTab === 'currencies' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
                 >
                     <div className="flex items-center gap-2"><DollarSign className="w-4 h-4" /> Monedas</div>
                 </button>
                 <button
-                    onClick={() => setActiveTab('payment-methods')}
+                    onClick={() => handleTabChange('payment-methods')}
                     className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeTab === 'payment-methods' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
                 >
                     <div className="flex items-center gap-2"><CreditCard className="w-4 h-4" /> Métodos de Pago</div>
                 </button>
                 <button
-                    onClick={() => setActiveTab('statuses')}
+                    onClick={() => handleTabChange('statuses')}
                     className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeTab === 'statuses' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
                 >
                     <div className="flex items-center gap-2"><Activity className="w-4 h-4" /> Estados de Evento</div>
