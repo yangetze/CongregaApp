@@ -15,5 +15,18 @@
     { "id": "evt-2", "organizationId": "org-1", "name": "Conferencia de Liderazgo", "date": "2025-06-20", "totalCollected": 3200, "totalEnrolled": 80, "totalCapacity": 80, "status": "PUBLISHED" },
     { "id": "evt-3", "organizationId": "org-2", "name": "Campamento Verano 2025", "date": "2025-07-10", "totalCollected": 5000, "totalEnrolled": 120, "totalCapacity": 150, "status": "PUBLISHED" },
     { "id": "evt-4", "organizationId": "org-3", "name": "Encuentro Universitario", "date": "2025-08-05", "totalCollected": 800, "totalEnrolled": 40, "totalCapacity": 200, "status": "DRAFT" }
+  ],
+  "people": [
+    { "id": "per-1", "organizationId": "org-1", "firstName": "Juan", "lastName": "Pérez", "email": "juan.perez@example.com", "phone": "+123456789", "birthDate": "1990-05-12" },
+    { "id": "per-2", "organizationId": "org-1", "firstName": "Ana", "lastName": "García", "email": "ana.garcia@example.com", "phone": "+987654321", "birthDate": "1985-08-25" },
+    { "id": "per-3", "organizationId": "org-2", "firstName": "Luis", "lastName": "Martínez", "email": "luis.m@example.com", "phone": "+112233445", "birthDate": "1995-11-03" },
+    { "id": "per-4", "organizationId": "org-1", "firstName": "Sofía", "lastName": "Rodríguez", "email": "sofia.r@example.com", "phone": "+556677889", "birthDate": "2000-02-14" },
+    { "id": "per-5", "organizationId": "org-3", "firstName": "Carlos", "lastName": "Gómez", "email": "carlos.g@example.com", "phone": "+998877665", "birthDate": "1988-07-09" }
+  ],
+  "transactions": [
+    { "id": "tx-1", "organizationId": "org-1", "personId": "per-1", "personName": "Juan Pérez", "amount": 100, "currency": "USD", "method": "Zelle USD", "status": "RECONCILED", "date": "2025-03-20T10:00:00Z" },
+    { "id": "tx-2", "organizationId": "org-1", "personId": "per-2", "personName": "Ana García", "amount": 50, "currency": "USD", "method": "Cash USD", "status": "PENDING", "date": "2025-03-21T14:30:00Z" },
+    { "id": "tx-3", "organizationId": "org-1", "personId": "per-4", "personName": "Sofía Rodríguez", "amount": 1500, "currency": "VES", "method": "Pago Móvil VES", "status": "RECONCILED", "date": "2025-03-22T09:15:00Z" },
+    { "id": "tx-4", "organizationId": "org-2", "personId": "per-3", "personName": "Luis Martínez", "amount": 200, "currency": "USD", "method": "Zelle USD", "status": "REJECTED", "date": "2025-03-19T16:45:00Z" }
   ]
 }

@@ -45,7 +45,7 @@ const eventController = new EventController(commandBus, queryBus);
 const apiRouter = express.Router();
 
 apiRouter.post("/people", personController.createPerson);
-apiRouter.get("/people", personController.getPeople);
+// apiRouter.get("/people", personController.getPeople);
 
 apiRouter.post("/events", eventController.createEvent);
 // apiRouter.get("/events", eventController.getEvents);
@@ -78,6 +78,28 @@ apiRouter.get("/events", (req, res) => {
   }
 
   res.json(events);
+});
+
+apiRouter.get("/people", (req, res) => {
+  const data = getMockData();
+  let people = data.people;
+
+  if (req.query.organizationId) {
+    people = people.filter((p: any) => p.organizationId === req.query.organizationId);
+  }
+
+  res.json(people);
+});
+
+apiRouter.get("/transactions", (req, res) => {
+  const data = getMockData();
+  let transactions = data.transactions;
+
+  if (req.query.organizationId) {
+    transactions = transactions.filter((t: any) => t.organizationId === req.query.organizationId);
+  }
+
+  res.json(transactions);
 });
 // -----------------------------
 

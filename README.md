@@ -26,20 +26,23 @@ Estamos construyendo CongregaApp por etapas para asegurar la máxima calidad en 
 
 ### Fase 1: MVP (Producto Mínimo Viable)
 
-#### 1. Módulo de Personas / Directorio CRM (🟡 En progreso)
+#### 1. Módulo de Personas / Directorio CRM (🟢 Terminado Inicialmente)
 * Gestión centralizada de la base de datos de miembros y personal de la organización.
-* Registro de datos personales, cédula, fecha de nacimiento, etc.
-* Definición de relaciones familiares y conexiones entre personas.
+* Registro de datos personales, cédula, fecha de nacimiento, edad calculada, etc.
+* Interfaz moderna de búsqueda y filtrado de participantes.
+* Definición de relaciones familiares y conexiones entre personas (Próximamente).
 
-#### 2. Módulo de Eventos y Presupuestos (🟡 En progreso)
+#### 2. Módulo de Eventos y Presupuestos (🟢 Terminado Inicialmente)
 * Creación de eventos con metas de recaudación, capacidad límite y reglas de asistencia.
-* Configuración de estructuras de costos (Ej: Costo Base, Transporte).
-* Inscripción de participantes a partir del directorio, con roles específicos (Staff / Inscrito) y tarifas aplicables.
+* Panel principal de resumen (Dashboard) para monitorear recaudación, inscritos y eventos publicados.
+* Configuración de estructuras de costos (Ej: Costo Base, Transporte) (Próximamente).
+* Inscripción de participantes a partir del directorio, con roles específicos (Staff / Inscrito) y tarifas aplicables (Próximamente).
 
-#### 3. Módulo de Cuentas por Cobrar e Ingresos (🟡 En progreso)
-* Registro de abonos directos multidivisa con tasa de cambio.
-* Generación de estados de cuenta detallados por participante.
-* **Motor de Patrocinios:** Recepción de donaciones (Bolsa) y asignación de fondos a deudores sin descuadrar la contabilidad general de ingresos.
+#### 3. Módulo de Cuentas por Cobrar e Ingresos (🟢 Terminado Inicialmente)
+* Interfaz principal de Finanzas mostrando resumen de ingresos y tabla de transacciones.
+* Filtros de estado para transacciones (Conciliado, Pendiente, Rechazado) y métodos de pago (Zelle USD, etc.).
+* Registro de abonos directos multidivisa con tasa de cambio (Próximamente Backend).
+* **Motor de Patrocinios:** Recepción de donaciones (Bolsa) y asignación de fondos a deudores sin descuadrar la contabilidad general de ingresos (Próximamente).
 
 ### Fase 2: Visión a Futuro
 
