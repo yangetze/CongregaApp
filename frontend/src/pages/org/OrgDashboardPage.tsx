@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { MOCK_EVENTS, type EventStat } from '@/data/mock';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,7 @@ import { Plus, CalendarDays, DollarSign, Users, Ticket, ArrowRight, Activity } f
 
 export default function OrgDashboardPage() {
   const { orgId } = useParams();
+  const navigate = useNavigate();
   const events = MOCK_EVENTS.filter(e => e.organizationId === orgId);
   const [selectedEvent, setSelectedEvent] = useState<EventStat | null>(null);
 
