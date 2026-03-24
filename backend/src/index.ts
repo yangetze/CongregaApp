@@ -48,7 +48,38 @@ apiRouter.post("/people", personController.createPerson);
 apiRouter.get("/people", personController.getPeople);
 
 apiRouter.post("/events", eventController.createEvent);
-apiRouter.get("/events", eventController.getEvents);
+// apiRouter.get("/events", eventController.getEvents);
+
+// --- MOCK API FOR UI DEMO ---
+import fs from "fs";
+import path from "path";
+
+const getMockData = () => {
+  const dataPath = path.join(__dirname, "infrastructure", "data", "db.json");
+  return JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+};
+
+apiRouter.get("/organizations", (req, res) => {
+  const data = getMockData();
+  res.json(data.organizations);
+});
+
+apiRouter.get("/users", (req, res) => {
+  const data = getMockData();
+  res.json(data.users);
+});
+
+apiRouter.get("/events", (req, res) => {
+  const data = getMockData();
+  let events = data.events;
+
+  if (req.query.organizationId) {
+    events = events.filter((e: any) => e.organizationId === req.query.organizationId);
+  }
+
+  res.json(events);
+});
+// -----------------------------
 
 app.use("/api", apiRouter);
 
