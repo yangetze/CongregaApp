@@ -40,6 +40,16 @@ export default function AdminUsersPage() {
             <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">Con acceso total</p>
           </CardContent>
         </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-500">Usuarios Activos</CardTitle>
+            <User className="w-4 h-4 text-status-success" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{MOCK_USERS.filter(u => u.status === 'ACTIVE').length}</div>
+            <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">Operando actualmente</p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Table */}

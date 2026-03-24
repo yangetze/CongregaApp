@@ -34,6 +34,12 @@ const queryBus = new QueryBus();
 const personRepository = new InMemoryPersonRepository();
 const eventRepository = new InMemoryEventRepository();
 const enrollmentRepository = new InMemoryEnrollmentRepository();
+import { InMemoryGlobalConfigRepository } from "./infrastructure/repositories/admin/InMemoryGlobalConfigRepository";
+const globalConfigRepository = new InMemoryGlobalConfigRepository();
+
+// Admin Controller
+import { AdminController } from "./infrastructure/controllers/admin/AdminController";
+const adminController = new AdminController(globalConfigRepository);
 
 // Register Handlers
 commandBus.register("CreatePersonCommand", new CreatePersonCommandHandler(personRepository));
@@ -62,6 +68,11 @@ apiRouter.get("/people", (req, res) => personController.getPeople(req, res));
 apiRouter.post("/events", (req, res) => eventController.createEvent(req, res));
 apiRouter.post("/events/:eventId/enroll", (req, res) => eventController.enrollPerson(req, res));
 apiRouter.get("/events", (req, res) => eventController.getEvents(req, res));
+
+// Admin Global Routes
+apiRouter.get("/admin/payment-methods", adminController.getPaymentMethods);
+apiRouter.post("/admin/payment-methods", adminController.createPaymentMethod);
+apiRouter.get("/admin/event-statuses", adminController.getEventStatuses);
 
 // --- MOCK API FOR UI DEMO ---
 import fs from "fs";

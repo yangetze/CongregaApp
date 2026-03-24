@@ -26,6 +26,15 @@ export class CreatePersonCommandHandler implements ICommandHandler<CreatePersonC
     constructor(private readonly personRepository: IPersonRepository) {}
 
     async execute(command: CreatePersonCommand): Promise<string> {
+        // Prevent duplicates based on documentId and organizationId
+        if (command.documentId) {
+            const existingPerson = await this.personRepository.findByDocumentId(command.documentId);
+            if (existingPerson && existingPerson.organizationId === command.organizationId) {
+                // Return the existing person's ID instead of throwing an error or duplicating
+                return existingPerson.id;
+            }
+        }
+
         // Simple mock ID generation
         const id = Math.random().toString(36).substring(2, 9);
         const person = new Person(

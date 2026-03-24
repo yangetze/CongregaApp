@@ -11,6 +11,7 @@ export type EventRequirements = Record<string, any>;
 export class Event {
     constructor(
         public readonly id: string,
+        public readonly sequentialId: number,
         public name: string,
         public startDate: Date,
         public endDate: Date,
@@ -18,7 +19,8 @@ export class Event {
         public organizationId: string,
         public hasCost: boolean = false,
         public requirements: EventRequirements = {},
-        public costs: CostStructure[] = []
+        public costs: CostStructure[] = [],
+        public statusId: string = "DRAFT" // default status
     ) {}
 }
 

@@ -15,4 +15,13 @@ export class InMemoryEventRepository implements IEventRepository {
     async findById(id: string): Promise<Event | null> {
         return this.events.find(e => e.id === id) || null;
     }
+
+    async getNextSequentialId(organizationId: string): Promise<number> {
+        const orgEvents = this.events.filter(e => e.organizationId === organizationId);
+        if (orgEvents.length === 0) {
+            return 1;
+        }
+        const maxId = Math.max(...orgEvents.map(e => e.sequentialId || 0));
+        return maxId + 1;
+    }
 }

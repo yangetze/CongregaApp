@@ -22,7 +22,7 @@ export default function OrgDashboardPage() {
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">Eventos Activos</h1>
           <p className="text-gray-500 mt-1">Gestiona los eventos, campamentos o congresos de tu organización.</p>
         </div>
-        <Button className="shrink-0 flex items-center gap-2">
+        <Button className="shrink-0 flex items-center gap-2" onClick={() => navigate(`/org/${orgId}/events/new`)}>
           <Plus className="w-4 h-4" />
           Crear Evento
         </Button>

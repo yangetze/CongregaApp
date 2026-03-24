@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { Building2, Users, LogOut, Settings } from 'lucide-react';
+import { Building2, Users, LogOut, Settings, CreditCard, Activity } from 'lucide-react';
 
 export default function AdminLayout() {
   const navigate = useNavigate();
@@ -28,6 +28,30 @@ export default function AdminLayout() {
           >
             <Building2 className="w-5 h-5" />
             Organizaciones
+          </NavLink>
+
+          <NavLink
+            to="/admin/payment-methods"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                isActive ? 'bg-white/10 font-semibold' : 'hover:bg-white/5 opacity-80 hover:opacity-100'
+              }`
+            }
+          >
+            <CreditCard className="w-5 h-5" />
+            Métodos de Pago
+          </NavLink>
+
+          <NavLink
+            to="/admin/event-statuses"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                isActive ? 'bg-white/10 font-semibold' : 'hover:bg-white/5 opacity-80 hover:opacity-100'
+              }`
+            }
+          >
+            <Activity className="w-5 h-5" />
+            Estados de Evento
           </NavLink>
 
           <NavLink

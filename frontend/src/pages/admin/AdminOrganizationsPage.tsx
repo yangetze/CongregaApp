@@ -1,10 +1,33 @@
-import { MOCK_ORGANIZATIONS } from '@/data/mock';
+import { useState, useEffect } from 'react';
+import { MOCK_ORGANIZATIONS, MOCK_USERS } from '@/data/mock';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Building2, Search, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function AdminOrganizationsPage() {
+  const [eventsData, setEventsData] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Fetch events for mock statistics for all organizations
+    const fetchAllEvents = async () => {
+      try {
+        const events = [];
+        for (const org of MOCK_ORGANIZATIONS) {
+           const res = await fetch(`http://localhost:3000/api/events?organizationId=${org.id}`);
+           if (res.ok) {
+             const data = await res.json();
+             events.push(...data);
+           }
+        }
+        setEventsData(events);
+      } catch (err) {
+        console.error("Error fetching events", err);
+      }
+    };
+    fetchAllEvents();
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -55,12 +78,16 @@ export default function AdminOrganizationsPage() {
                   <th scope="col" className="px-6 py-3">Nombre</th>
                   <th scope="col" className="px-6 py-3">Descripción</th>
                   <th scope="col" className="px-6 py-3">Fecha de Creación</th>
-                  <th scope="col" className="px-6 py-3">Estado</th>
+                  <th scope="col" className="px-6 py-3">Estadísticas</th>
                   <th scope="col" className="px-6 py-3 text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {MOCK_ORGANIZATIONS.map((org) => (
+                {MOCK_ORGANIZATIONS.map((org) => {
+                  const activeUsers = MOCK_USERS.filter(u => u.organizationId === org.id && u.status === 'ACTIVE').length;
+                  const createdEvents = eventsData.filter(e => e.organizationId === org.id).length;
+
+                  return (
                   <tr key={org.id} className="bg-white border-b border-surface-border hover:bg-surface-background transition-colors">
                     <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-bold text-xs">
@@ -70,14 +97,15 @@ export default function AdminOrganizationsPage() {
                     </td>
                     <td className="px-6 py-4 max-w-xs truncate" title={org.description}>{org.description || '-'}</td>
                     <td className="px-6 py-4">{new Date(org.createdAt).toLocaleDateString()}</td>
-                    <td className="px-6 py-4">
-                      <Badge variant="success">Activa</Badge>
+                    <td className="px-6 py-4 text-xs space-y-1 text-gray-600">
+                      <div><span className="font-semibold text-gray-900">Usuarios Activos:</span> {activeUsers}</div>
+                      <div><span className="font-semibold text-gray-900">Eventos Creados:</span> {createdEvents}</div>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <Button variant="ghost" size="sm" className="text-brand-primary">Ver detalles</Button>
                     </td>
                   </tr>
-                ))}
+                )})}
                 {MOCK_ORGANIZATIONS.length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-6 py-8 text-center text-gray-500">

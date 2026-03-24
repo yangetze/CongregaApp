@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 
 interface EventData {
     id: string;
+    sequentialId?: number;
     name: string;
     startDate: string;
     endDate: string;
@@ -66,7 +67,14 @@ export default function OrgEventsListPage() {
                             onClick={() => navigate(`/org/${orgId}/events/${event.id}`)}
                         >
                             <CardHeader className="pb-3">
-                                <CardTitle className="text-lg">{event.name}</CardTitle>
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="text-lg">{event.name}</CardTitle>
+                                    {event.sequentialId && (
+                                        <Badge variant="default" className="bg-brand-primary text-white text-xs">
+                                            Evento #{event.sequentialId}
+                                        </Badge>
+                                    )}
+                                </div>
                                 <div className="text-sm text-gray-500 flex items-center gap-2 mt-2">
                                     <CalendarDays className="w-4 h-4" />
                                     {new Date(event.startDate).toLocaleDateString()}
