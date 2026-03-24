@@ -3,6 +3,7 @@ import { CommandBus } from "../../shared/cqrs/CommandBus";
 import { QueryBus } from "../../shared/cqrs/QueryBus";
 import { CreateEventCommand } from "../../application/commands/CreateEvent";
 import { GetEventsQuery } from "../../application/queries/GetEvents";
+import { EnrollPersonCommand } from "../../application/commands/EnrollPerson";
 
 export class EventController {
     constructor(
@@ -12,13 +13,15 @@ export class EventController {
 
     createEvent = async (req: Request, res: Response): Promise<void> => {
         try {
-            const { name, startDate, endDate, totalCapacity, organizationId, costs } = req.body;
+            const { name, startDate, endDate, totalCapacity, organizationId, hasCost, requirements, costs } = req.body;
             const command = new CreateEventCommand(
                 name,
                 new Date(startDate),
                 new Date(endDate),
                 totalCapacity,
                 organizationId,
+                hasCost,
+                requirements,
                 costs
             );
             const id = await this.commandBus.execute("CreateEventCommand", command);
@@ -42,4 +45,23 @@ export class EventController {
             res.status(500).json({ error: error.message });
         }
     };
+
+    enrollPerson = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { eventId } = req.params;
+            const { personId, role } = req.body;
+
+            if (!eventId || !personId) {
+                res.status(400).json({ error: "eventId and personId are required" });
+                return;
+            }
+
+            const command = new EnrollPersonCommand(eventId, personId, role);
+            const id = await this.commandBus.execute("EnrollPersonCommand", command);
+
+            res.status(201).json({ id, message: "Person enrolled successfully" });
+        } catch (error: any) {
+            res.status(500).json({ error: error.message });
+        }
+    }
 }

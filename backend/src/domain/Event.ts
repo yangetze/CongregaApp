@@ -6,6 +6,8 @@ export class CostStructure {
     ) {}
 }
 
+export type EventRequirements = Record<string, any>;
+
 export class Event {
     constructor(
         public readonly id: string,
@@ -14,6 +16,23 @@ export class Event {
         public endDate: Date,
         public totalCapacity: number,
         public organizationId: string,
+        public hasCost: boolean = false,
+        public requirements: EventRequirements = {},
         public costs: CostStructure[] = []
+    ) {}
+}
+
+export enum EnrollmentRole {
+    STAFF = 'STAFF',
+    PARTICIPANT = 'PARTICIPANT'
+}
+
+export class Enrollment {
+    constructor(
+        public readonly id: string,
+        public readonly eventId: string,
+        public readonly personId: string,
+        public role: EnrollmentRole = EnrollmentRole.PARTICIPANT,
+        public createdAt: Date = new Date()
     ) {}
 }

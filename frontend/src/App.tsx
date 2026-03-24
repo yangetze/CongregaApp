@@ -7,6 +7,9 @@ import OrgLayout from './pages/org/OrgLayout';
 import OrgDashboardPage from './pages/org/OrgDashboardPage';
 import OrgParticipantsPage from './pages/people/OrgParticipantsPage';
 import OrgFinancesPage from './pages/org/OrgFinancesPage';
+import OrgEventsListPage from './pages/events/OrgEventsListPage';
+import OrgCreateEventPage from './pages/events/OrgCreateEventPage';
+import OrgEventDetailsPage from './pages/events/OrgEventDetailsPage';
 
 function App() {
   return (
@@ -28,6 +31,9 @@ function App() {
           <Route path="dashboard" element={<OrgDashboardPage />} />
           <Route path="participants" element={<OrgParticipantsPage />} />
           <Route path="finances" element={<OrgFinancesPage />} />
+          <Route path="events" element={<OrgEventsListPage />} />
+          <Route path="events/new" element={<OrgCreateEventPage />} />
+          <Route path="events/:eventId" element={<OrgEventDetailsPage />} />
         </Route>
 
         {/* Fallback 404 */}

@@ -1,6 +1,8 @@
 import { ICommand, ICommandHandler } from "../../shared/cqrs/CommandBus";
 import { Event, CostStructure } from "../../domain/Event";
 
+import { EventRequirements } from "../../domain/Event";
+
 export class CreateEventCommand implements ICommand {
     constructor(
         public readonly name: string,
@@ -8,6 +10,8 @@ export class CreateEventCommand implements ICommand {
         public readonly endDate: Date,
         public readonly totalCapacity: number,
         public readonly organizationId: string,
+        public readonly hasCost: boolean = false,
+        public readonly requirements: EventRequirements = {},
         public readonly costs: { name: string; amount: number; isMandatory: boolean }[] = []
     ) {}
 }
@@ -34,6 +38,8 @@ export class CreateEventCommandHandler implements ICommandHandler<CreateEventCom
             command.endDate,
             command.totalCapacity,
             command.organizationId,
+            command.hasCost,
+            command.requirements,
             costStructures
         );
 

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Search, Plus, UserCircle, Calendar, Phone, Mail } from 'lucide-react';
+import { Search, Plus, UserCircle, Calendar, Phone, Mail, Activity } from 'lucide-react';
 
 interface Person {
     id: string;
@@ -10,6 +10,14 @@ interface Person {
     email: string;
     phone?: string;
     birthDate?: string;
+    documentId?: string;
+}
+
+interface EnrollmentData {
+    id: string;
+    eventId: string;
+    role: string;
+    createdAt: string;
 }
 
 export default function OrgParticipantsPage() {
@@ -17,6 +25,9 @@ export default function OrgParticipantsPage() {
     const [participants, setParticipants] = useState<Person[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
+    const [personEnrollments, setPersonEnrollments] = useState<EnrollmentData[]>([]);
+    const [isLoadingEnrollments, setIsLoadingEnrollments] = useState(false);
 
     useEffect(() => {
         setIsLoading(true);
@@ -42,6 +53,29 @@ export default function OrgParticipantsPage() {
             age--;
         }
         return age;
+    };
+
+    const handleViewPerson = async (personId: string) => {
+        if (selectedPersonId === personId) {
+            setSelectedPersonId(null);
+            return;
+        }
+
+        setSelectedPersonId(personId);
+        setIsLoadingEnrollments(true);
+        setPersonEnrollments([]);
+
+        try {
+            const res = await fetch(`http://localhost:3000/api/people/${personId}/enrollments`);
+            if (res.ok) {
+                const data = await res.json();
+                setPersonEnrollments(data);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoadingEnrollments(false);
+        }
     };
 
     const filteredParticipants = participants.filter(p =>
@@ -98,7 +132,8 @@ export default function OrgParticipantsPage() {
                             </thead>
                             <tbody>
                                 {filteredParticipants.map((person) => (
-                                    <tr key={person.id} className="border-b border-surface-border last:border-0 hover:bg-gray-50/50 transition-colors">
+                                    <React.Fragment key={person.id}>
+                                    <tr onClick={() => handleViewPerson(person.id)} className="cursor-pointer border-b border-surface-border last:border-0 hover:bg-gray-50/50 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center font-bold text-xs">
@@ -140,6 +175,39 @@ export default function OrgParticipantsPage() {
                                             {calculateAge(person.birthDate)}
                                         </td>
                                     </tr>
+                                    {selectedPersonId === person.id && (
+                                        <tr className="bg-brand-primary/5 border-b border-surface-border">
+                                            <td colSpan={4} className="px-6 py-6">
+                                                <div className="bg-white rounded-lg p-4 border border-brand-primary/20 shadow-sm">
+                                                    <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                                        <Activity className="w-4 h-4 text-brand-primary" />
+                                                        Historial de Eventos (Inscripciones)
+                                                    </h4>
+
+                                                    {isLoadingEnrollments ? (
+                                                        <p className="text-sm text-gray-500 italic">Cargando historial...</p>
+                                                    ) : personEnrollments.length === 0 ? (
+                                                        <p className="text-sm text-gray-500 italic">No hay inscripciones registradas para esta persona.</p>
+                                                    ) : (
+                                                        <ul className="space-y-3">
+                                                            {personEnrollments.map((enrollment, idx) => (
+                                                                <li key={idx} className="flex justify-between items-center text-sm border-b border-gray-100 pb-2 last:border-0 last:pb-0">
+                                                                    <div>
+                                                                        <span className="font-medium text-gray-900">ID de Evento: {enrollment.eventId}</span>
+                                                                        <span className="text-gray-500 ml-3">Rol: {enrollment.role}</span>
+                                                                    </div>
+                                                                    <span className="text-gray-400 text-xs">
+                                                                        Inscrito el {new Date(enrollment.createdAt).toLocaleDateString()}
+                                                                    </span>
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </React.Fragment>
                                 ))}
                             </tbody>
                         </table>

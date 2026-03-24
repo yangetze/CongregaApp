@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate, useParams } from 'react-router-dom';
-import { CalendarDays, Users, LogOut, Settings, Wallet, CreditCard } from 'lucide-react';
+import { CalendarDays, Users, LogOut, Settings, Wallet, CreditCard, Activity } from 'lucide-react';
 import { MOCK_ORGANIZATIONS } from '@/data/mock';
 
 export default function OrgLayout() {
@@ -31,6 +31,18 @@ export default function OrgLayout() {
         <nav className="flex-1 px-4 space-y-1 mt-6">
           <NavLink
             to={`/org/${orgId}/dashboard`}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                isActive ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-600 hover:bg-surface-background hover:text-gray-900'
+              }`
+            }
+          >
+            <Activity className="w-5 h-5" />
+            Dashboard
+          </NavLink>
+
+          <NavLink
+            to={`/org/${orgId}/events`}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 isActive ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-600 hover:bg-surface-background hover:text-gray-900'
