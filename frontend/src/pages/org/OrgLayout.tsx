@@ -1,13 +1,12 @@
 import { Outlet, NavLink, useNavigate, useParams } from 'react-router-dom';
 import { CalendarDays, Users, LogOut, Settings, Wallet, CreditCard } from 'lucide-react';
-import { useOrganizations } from '@/lib/api';
+import { MOCK_ORGANIZATIONS } from '@/data/mock';
 
 export default function OrgLayout() {
   const navigate = useNavigate();
   const { orgId } = useParams();
-  const { data: organizations, loading } = useOrganizations();
 
-  const org = organizations.find((o: any) => o.id === orgId) || { name: loading ? 'Cargando...' : 'Organización Desconocida' };
+  const org = MOCK_ORGANIZATIONS.find(o => o.id === orgId) || { name: 'Organización Desconocida' };
 
   const handleLogout = () => {
     navigate('/');

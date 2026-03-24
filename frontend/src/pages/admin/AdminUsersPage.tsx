@@ -1,12 +1,10 @@
+import { MOCK_USERS } from '@/data/mock';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, Search, Plus, ShieldCheck, User, Loader2 } from 'lucide-react';
+import { Users, Search, Plus, ShieldCheck, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useUsers } from '@/lib/api';
 
 export default function AdminUsersPage() {
-  const { data: users, loading } = useUsers();
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -28,12 +26,8 @@ export default function AdminUsersPage() {
             <Users className="w-4 h-4 text-brand-primary" />
           </CardHeader>
           <CardContent>
-            {loading ? <Loader2 className="animate-spin w-6 h-6 text-gray-400" /> : (
-              <>
-                <div className="text-2xl font-bold">{users.length}</div>
-                <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">Todos los roles</p>
-              </>
-            )}
+            <div className="text-2xl font-bold">{MOCK_USERS.length}</div>
+            <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">Todos los roles</p>
           </CardContent>
         </Card>
          <Card>
@@ -42,12 +36,8 @@ export default function AdminUsersPage() {
             <ShieldCheck className="w-4 h-4 text-status-info" />
           </CardHeader>
           <CardContent>
-            {loading ? <Loader2 className="animate-spin w-6 h-6 text-gray-400" /> : (
-              <>
-                <div className="text-2xl font-bold">{users.filter((u: any) => u.role === 'ADMIN').length}</div>
-                <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">Con acceso total</p>
-              </>
-            )}
+            <div className="text-2xl font-bold">{MOCK_USERS.filter(u => u.role === 'ADMIN').length}</div>
+            <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">Con acceso total</p>
           </CardContent>
         </Card>
       </div>
@@ -80,13 +70,7 @@ export default function AdminUsersPage() {
                 </tr>
               </thead>
               <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                      Cargando usuarios...
-                    </td>
-                  </tr>
-                ) : users.map((user: any) => (
+                {MOCK_USERS.map((user) => (
                   <tr key={user.id} className="bg-white border-b border-surface-border hover:bg-surface-background transition-colors">
                     <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                        <div className="flex items-center gap-3">

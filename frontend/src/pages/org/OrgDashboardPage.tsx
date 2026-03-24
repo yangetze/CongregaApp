@@ -1,28 +1,19 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { type EventStat } from '@/data/mock';
+import { MOCK_EVENTS, type EventStat } from '@/data/mock';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, CalendarDays, DollarSign, Users, Ticket, ArrowRight, Activity, Loader2 } from 'lucide-react';
-import { useEvents } from '@/lib/api';
+import { Plus, CalendarDays, DollarSign, Users, Ticket, ArrowRight, Activity } from 'lucide-react';
 
 export default function OrgDashboardPage() {
   const { orgId } = useParams();
-  const { data: events, loading } = useEvents(orgId);
+  const events = MOCK_EVENTS.filter(e => e.organizationId === orgId);
   const [selectedEvent, setSelectedEvent] = useState<EventStat | null>(null);
 
   // Calcula totales generales
   const totalRecaudado = events.reduce((acc, curr) => acc + curr.totalCollected, 0);
   const totalInscritos = events.reduce((acc, curr) => acc + curr.totalEnrolled, 0);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-brand-primary animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">

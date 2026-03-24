@@ -2,14 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { MOCK_ORGANIZATIONS } from '@/data/mock';
 import { Building2, ShieldCheck, ArrowRight } from 'lucide-react';
-import { useOrganizations } from '@/lib/api';
 
 export default function HomePage() {
   const navigate = useNavigate();
   const [selectedOrgId, setSelectedOrgId] = useState<string>('');
   const [showOrgSelect, setShowOrgSelect] = useState(false);
-  const { data: organizations, loading } = useOrganizations();
 
   const handleAdminLogin = () => {
     navigate('/admin/organizations');
@@ -77,10 +76,9 @@ export default function HomePage() {
                     className="w-full h-10 px-3 py-2 rounded-md border border-surface-border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent"
                     value={selectedOrgId}
                     onChange={(e) => setSelectedOrgId(e.target.value)}
-                    disabled={loading}
                   >
-                    <option value="" disabled>{loading ? 'Cargando organizaciones...' : 'Selecciona una opción...'}</option>
-                    {organizations.map((org: any) => (
+                    <option value="" disabled>Selecciona una opción...</option>
+                    {MOCK_ORGANIZATIONS.map((org) => (
                       <option key={org.id} value={org.id}>
                         {org.name}
                       </option>

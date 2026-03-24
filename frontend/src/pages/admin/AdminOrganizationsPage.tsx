@@ -1,12 +1,10 @@
+import { MOCK_ORGANIZATIONS } from '@/data/mock';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Building2, Search, Plus, Loader2 } from 'lucide-react';
+import { Building2, Search, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useOrganizations } from '@/lib/api';
 
 export default function AdminOrganizationsPage() {
-  const { data: organizations, loading } = useOrganizations();
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -28,12 +26,8 @@ export default function AdminOrganizationsPage() {
             <Building2 className="w-4 h-4 text-brand-primary" />
           </CardHeader>
           <CardContent>
-            {loading ? <Loader2 className="animate-spin w-6 h-6 text-gray-400" /> : (
-              <>
-                <div className="text-2xl font-bold">{organizations.length}</div>
-                <p className="text-xs text-green-600 mt-1 flex items-center gap-1">+2 este mes</p>
-              </>
-            )}
+            <div className="text-2xl font-bold">{MOCK_ORGANIZATIONS.length}</div>
+            <p className="text-xs text-green-600 mt-1 flex items-center gap-1">+2 este mes</p>
           </CardContent>
         </Card>
       </div>
@@ -66,13 +60,7 @@ export default function AdminOrganizationsPage() {
                 </tr>
               </thead>
               <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                      Cargando organizaciones...
-                    </td>
-                  </tr>
-                ) : organizations.map((org: any) => (
+                {MOCK_ORGANIZATIONS.map((org) => (
                   <tr key={org.id} className="bg-white border-b border-surface-border hover:bg-surface-background transition-colors">
                     <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-bold text-xs">
@@ -90,7 +78,7 @@ export default function AdminOrganizationsPage() {
                     </td>
                   </tr>
                 ))}
-                {!loading && organizations.length === 0 && (
+                {MOCK_ORGANIZATIONS.length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
                       No hay organizaciones registradas.
