@@ -31,7 +31,37 @@ model Organization {
   persons         Person[]   // Directorio de personas de la organización
   events          Event[]
   globalSponsorships SponsorshipWallet[] // Bolsa global de la organización
+  paymentMethods  OrganizationPaymentMethod[] // Métodos de cobro de la organización
   providers       Provider[] // Fase 2
+}
+
+// Catálogo Global de Métodos de Pago (ZELLE, Pago Móvil, Transferencia, etc.)
+model PaymentMethod {
+  id              String   @id @default(uuid())
+  name            String   // Ej. "ZELLE", "Pago Móvil"
+  currency        String   // Ej. "USD", "VES"
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organizationMethods OrganizationPaymentMethod[]
+}
+
+// Métodos de Pago configurados por cada Organización
+model OrganizationPaymentMethod {
+  id              String   @id @default(uuid())
+  organizationId  String
+  paymentMethodId String
+  details         Json     // Datos dinámicos (correo, teléfono, Cédula, cuenta, etc.)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organization    Organization  @relation(fields: [organizationId], references: [id])
+  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+  transactions    Transaction[]
+
+  @@unique([organizationId, paymentMethodId]) // Opcional: una organización podría tener múltiples cuentas del mismo método, si es necesario, remover este unique.
 }
 
 // Usuarios administradores del sistema para la organización
@@ -194,7 +224,7 @@ model Transaction {
   currencyOriginal String  // "USD", "EUR", "MXN", etc.
   exchangeRate    Decimal  // Tasa de cambio aplicada ese día
   amountBase      Decimal  // Monto equivalente exacto en la moneda base del sistema
-  paymentMethod   String   // "Efectivo", "Zelle", "Transferencia"
+  organizationPaymentMethodId String? // Referencia al método de pago usado (Zelle, Pago Móvil, etc.)
   receiptNumber   String   @unique @default(uuid()) // Comprobante único
   type            TransactionType // "DIRECT_PAYMENT" | "DONATION" | "SPONSORSHIP_ALLOCATION"
   date            DateTime @default(now())
@@ -202,6 +232,7 @@ model Transaction {
 
   enrollment      Enrollment? @relation(fields: [enrollmentId], references: [id])
   wallet          SponsorshipWallet? @relation(fields: [walletId], references: [id])
+  organizationPaymentMethod OrganizationPaymentMethod? @relation(fields: [organizationPaymentMethodId], references: [id])
 }
 
 enum TransactionType {
