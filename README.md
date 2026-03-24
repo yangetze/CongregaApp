@@ -26,24 +26,29 @@ Estamos construyendo CongregaApp por etapas para asegurar la máxima calidad en 
 
 ### Fase 1: MVP (Producto Mínimo Viable)
 
-#### 1. Módulo de Eventos y Presupuestos (🟡 En progreso)
-* Creación de eventos con metas de recaudación y capacidad límite.
-* Configuración de estructuras de costos (Ej: Costo Base, Transporte).
-* Inscripción de participantes con roles específicos (Staff / Inscrito) y tipos de tarifa (Pago Completo, Media Beca, Patrocinio Total).
+#### 1. Módulo de Personas / Directorio CRM (🟡 En progreso)
+* Gestión centralizada de la base de datos de miembros y personal de la organización.
+* Registro de datos personales, cédula, fecha de nacimiento, etc.
+* Definición de relaciones familiares y conexiones entre personas.
 
-#### 2. Módulo de Cuentas por Cobrar e Ingresos (🟡 En progreso)
+#### 2. Módulo de Eventos y Presupuestos (🟡 En progreso)
+* Creación de eventos con metas de recaudación, capacidad límite y reglas de asistencia.
+* Configuración de estructuras de costos (Ej: Costo Base, Transporte).
+* Inscripción de participantes a partir del directorio, con roles específicos (Staff / Inscrito) y tarifas aplicables.
+
+#### 3. Módulo de Cuentas por Cobrar e Ingresos (🟡 En progreso)
 * Registro de abonos directos multidivisa con tasa de cambio.
 * Generación de estados de cuenta detallados por participante.
 * **Motor de Patrocinios:** Recepción de donaciones (Bolsa) y asignación de fondos a deudores sin descuadrar la contabilidad general de ingresos.
 
 ### Fase 2: Visión a Futuro
 
-#### 3. Módulo de Logística y Registro (🔴 Sin iniciar)
+#### 4. Módulo de Logística y Registro (🔴 Sin iniciar)
 * Ficha médica global y específica por evento (Alergias, condiciones).
 * Asignación a grupos logísticos (Cabañas, Habitaciones, Equipos).
 * Control de acceso (Check-in / Check-out).
 
-#### 4. Módulo de Cuentas por Pagar (🔴 Sin iniciar)
+#### 5. Módulo de Cuentas por Pagar (🔴 Sin iniciar)
 * Gestión del catálogo de proveedores del evento.
 * Registro de facturas, compromisos y conceptos a pagar.
 * Emisión de pagos y abonos a proveedores.

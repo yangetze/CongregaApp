@@ -27,25 +27,82 @@ model Organization {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  users           User[]
+  users           User[]     // Administradores del sistema
+  persons         Person[]   // Directorio de personas de la organización
   events          Event[]
   globalSponsorships SponsorshipWallet[] // Bolsa global de la organización
   providers       Provider[] // Fase 2
 }
 
+// Usuarios administradores del sistema para la organización
 model User {
   id              String   @id @default(uuid())
   organizationId  String
   email           String   @unique
+  passwordHash    String?
+  firstName       String
+  lastName        String
+  role            String   @default("ADMIN") // ADMIN, MANAGER, etc.
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organization    Organization @relation(fields: [organizationId], references: [id])
+}
+
+// ==============================================================================
+// MÓDULO DE PERSONAS (DIRECTORIO / CRM)
+// ==============================================================================
+
+model Person {
+  id              String   @id @default(uuid())
+  organizationId  String
+  documentId      String?  // Cédula o Documento de Identidad
+  email           String?
   firstName       String
   lastName        String
   phone           String?
+  birthDate       DateTime?
+  gender          Gender?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   organization    Organization @relation(fields: [organizationId], references: [id])
   enrollments     Enrollment[]
   medicalRecord   MedicalRecord? // Fase 2
+
+  // Relaciones bidireccionales
+  relationships   Relationship[] @relation("PersonToRelationship")
+  relatedTo       Relationship[] @relation("RelatedPersonToRelationship")
+
+  @@unique([organizationId, email])
+  @@unique([organizationId, documentId])
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+model Relationship {
+  id              String   @id @default(uuid())
+  personId        String
+  relatedPersonId String
+  relationshipType RelationshipType
+  createdAt       DateTime @default(now())
+
+  person          Person   @relation("PersonToRelationship", fields: [personId], references: [id])
+  relatedPerson   Person   @relation("RelatedPersonToRelationship", fields: [relatedPersonId], references: [id])
+
+  @@unique([personId, relatedPersonId])
+}
+
+enum RelationshipType {
+  PARENT
+  CHILD
+  SIBLING
+  SPOUSE
+  OTHER
 }
 
 // ==============================================================================
@@ -60,6 +117,12 @@ model Event {
   endDate         DateTime
   totalCapacity   Int      // Límite de cupos totales
   fundraisingGoal Decimal  @default(0.0) // Meta de recaudación general
+
+  // Reglas de inscripción (Alertas/Restricciones)
+  targetGender    Gender?  // MALE, FEMALE o null para ambos
+  minAge          Int?
+  maxAge          Int?
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -82,11 +145,11 @@ model CostStructure {
   event           Event    @relation(fields: [eventId], references: [id])
 }
 
-// Representa la participación de un usuario en un evento específico con su rol y tarifa
+// Representa la participación de una persona en un evento específico con su rol y tarifa
 model Enrollment {
   id              String   @id @default(uuid())
   eventId         String
-  userId          String
+  personId        String
   role            RoleType // "STAFF" | "ATTENDEE"
   tariffType      TariffType // "FULL_PAYMENT" | "HALF_SCHOLARSHIP" | "FULLY_SPONSORED"
   totalCost       Decimal  // Suma de los CostStructure aplicables
@@ -96,10 +159,10 @@ model Enrollment {
   updatedAt       DateTime @updatedAt
 
   event           Event    @relation(fields: [eventId], references: [id])
-  user            User     @relation(fields: [userId], references: [id])
+  person          Person   @relation(fields: [personId], references: [id])
   transactions    Transaction[]
 
-  @@unique([eventId, userId]) // Un usuario solo puede inscribirse una vez por evento
+  @@unique([eventId, personId]) // Una persona solo puede inscribirse una vez por evento
 }
 
 enum RoleType {
@@ -171,13 +234,13 @@ model SponsorshipWallet {
 // MÓDULO 3: LOGÍSTICA
 model MedicalRecord {
   id              String   @id @default(uuid())
-  userId          String   @unique
+  personId        String   @unique
   allergies       String?
   conditions      String?
   activeTreatments String?
   updatedAt       DateTime @updatedAt
 
-  user            User     @relation(fields: [userId], references: [id])
+  person          Person   @relation(fields: [personId], references: [id])
 }
 
 model LogisticGroup {

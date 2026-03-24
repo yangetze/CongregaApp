@@ -19,9 +19,10 @@ Se introducirá la entidad `Organization` (Iglesia/Campamento principal). Todas 
 ## Estructura de Módulos (Roadmap)
 
 ### Fase 1: MVP
-* **Módulo 1: Configuración de Eventos y Presupuestos.** Creación de eventos, metas financieras, desglose de costos y configuración de roles vs tarifas ("Staff" y "Inscrito"). Los roles son específicos por evento, permitiendo a los usuarios rotar sus funciones entre distintas actividades.
-* **Módulo 2: Cuentas por Cobrar (Ingresos y Abonos).** Registro de pagos multidivisa fraccionados, estados de cuenta de participantes (Pendiente, Solvente), Motor de Patrocinios (manejo de fondos dedicados y generales), y generación de recibos.
+* **Módulo 1: Módulo de Personas (Directorio / CRM).** Gestión centralizada de la base de datos de miembros, asistentes y personal de la organización. Registro de datos personales, identificación por cédula/email y establecimiento de relaciones familiares (padre, hijo, cónyuge, etc.). Esta entidad es la base para inscripciones futuras.
+* **Módulo 2: Configuración de Eventos y Presupuestos.** Creación de eventos con reglas de asistencia (ej. rango de edad, género), metas financieras, desglose de costos y configuración de roles vs tarifas ("Staff" y "Inscrito"). Los roles son específicos por evento, permitiendo a las personas rotar sus funciones entre distintas actividades.
+* **Módulo 3: Cuentas por Cobrar (Ingresos y Abonos).** Registro de pagos multidivisa fraccionados, estados de cuenta de participantes (Pendiente, Solvente), Motor de Patrocinios (manejo de fondos dedicados y generales), y generación de recibos.
 
 ### Fase 2: Visión a Futuro
-* **Módulo 3: Logística y Registro del Participante.** Ficha médica global y por evento, asignación a grupos logísticos (cabañas, habitaciones), y control de Check-in/Check-out.
-* **Módulo 4: Cuentas por Pagar (Egresos y Proveedores).** Gestión de proveedores del evento, registro de facturas/compromisos y emisión de pagos/abonos a proveedores.
+* **Módulo 4: Logística y Registro del Participante.** Ficha médica global y por evento, asignación a grupos logísticos (cabañas, habitaciones), y control de Check-in/Check-out.
+* **Módulo 5: Cuentas por Pagar (Egresos y Proveedores).** Gestión de proveedores del evento, registro de facturas/compromisos y emisión de pagos/abonos a proveedores.

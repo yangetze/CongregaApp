@@ -1,20 +1,66 @@
 # Endpoints de la API (REST) - Fase 1 (MVP)
 
-A continuación, se define la estructura de las rutas necesarias para que el Frontend consuma los módulos de Eventos y Cuentas por Cobrar. Todas las rutas asumirán que existe un middleware de autenticación que inyecta el `organizationId` a partir del token del usuario (ej. JWT).
+A continuación, se define la estructura de las rutas necesarias para que el Frontend consuma los módulos de Personas, Eventos y Cuentas por Cobrar. Todas las rutas asumirán que existe un middleware de autenticación que inyecta el `organizationId` a partir del token del usuario administrador (ej. JWT).
 
-## Módulo 1: Eventos y Presupuestos
+## Módulo 1: Personas (Directorio / CRM)
 
-### 1. Crear un Evento
-* **Ruta:** `POST /api/events`
-* **Descripción:** Crea un evento con metas de recaudación, capacidad y estructura de costos inicial.
+### 1. Crear / Registrar a una Persona
+* **Ruta:** `POST /api/persons`
+* **Descripción:** Agrega un nuevo registro al directorio de la organización.
 * **Payload (Body):**
   ```json
   {
-    "name": "Campamento de Verano 2024",
+    "firstName": "Juan",
+    "lastName": "Pérez",
+    "email": "juan@example.com",
+    "documentId": "V-12345678",
+    "phone": "+1234567890",
+    "birthDate": "1990-05-15T00:00:00Z",
+    "gender": "MALE"
+  }
+  ```
+* **Respuesta (201 Created):**
+  ```json
+  {
+    "id": "person-uuid",
+    "firstName": "Juan",
+    "lastName": "Pérez",
+    "email": "juan@example.com"
+  }
+  ```
+
+### 2. Buscar o Listar Personas
+* **Ruta:** `GET /api/persons`
+* **Query Params:** `?email=juan@example.com` o `?documentId=V-12345678` o `?search=Juan`
+* **Descripción:** Permite autocompletar formularios verificando si la persona ya existe antes de inscribirla en un evento o crear un duplicado.
+
+### 3. Establecer Relación Familiar
+* **Ruta:** `POST /api/persons/:personId/relationships`
+* **Descripción:** Crea un nexo entre dos personas. El backend debe asegurar que la relación es lógica o bidireccional si aplica (ej. si se asigna PARENT, el otro es CHILD).
+* **Payload (Body):**
+  ```json
+  {
+    "relatedPersonId": "person-uuid-2",
+    "relationshipType": "PARENT" // "PARENT", "CHILD", "SPOUSE", "SIBLING"
+  }
+  ```
+* **Respuesta (201 Created):** Datos de la relación creada.
+
+## Módulo 2: Eventos y Presupuestos
+
+### 4. Crear un Evento
+* **Ruta:** `POST /api/events`
+* **Descripción:** Crea un evento con metas de recaudación, capacidad, estructura de costos inicial y reglas opcionales (género/edad).
+* **Payload (Body):**
+  ```json
+  {
+    "name": "Retiro de Mujeres 2024",
     "startDate": "2024-07-15T00:00:00Z",
     "endDate": "2024-07-20T00:00:00Z",
     "totalCapacity": 150,
     "fundraisingGoal": 5000.00,
+    "targetGender": "FEMALE",
+    "minAge": 18,
     "costStructures": [
       { "name": "Costo Base", "amount": 100.00, "isRequired": true },
       { "name": "Transporte", "amount": 25.00, "isRequired": true }
@@ -32,17 +78,17 @@ A continuación, se define la estructura de las rutas necesarias para que el Fro
   }
   ```
 
-### 2. Obtener Lista de Eventos
+### 5. Obtener Lista de Eventos
 * **Ruta:** `GET /api/events`
 * **Respuesta (200 OK):** Arreglo de eventos de la organización.
 
-### 3. Inscribir Participante en Evento
+### 6. Inscribir Participante en Evento
 * **Ruta:** `POST /api/events/:eventId/enrollments`
-* **Descripción:** Asocia un usuario a un evento definiendo su rol y esquema de pago.
+* **Descripción:** Asocia una persona (Person) a un evento definiendo su rol y esquema de pago. El endpoint debería validar las reglas del evento (targetGender, minAge, maxAge) y retornar un _warning_ o error si no se cumplen.
 * **Payload (Body):**
   ```json
   {
-    "userId": "user-uuid",
+    "personId": "person-uuid",
     "role": "ATTENDEE", // o "STAFF"
     "tariffType": "FULL_PAYMENT" // o "HALF_SCHOLARSHIP", "FULLY_SPONSORED"
   }
@@ -52,7 +98,7 @@ A continuación, se define la estructura de las rutas necesarias para que el Fro
   {
     "id": "enrollment-uuid",
     "eventId": "event-uuid",
-    "userId": "user-uuid",
+    "personId": "person-uuid",
     "role": "ATTENDEE",
     "tariffType": "FULL_PAYMENT",
     "totalCost": 125.00,
@@ -61,7 +107,7 @@ A continuación, se define la estructura de las rutas necesarias para que el Fro
   }
   ```
 
-### 4. Obtener Estado de Cuenta del Participante
+### 7. Obtener Estado de Cuenta del Participante
 * **Ruta:** `GET /api/enrollments/:enrollmentId`
 * **Respuesta (200 OK):**
   ```json
@@ -71,9 +117,9 @@ A continuación, se define la estructura de las rutas necesarias para que el Fro
   }
   ```
 
-## Módulo 2: Cuentas por Cobrar (Ingresos y Abonos)
+## Módulo 3: Cuentas por Cobrar (Ingresos y Abonos)
 
-### 5. Registrar un Abono Directo (Pago de un Inscrito)
+### 8. Registrar un Abono Directo (Pago de un Inscrito)
 * **Ruta:** `POST /api/enrollments/:enrollmentId/transactions`
 * **Descripción:** Registra un pago hecho por un usuario inscrito.
 * **Payload (Body):**
@@ -96,7 +142,7 @@ A continuación, se define la estructura de las rutas necesarias para que el Fro
   }
   ```
 
-### 6. Recibir Donación (Ingreso a la Bolsa de Patrocinios)
+### 9. Recibir Donación (Ingreso a la Bolsa de Patrocinios)
 * **Ruta:** `POST /api/sponsorships`
 * **Descripción:** Ingresa dinero no asignado a la "Bolsa". Puede ser para un evento o global.
 * **Payload (Body):**
@@ -112,7 +158,7 @@ A continuación, se define la estructura de las rutas necesarias para que el Fro
   ```
 * **Respuesta (201 Created):** Datos de la transacción tipo "DONATION" y actualización del `SponsorshipWallet`.
 
-### 7. Asignar Dinero de la Bolsa a un Deudor (Motor de Patrocinios)
+### 10. Asignar Dinero de la Bolsa a un Deudor (Motor de Patrocinios)
 * **Ruta:** `POST /api/sponsorships/:walletId/allocate`
 * **Descripción:** El administrador fracciona la bolsa para pagar parte de la deuda de un inscrito.
 * **Payload (Body):**
