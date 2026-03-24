@@ -1,23 +1,37 @@
-import { PeopleList, CreatePerson } from './pages/people/PeoplePage';
-import { EventsList, CreateEvent } from './pages/events/EventsPage';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import AdminLayout from './pages/admin/AdminLayout';
+import AdminOrganizationsPage from './pages/admin/AdminOrganizationsPage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
+import OrgLayout from './pages/org/OrgLayout';
+import OrgDashboardPage from './pages/org/OrgDashboardPage';
 
 function App() {
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-      <h1>CongregaApp - Module 1 Skeleton (CQRS + Clean Arch)</h1>
-      <div style={{ display: 'flex', gap: '50px' }}>
-        <div>
-          <CreatePerson />
-          <hr />
-          <PeopleList />
-        </div>
-        <div>
-          <CreateEvent />
-          <hr />
-          <EventsList />
-        </div>
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        {/* Pantalla Principal */}
+        <Route path="/" element={<HomePage />} />
+
+        {/* Dashboard Administrador Global */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Navigate to="organizations" replace />} />
+          <Route path="organizations" element={<AdminOrganizationsPage />} />
+          <Route path="users" element={<AdminUsersPage />} />
+        </Route>
+
+        {/* Dashboard Organización */}
+        <Route path="/org/:orgId" element={<OrgLayout />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<OrgDashboardPage />} />
+          <Route path="participants" element={<div className="p-8"><h2 className="text-2xl font-bold">Participantes (Proximamente)</h2></div>} />
+          <Route path="finances" element={<div className="p-8"><h2 className="text-2xl font-bold">Finanzas (Proximamente)</h2></div>} />
+        </Route>
+
+        {/* Fallback 404 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }
 
