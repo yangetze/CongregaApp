@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Users } from 'lucide-react';
 
 export default function OrgCreateEventPage() {
     const { orgId } = useParams();
@@ -16,12 +16,25 @@ export default function OrgCreateEventPage() {
     const [capacity, setCapacity] = useState('100');
     const [hasCost, setHasCost] = useState(false);
 
+    const [isMultiDay, setIsMultiDay] = useState(false);
+
     // Dynamic Requirements
     const [requirements, setRequirements] = useState<Array<{key: string, value: string}>>([]);
     const availableReqKeys = ['minAge', 'maxAge', 'targetGender', 'requiresDocumentId'];
 
     // Budget / Costs
     const [costs, setCosts] = useState<Array<{name: string, amount: string, isMandatory: boolean}>>([]);
+
+    // Organizers
+    const [organizers, setOrganizers] = useState<string[]>([]);
+    const [people, setPeople] = useState<any[]>([]);
+
+    useEffect(() => {
+        fetch(`http://localhost:3000/api/people?organizationId=${orgId}`)
+            .then(res => res.json())
+            .then(data => setPeople(data))
+            .catch(console.error);
+    }, [orgId]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -46,15 +59,19 @@ export default function OrgCreateEventPage() {
             isMandatory: c.isMandatory
         }));
 
+        const finalEndDate = isMultiDay ? endDate : startDate;
+
         const data = {
             name,
             startDate,
-            endDate,
+            endDate: finalEndDate,
             totalCapacity: Number(capacity),
             organizationId: orgId,
             hasCost,
             requirements: reqObj,
-            costs: formattedCosts
+            costs: formattedCosts,
+            statusId: 'DRAFT',
+            organizers: organizers
         };
 
         try {
@@ -100,17 +117,27 @@ export default function OrgCreateEventPage() {
                             <input required type="text" className="w-full p-2 border rounded-lg"
                                 value={name} onChange={e => setName(e.target.value)} placeholder="Ej. Campamento Juvenil 2025" />
                         </div>
+                        <div className="flex items-center gap-2 mt-2">
+                            <input type="checkbox" id="multiDay" className="rounded text-brand-primary"
+                                checked={isMultiDay} onChange={(e) => setIsMultiDay(e.target.checked)} />
+                            <label htmlFor="multiDay" className="text-sm font-medium text-gray-700 cursor-pointer">
+                                ¿El evento dura varios días?
+                            </label>
+                        </div>
+
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de Inicio *</label>
                                 <input required type="date" className="w-full p-2 border rounded-lg"
                                     value={startDate} onChange={e => setStartDate(e.target.value)} />
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de Fin *</label>
-                                <input required type="date" className="w-full p-2 border rounded-lg"
-                                    value={endDate} onChange={e => setEndDate(e.target.value)} />
-                            </div>
+                            {isMultiDay && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de Fin *</label>
+                                    <input required type="date" className="w-full p-2 border rounded-lg"
+                                        value={endDate} onChange={e => setEndDate(e.target.value)} />
+                                </div>
+                            )}
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
@@ -125,6 +152,36 @@ export default function OrgCreateEventPage() {
                                     <span className="text-sm font-medium text-gray-900">El evento tiene costo</span>
                                 </label>
                             </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Organizadores (Staff)</label>
+                            <div className="border rounded-lg p-3 space-y-2 max-h-40 overflow-y-auto bg-gray-50">
+                                {people.length === 0 ? (
+                                    <p className="text-sm text-gray-500 italic">No hay personas registradas en la organización.</p>
+                                ) : (
+                                    people.map(person => (
+                                        <label key={person.id} className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                className="rounded text-brand-primary"
+                                                checked={organizers.includes(person.id)}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setOrganizers([...organizers, person.id]);
+                                                    } else {
+                                                        setOrganizers(organizers.filter(id => id !== person.id));
+                                                    }
+                                                }}
+                                            />
+                                            <span className="text-sm font-medium text-gray-900">
+                                                {person.firstName} {person.lastName} {person.documentId ? `(${person.documentId})` : ''}
+                                            </span>
+                                        </label>
+                                    ))
+                                )}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">Las personas seleccionadas serán añadidas automáticamente como STAFF al evento.</p>
                         </div>
                     </CardContent>
                 </Card>

@@ -13,7 +13,7 @@ export class EventController {
 
     createEvent = async (req: Request, res: Response): Promise<void> => {
         try {
-            const { name, startDate, endDate, totalCapacity, organizationId, hasCost, requirements, costs } = req.body;
+            const { name, startDate, endDate, totalCapacity, organizationId, hasCost, requirements, costs, statusId, organizers } = req.body;
             const command = new CreateEventCommand(
                 name,
                 new Date(startDate),
@@ -22,9 +22,19 @@ export class EventController {
                 organizationId,
                 hasCost,
                 requirements,
-                costs
+                costs,
+                statusId
             );
             const id = await this.commandBus.execute("CreateEventCommand", command);
+
+            // Enroll organizers if provided
+            if (organizers && Array.isArray(organizers)) {
+                for (const organizerId of organizers) {
+                    const enrollCommand = new EnrollPersonCommand(String(id), organizerId, "STAFF");
+                    await this.commandBus.execute("EnrollPersonCommand", enrollCommand);
+                }
+            }
+
             res.status(201).json({ id, message: "Event created successfully" });
         } catch (error: any) {
             res.status(500).json({ error: error.message });

@@ -7,6 +7,7 @@ import { CalendarDays, Users, Search, Plus, ArrowLeft, Mail, Phone, Ticket } fro
 
 interface EventData {
     id: string;
+    sequentialId?: number;
     name: string;
     startDate: string;
     endDate: string;
@@ -128,7 +129,21 @@ export default function OrgEventDetailsPage() {
             const personData = await personRes.json();
 
             // 2. Enroll Person
-            await handleEnroll(personData.id);
+            const enrollRes = await fetch(`http://localhost:3000/api/events/${eventId}/enroll`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ personId: personData.id, role: selectedRole })
+            });
+
+            if (enrollRes.ok) {
+                alert('¡Inscripción exitosa!');
+                setIsEnrollmentMode(false);
+                setDocumentSearch('');
+                setFoundPerson(null);
+                setIsCreatingNewPerson(false);
+            } else {
+                alert('Error al inscribir persona. Puede que ya esté inscrita.');
+            }
 
         } catch (error) {
             console.error(error);
@@ -150,6 +165,11 @@ export default function OrgEventDetailsPage() {
                     <div>
                         <div className="flex items-center gap-3">
                             <h1 className="text-3xl font-bold tracking-tight text-gray-900">{event.name}</h1>
+                            {event.sequentialId && (
+                                <Badge variant="default" className="bg-brand-primary text-white text-sm">
+                                    Evento #{event.sequentialId}
+                                </Badge>
+                            )}
                             {event.hasCost && <Badge variant="warning">Tiene Costo</Badge>}
                         </div>
                         <p className="text-gray-500 mt-1 flex items-center gap-2">
