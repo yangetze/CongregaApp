@@ -7,11 +7,15 @@ import { QueryBus } from "./shared/cqrs/QueryBus";
 
 import { InMemoryPersonRepository } from "./infrastructure/repositories/InMemoryPersonRepository";
 import { InMemoryEventRepository } from "./infrastructure/repositories/InMemoryEventRepository";
+import { InMemoryEnrollmentRepository } from "./infrastructure/repositories/InMemoryEnrollmentRepository";
 
 // Application Handlers
 import { CreatePersonCommandHandler } from "./application/commands/CreatePerson";
 import { GetPeopleQueryHandler } from "./application/queries/GetPeople";
+import { GetPersonByDocumentQueryHandler } from "./application/queries/GetPersonByDocument";
+import { GetPersonEnrollmentsQueryHandler } from "./application/queries/GetPersonEnrollments";
 import { CreateEventCommandHandler } from "./application/commands/CreateEvent";
+import { EnrollPersonCommandHandler } from "./application/commands/EnrollPerson";
 import { GetEventsQueryHandler } from "./application/queries/GetEvents";
 
 // Controllers
@@ -29,12 +33,16 @@ const queryBus = new QueryBus();
 // Initialize Repositories (In-Memory)
 const personRepository = new InMemoryPersonRepository();
 const eventRepository = new InMemoryEventRepository();
+const enrollmentRepository = new InMemoryEnrollmentRepository();
 
 // Register Handlers
 commandBus.register("CreatePersonCommand", new CreatePersonCommandHandler(personRepository));
 queryBus.register("GetPeopleQuery", new GetPeopleQueryHandler(personRepository));
+queryBus.register("GetPersonByDocumentQuery", new GetPersonByDocumentQueryHandler(personRepository));
+queryBus.register("GetPersonEnrollmentsQuery", new GetPersonEnrollmentsQueryHandler(enrollmentRepository));
 
 commandBus.register("CreateEventCommand", new CreateEventCommandHandler(eventRepository));
+commandBus.register("EnrollPersonCommand", new EnrollPersonCommandHandler(enrollmentRepository));
 queryBus.register("GetEventsQuery", new GetEventsQueryHandler(eventRepository));
 
 // Initialize Controllers
@@ -44,11 +52,16 @@ const eventController = new EventController(commandBus, queryBus);
 // Routes
 const apiRouter = express.Router();
 
-apiRouter.post("/people", personController.createPerson);
-// apiRouter.get("/people", personController.getPeople);
+// Ensure these functions correctly map to express request handler types using bind if needed or arrow functions.
+// Because the handlers are defined as arrow functions in the class, binding isn't strictly necessary, but using an explicit wrap helps prevent TypeError.
+apiRouter.post("/people", (req, res) => personController.createPerson(req, res));
+apiRouter.get("/people/document/:documentId", (req, res) => personController.getByDocument(req, res));
+apiRouter.get("/people/:personId/enrollments", (req, res) => personController.getEnrollments(req, res));
+apiRouter.get("/people", (req, res) => personController.getPeople(req, res));
 
-apiRouter.post("/events", eventController.createEvent);
-// apiRouter.get("/events", eventController.getEvents);
+apiRouter.post("/events", (req, res) => eventController.createEvent(req, res));
+apiRouter.post("/events/:eventId/enroll", (req, res) => eventController.enrollPerson(req, res));
+apiRouter.get("/events", (req, res) => eventController.getEvents(req, res));
 
 // --- MOCK API FOR UI DEMO ---
 import fs from "fs";
@@ -67,28 +80,6 @@ apiRouter.get("/organizations", (req, res) => {
 apiRouter.get("/users", (req, res) => {
   const data = getMockData();
   res.json(data.users);
-});
-
-apiRouter.get("/events", (req, res) => {
-  const data = getMockData();
-  let events = data.events;
-
-  if (req.query.organizationId) {
-    events = events.filter((e: any) => e.organizationId === req.query.organizationId);
-  }
-
-  res.json(events);
-});
-
-apiRouter.get("/people", (req, res) => {
-  const data = getMockData();
-  let people = data.people;
-
-  if (req.query.organizationId) {
-    people = people.filter((p: any) => p.organizationId === req.query.organizationId);
-  }
-
-  res.json(people);
 });
 
 apiRouter.get("/transactions", (req, res) => {
