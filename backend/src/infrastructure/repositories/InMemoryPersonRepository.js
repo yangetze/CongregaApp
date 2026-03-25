@@ -12,6 +12,9 @@ class InMemoryPersonRepository {
     async findById(id) {
         return this.persons.find(p => p.id === id) || null;
     }
+    async findByDocumentId(documentId) {
+        return this.persons.find(p => p.documentId === documentId) || null;
+    }
 }
 exports.InMemoryPersonRepository = InMemoryPersonRepository;
 //# sourceMappingURL=InMemoryPersonRepository.js.map

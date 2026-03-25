@@ -5,5 +5,6 @@ export declare class InMemoryEventRepository implements IEventRepository {
     save(event: Event): Promise<void>;
     findAll(): Promise<Event[]>;
     findById(id: string): Promise<Event | null>;
+    getNextSequentialId(organizationId: string): Promise<number>;
 }
 //# sourceMappingURL=InMemoryEventRepository.d.ts.map

@@ -20,7 +20,7 @@ describe("CreatePersonCommandHandler", () => {
         // Assert
         expect(id).toBeDefined();
         expect(allPeople.length).toBe(1);
-        expect(allPeople[0].firstName).toBe("John");
-        expect(allPeople[0].email).toBe("john.doe@example.com");
+        expect(allPeople[0]!.firstName).toBe("John");
+        expect(allPeople[0]!.email).toBe("john.doe@example.com");
     });
 });

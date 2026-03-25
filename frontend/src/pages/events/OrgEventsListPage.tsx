@@ -77,7 +77,10 @@ export default function OrgEventsListPage() {
                                 </div>
                                 <div className="text-sm text-gray-500 flex items-center gap-2 mt-2">
                                     <CalendarDays className="w-4 h-4" />
-                                    {new Date(event.startDate).toLocaleDateString()}
+                                    {new Date(event.startDate).toLocaleDateString() === new Date(event.endDate).toLocaleDateString()
+                                        ? new Date(event.startDate).toLocaleDateString()
+                                        : `${new Date(event.startDate).toLocaleDateString()} - ${new Date(event.endDate).toLocaleDateString()}`
+                                    }
                                 </div>
                             </CardHeader>
                             <CardContent className="pt-0 flex justify-between items-center text-sm font-medium">

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Event = exports.CostStructure = void 0;
+exports.Enrollment = exports.EnrollmentRole = exports.Event = exports.TicketStructure = exports.CostStructure = void 0;
 class CostStructure {
     name;
     amount;
@@ -12,23 +12,65 @@ class CostStructure {
     }
 }
 exports.CostStructure = CostStructure;
+class TicketStructure {
+    name;
+    price;
+    quantity;
+    constructor(name, price, quantity) {
+        this.name = name;
+        this.price = price;
+        this.quantity = quantity;
+    }
+}
+exports.TicketStructure = TicketStructure;
 class Event {
     id;
+    sequentialId;
     name;
     startDate;
     endDate;
     totalCapacity;
     organizationId;
+    hasCost;
+    requirements;
     costs;
-    constructor(id, name, startDate, endDate, totalCapacity, organizationId, costs = []) {
+    tickets;
+    statusId;
+    constructor(id, sequentialId, name, startDate, endDate, totalCapacity, organizationId, hasCost = false, requirements = {}, costs = [], tickets = [], statusId = "DRAFT" // default status
+    ) {
         this.id = id;
+        this.sequentialId = sequentialId;
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
         this.totalCapacity = totalCapacity;
         this.organizationId = organizationId;
+        this.hasCost = hasCost;
+        this.requirements = requirements;
         this.costs = costs;
+        this.tickets = tickets;
+        this.statusId = statusId;
     }
 }
 exports.Event = Event;
+var EnrollmentRole;
+(function (EnrollmentRole) {
+    EnrollmentRole["STAFF"] = "STAFF";
+    EnrollmentRole["PARTICIPANT"] = "PARTICIPANT";
+})(EnrollmentRole || (exports.EnrollmentRole = EnrollmentRole = {}));
+class Enrollment {
+    id;
+    eventId;
+    personId;
+    role;
+    createdAt;
+    constructor(id, eventId, personId, role = EnrollmentRole.PARTICIPANT, createdAt = new Date()) {
+        this.id = id;
+        this.eventId = eventId;
+        this.personId = personId;
+        this.role = role;
+        this.createdAt = createdAt;
+    }
+}
+exports.Enrollment = Enrollment;
 //# sourceMappingURL=Event.js.map

@@ -1,5 +1,5 @@
 import { ICommand, ICommandHandler } from "../../shared/cqrs/CommandBus";
-import { Event, CostStructure } from "../../domain/Event";
+import { Event, CostStructure, TicketStructure } from "../../domain/Event";
 
 import { EventRequirements } from "../../domain/Event";
 
@@ -8,11 +8,12 @@ export class CreateEventCommand implements ICommand {
         public readonly name: string,
         public readonly startDate: Date,
         public readonly endDate: Date,
-        public readonly totalCapacity: number,
+        public readonly totalCapacity: number | null,
         public readonly organizationId: string,
         public readonly hasCost: boolean = false,
         public readonly requirements: EventRequirements = {},
         public readonly costs: { name: string; amount: number; isMandatory: boolean }[] = [],
+        public readonly tickets: { name: string; price: number; quantity: number }[] = [],
         public readonly statusId: string = "DRAFT"
     ) {}
 }
@@ -35,6 +36,10 @@ export class CreateEventCommandHandler implements ICommandHandler<CreateEventCom
             c => new CostStructure(c.name, c.amount, c.isMandatory)
         );
 
+        const ticketStructures = command.tickets.map(
+            t => new TicketStructure(t.name, t.price, t.quantity)
+        );
+
         const event = new Event(
             id,
             sequentialId,
@@ -46,6 +51,7 @@ export class CreateEventCommandHandler implements ICommandHandler<CreateEventCom
             command.hasCost,
             command.requirements,
             costStructures,
+            ticketStructures,
             command.statusId
         );
 
