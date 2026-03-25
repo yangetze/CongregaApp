@@ -156,7 +156,7 @@ model Event {
   name            String
   startDate       DateTime
   endDate         DateTime
-  totalCapacity   Int?     @default(10) // Límite por defecto
+  totalCapacity   Int?     // Límite dinámico calculado como la suma de los TicketStructures
   hasCost         Boolean  @default(false)
   fundraisingGoal Decimal  @default(0.0)
 

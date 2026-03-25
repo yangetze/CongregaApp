@@ -7,7 +7,7 @@
 1.  **Diseño de Endpoints y Validaciones (Controladores):**
     *   Definir DTOs con Zod/Joi para validar la creación de eventos.
     *   Validar la lógica de fechas: Para eventos de un solo día, la fecha de fin se iguala automáticamente a la de inicio en el frontend. Eventos de múltiples días requieren una fecha final explícita mediante un checkbox.
-    *   Asegurar que la capacidad de tickets (`TicketStructure`) no supere la capacidad total del evento (`totalCapacity`), la cual por defecto es de 10 personas.
+    *   Asegurar que la capacidad total del evento (`totalCapacity`) sea calculada dinámicamente a partir de la sumatoria de las capacidades de todos los `TicketStructure`. Si no se proveen tickets, se debe crear uno por defecto (ej. "General", monto 0, cantidad 10).
     *   Implementar un identificador secuencial amigable para cada organización (`sequentialId`, ej. "Evento #1"), distinto a su nombre personalizable.
     *   Manejar los estados del evento: "Borrador" (por defecto), "Activo", "Realizado", y "Cancelado".
 

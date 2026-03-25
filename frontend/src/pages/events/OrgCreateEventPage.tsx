@@ -13,7 +13,6 @@ export default function OrgCreateEventPage() {
     const [name, setName] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [capacity, setCapacity] = useState('10');
     const [hasCost, setHasCost] = useState(false);
 
     const [isMultiDay, setIsMultiDay] = useState(false);
@@ -26,7 +25,12 @@ export default function OrgCreateEventPage() {
     const [costs, setCosts] = useState<Array<{name: string, amount: string, isMandatory: boolean}>>([]);
 
     // Tickets
-    const [tickets, setTickets] = useState<Array<{name: string, price: string, quantity: string}>>([]);
+    const [tickets, setTickets] = useState<Array<{name: string, price: string, quantity: string}>>([
+        { name: 'General', price: '0', quantity: '10' }
+    ]);
+
+    // Calculate Capacity dynamically
+    const calculatedCapacity = tickets.reduce((sum, t) => sum + (Number(t.quantity) || 0), 0);
 
     // Organizers and Participants
     const [organizers, setOrganizers] = useState<string[]>([]);
@@ -65,21 +69,11 @@ export default function OrgCreateEventPage() {
 
         const finalEndDate = isMultiDay ? endDate : startDate;
 
-        // Validate Tickets against capacity
-        const totalTicketCapacity = tickets.reduce((sum, t) => sum + (Number(t.quantity) || 0), 0);
-        const finalCapacity = capacity ? Number(capacity) : 0;
-
-        if (finalCapacity > 0 && totalTicketCapacity > finalCapacity) {
-            alert('La sumatoria de la cantidad de tickets no puede superar la capacidad total del evento.');
-            setIsSubmitting(false);
-            return;
-        }
-
         const data = {
             name,
             startDate,
             endDate: finalEndDate,
-            totalCapacity: capacity ? Number(capacity) : null,
+            totalCapacity: calculatedCapacity,
             organizationId: orgId,
             hasCost,
             requirements: reqObj,
@@ -161,9 +155,9 @@ export default function OrgCreateEventPage() {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Capacidad Total</label>
-                                <input type="number" min="0" className="w-full p-2 border rounded-lg"
-                                    value={capacity} onChange={e => setCapacity(e.target.value)} placeholder="Opcional" />
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Capacidad Total (Calculada)</label>
+                                <input type="number" readOnly className="w-full p-2 border rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
+                                    value={calculatedCapacity} title="La capacidad se calcula automáticamente sumando las cantidades de los tickets" />
                             </div>
                             <div className="flex items-center pt-6">
                                 <label className="flex items-center gap-2 cursor-pointer">
@@ -274,7 +268,7 @@ export default function OrgCreateEventPage() {
                                 </Button>
                             </div>
                         ))}
-                        {tickets.length === 0 && <p className="text-sm text-gray-500 italic">No hay tickets configurados. Se creará un ticket general por defecto si tiene costo.</p>}
+                        {tickets.length === 0 && <p className="text-sm text-gray-500 italic">No hay tickets configurados. Se creará un ticket general por defecto.</p>}
                     </CardContent>
                 </Card>
 
