@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { PersonSearch } from '@/components/PersonSearch';
 
 export default function OrgCreateEventPage() {
     const { orgId } = useParams();
@@ -171,60 +172,24 @@ export default function OrgCreateEventPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Organizadores (Staff)</label>
-                                <div className="border rounded-lg p-3 space-y-2 max-h-40 overflow-y-auto bg-gray-50">
-                                    {people.length === 0 ? (
-                                        <p className="text-sm text-gray-500 italic">No hay personas registradas en la organización.</p>
-                                    ) : (
-                                        people.map(person => (
-                                            <label key={person.id} className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded cursor-pointer">
-                                                <input
-                                                    type="checkbox"
-                                                    className="rounded text-brand-primary"
-                                                    checked={organizers.includes(person.id)}
-                                                    onChange={(e) => {
-                                                        if (e.target.checked) {
-                                                            setOrganizers([...organizers, person.id]);
-                                                        } else {
-                                                            setOrganizers(organizers.filter(id => id !== person.id));
-                                                        }
-                                                    }}
-                                                />
-                                                <span className="text-sm font-medium text-gray-900">
-                                                    {person.firstName} {person.lastName} {person.documentId ? `(${person.documentId})` : ''}
-                                                </span>
-                                            </label>
-                                        ))
-                                    )}
-                                </div>
+                                <PersonSearch
+                                    people={people}
+                                    selectedIds={organizers}
+                                    onSelect={(id) => setOrganizers([...organizers, id])}
+                                    onRemove={(id) => setOrganizers(organizers.filter(oId => oId !== id))}
+                                    placeholder="Buscar organizador por nombre o cédula..."
+                                />
                                 <p className="text-xs text-gray-500 mt-1">Serán añadidas como STAFF.</p>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Participantes (Conocidos)</label>
-                                <div className="border rounded-lg p-3 space-y-2 max-h-40 overflow-y-auto bg-gray-50">
-                                    {people.length === 0 ? (
-                                        <p className="text-sm text-gray-500 italic">No hay personas registradas en la organización.</p>
-                                    ) : (
-                                        people.map(person => (
-                                            <label key={`part-${person.id}`} className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded cursor-pointer">
-                                                <input
-                                                    type="checkbox"
-                                                    className="rounded text-brand-primary"
-                                                    checked={participants.includes(person.id)}
-                                                    onChange={(e) => {
-                                                        if (e.target.checked) {
-                                                            setParticipants([...participants, person.id]);
-                                                        } else {
-                                                            setParticipants(participants.filter(id => id !== person.id));
-                                                        }
-                                                    }}
-                                                />
-                                                <span className="text-sm font-medium text-gray-900">
-                                                    {person.firstName} {person.lastName} {person.documentId ? `(${person.documentId})` : ''}
-                                                </span>
-                                            </label>
-                                        ))
-                                    )}
-                                </div>
+                                <PersonSearch
+                                    people={people}
+                                    selectedIds={participants}
+                                    onSelect={(id) => setParticipants([...participants, id])}
+                                    onRemove={(id) => setParticipants(participants.filter(pId => pId !== id))}
+                                    placeholder="Buscar participante por nombre o cédula..."
+                                />
                                 <p className="text-xs text-gray-500 mt-1">Serán añadidas como PARTICIPANTE.</p>
                             </div>
                         </div>
