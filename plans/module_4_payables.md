@@ -1,27 +1,27 @@
 # Plan de Módulo 4: Cuentas por Pagar (Egresos y Proveedores) (Fase 2)
 
-Este módulo controla los compromisos financieros de la organización o evento con proveedores externos (ej. transporte, alimentación).
+Un evento no se hace solo; requiere proveedores, transporte, alimentos, y servicios técnicos. Este módulo permite tener un control impecable sobre los egresos de la Organización, asegurando que todos los compromisos financieros con terceros se manejen con profesionalismo.
 
 ## Micro-Tareas
 
 1.  **Directorio de Proveedores:**
-    *   Definir DTO para registrar un proveedor a nivel de Organización.
+    *   Definir DTO para centralizar la base de proveedores en la `Organization`.
     *   Implementar controlador y servicio `POST /providers`.
-    *   Listar todos los proveedores `GET /providers`.
+    *   Facilitar una lista de proveedores activos `GET /providers` para asociar gastos a eventos.
 
-2.  **Registro de Compromisos (Cuentas por Pagar):**
-    *   Implementar endpoint `POST /events/:eventId/payable-accounts` para registrar una factura o compromiso asociado a un evento y un proveedor.
-    *   Definir el concepto (`concept`), monto total (`totalAmount`), monto pagado (`paidAmount`), y estado de la cuenta (`PENDING`, `PARTIAL`, `PAID`).
-    *   Asociar el ID del evento y el ID del proveedor (Relaciones Prisma).
+2.  **Registro de Cuentas por Pagar (Compromisos):**
+    *   Implementar endpoint `POST /events/:eventId/payable-accounts` para registrar las facturas o compromisos.
+    *   Capturar el concepto de la cuenta (`concept`), monto total (`totalAmount`), monto abonado (`paidAmount`), y su estado (`PENDING`, `PARTIAL`, `PAID`).
+    *   Mantener una relación clara en la base de datos entre el evento y su respectivo proveedor (Prisma Relations).
 
 3.  **Abonos a Proveedores:**
-    *   Implementar endpoint `POST /payable-accounts/:accountId/payments` para registrar un abono a la cuenta del proveedor.
-    *   Restar del compromiso total el monto pagado (previa conversión de moneda, si aplica).
-    *   Actualizar `paidAmount` y estado a `PARTIAL` o `PAID` (Transacción ACID).
+    *   Registrar un abono hacia la cuenta del proveedor mediante `POST /payable-accounts/:accountId/payments`.
+    *   Validar la conversión de monedas, si el pago a un tercero requiere una divisa diferente.
+    *   Garantizar transacciones ACID al actualizar el `paidAmount` y el estado del compromiso.
 
-4.  **Reportes y Resúmenes:**
-    *   Implementar un endpoint `GET /events/:eventId/payable-accounts` para mostrar un resumen de la deuda total del evento, lo que se ha pagado, y a quién se le debe.
+4.  **Reportes y Resúmenes Claros:**
+    *   Ofrecer un resumen a los Administradores de la Organización `GET /events/:eventId/payable-accounts`, mostrando de forma simple qué falta por pagar, cuánto se ha cubierto y las fechas límite.
 
 5.  **Pruebas (Testing):**
-    *   Verificar que no se puede abonar más del monto total comprometido.
-    *   Pruebas de cambio de divisa (si el pago es multidivisa) para el pago a proveedores.
+    *   Evitar abonos superiores a la deuda del proveedor.
+    *   Verificar el correcto funcionamiento del cambio de divisas al realizar pagos internacionales o con tasas de cambio flotantes.

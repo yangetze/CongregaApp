@@ -2,86 +2,60 @@
 
 ¡Bienvenidos a la guía de estilo de color de CongregaApp! 🎨
 
-Como parte de nuestra arquitectura visual, hemos elegido una paleta de colores que transmite **propósito, calidez y modernidad**. Sabemos que nuestra app será usada tanto por líderes adultos como por jóvenes, y queremos que todos se sientan inspirados y cómodos mientras gestionan sus eventos.
+Como parte de nuestra arquitectura visual enfocada en una **estética moderna de 2025**, hemos elegido una paleta de colores que transmite propósito, calidez y modernidad. Queremos que líderes y jóvenes se sientan inspirados y cómodos gestionando sus eventos gracias a una UI altamente accesible.
 
-A continuación, te presentamos nuestra paleta principal y los colores de estado obligatorios para el dashboard.
+## 🌟 Paleta Principal
 
-## 🌟 Paleta Principal (Violeta y Naranja)
-
-Esta combinación crea una interfaz moderna y atractiva: el violeta aporta un toque de espiritualidad y profundidad, mientras que el naranja coral inyecta energía y llama a la acción.
+Nuestra paleta combina profundidad con energía, creando interfaces claras y vibrantes.
 
 | Rol | Color | Hex | Descripción |
 | :--- | :--- | :--- | :--- |
-| **Primario (Brand)** | Violeta Profundo | `#4C1D95` | Fuerte y distintivo. Ideal para la marca, headers y menús laterales. |
-| **Secundario (Acentos)** | Naranja Coral | `#FB923C` | Perfecto para llamadas a la acción (CTAs) como "Registrar Abono" o "Nuevo Evento". Atrae la mirada al instante. |
-| **Fondo (Background)** | Gris Perla | `#F9FAFB` | Un color suave para el fondo general de la aplicación, evitando cansar la vista. |
-| **Líneas y Bordes** | Gris Claro | `#E5E7EB` | Útil para separar discretamente filas en tablas de participantes o tarjetas de información. |
+| **Primario (Brand)** | Violeta Profundo | `#4C1D95` | Aporta espiritualidad y profundidad. Usado en headers, marca y menús. |
+| **Secundario (Accent)** | Naranja Coral | `#FB923C` | Inyecta energía. Ideal para botones clave y llamadas a la acción (CTAs). |
+| **Fondo (Background)**| Gris Perla | `#F9FAFB` | Color neutro y suave, previene la fatiga visual al usar la aplicación por horas. |
+| **Bordes (Borders)** | Gris Claro | `#E5E7EB` | Separadores limpios y sutiles para tarjetas, tablas y modales. |
 
 ---
 
-## 🚦 Colores de Estado (Dashboard)
+## 🚦 Colores de Estado Semánticos
 
-Dado que CongregaApp maneja un motor de "Cuentas por Cobrar" y temas financieros, necesitamos colores semánticos muy claros para comunicar el estado de las finanzas y los cupos de un vistazo.
+Para facilitar la rápida lectura de la información en el Dashboard y las listas del CRM, hemos definido colores mandatorios. Son vitales para comunicar estados financieros, disponibilidad de tickets y alertas sin necesidad de leer todo el texto.
 
 | Estado | Color | Hex | Uso en el Dashboard |
 | :--- | :--- | :--- | :--- |
-| **Éxito** | Verde Esmeralda | `#10B981` | Solvente, Pago Completo, Meta Alcanzada. |
-| **Alerta** | Amarillo Mostaza | `#F59E0B` | Pago Iniciado, Pendiente, Atención Requerida. |
-| **Peligro** | Rojo Carmesí | `#EF4444` | Deuda, Cupo Bloqueado, Error en la transacción. |
-| **Informativo** | Azul Turquesa | `#06B6D4` | Patrocinios disponibles, Información general. |
+| **Éxito (Success)** | Verde Esmeralda | `#10B981` | Pago Conciliado, Solvente, Evento Activo, Cupos Disponibles. |
+| **Alerta (Warning)** | Ámbar / Mostaza | `#F59E0B` | Pago Pendiente, Por Conciliar, Evento en Borrador, Atención Requerida. |
+| **Peligro (Danger)** | Rojo Carmesí | `#EF4444` | Deuda, Transacción Rechazada, Evento Cancelado, Sin Cupos. |
+| **Info (Info)** | Azul Turquesa | `#06B6D4` | Notificaciones generales, Asignaciones del Motor de Patrocinio. |
 
 ---
 
-## 💻 Ejemplos de Implementación (Tailwind CSS)
+## 💻 Implementación en Tailwind CSS
 
-En nuestro frontend (React + Tailwind CSS), configuraremos estos colores en el archivo `tailwind.config.js`. Aquí te mostramos cómo se verían aplicados en el código:
-
-### Configuración en `tailwind.config.js`:
+En nuestro stack frontend (React + Vite + Tailwind), estos colores se integran fluidamente en el `tailwind.config.js`. ¡Con `lucide-react` para los íconos, la combinación es simplemente espectacular!
 
 ```javascript
+// tailwind.config.js
 module.exports = {
   theme: {
     extend: {
       colors: {
         brand: {
-          primary: '#4C1D95', // Violeta Profundo
-          accent: '#FB923C',  // Naranja Coral
+          primary: '#4C1D95',
+          secondary: '#FB923C',
         },
         surface: {
-          background: '#F9FAFB', // Gris Perla
-          border: '#E5E7EB',     // Gris Claro
+          background: '#F9FAFB',
+          border: '#E5E7EB',
         },
         status: {
-          success: '#10B981', // Verde Esmeralda
-          warning: '#F59E0B', // Amarillo Mostaza
-          danger: '#EF4444',  // Rojo Carmesí
-          info: '#06B6D4',    // Azul Turquesa
+          success: '#10B981',
+          warning: '#F59E0B',
+          danger: '#EF4444',
+          info: '#06B6D4',
         }
       }
     }
   }
 }
 ```
-
-### Ejemplo de uso en un componente React:
-
-```jsx
-// Botón de Acción Principal (CTA)
-<button className="bg-brand-accent hover:bg-orange-500 text-white font-bold py-2 px-4 rounded">
-  Registrar Abono
-</button>
-
-// Tarjeta de Estado de Cuenta (Solvente)
-<div className="bg-white border border-surface-border p-4 rounded shadow">
-  <h3 className="text-brand-primary font-semibold">Estado de Cuenta</h3>
-  <p className="text-status-success mt-2">Solvente (Pago Completo)</p>
-</div>
-
-// Fila de Tabla
-<tr className="border-b border-surface-border hover:bg-surface-background">
-  <td className="py-2 px-4 text-gray-800">Juan Pérez</td>
-  <td className="py-2 px-4 text-status-warning">Pago Pendiente</td>
-</tr>
-```
-
-¡Con estos colores, aseguramos que CongregaApp no solo funcione increíble, sino que también se vea espectacular! ✨

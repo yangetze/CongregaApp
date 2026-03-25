@@ -1,6 +1,6 @@
 # Esquema de Base de Datos (Prisma)
 
-El siguiente es el esquema relacional en formato `Prisma schema` diseñado para PostgreSQL. Contempla el soporte multi-tenancy (Organizaciones), los Módulos 1 y 2 (MVP) y deja las bases sentadas para los Módulos 3 y 4 (Visión a Futuro).
+El siguiente esquema representa la base de datos de CongregaApp, diseñada para un modelo B2B multi-tenant con separación clara de roles y módulos robustos para el MVP.
 
 ```prisma
 // This is your Prisma schema file,
@@ -23,23 +23,23 @@ model Organization {
   id              String   @id @default(uuid())
   name            String
   baseCurrency    String   @default("USD") // Moneda contable oficial
-  exchangeRate    Decimal  @default(1.0)   // Tasa oficial actual (puede sobreescribirse por transacción/evento)
+  exchangeRate    Decimal  @default(1.0)   // Tasa oficial actual
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  users           User[]     // Administradores del sistema
-  persons         Person[]   // Directorio de personas de la organización
+  users           User[]     // Administradores de la plataforma
+  persons         Person[]   // CRM de asistentes
   events          Event[]
-  globalSponsorships SponsorshipWallet[] // Bolsa global de la organización
-  paymentMethods  OrganizationPaymentMethod[] // Métodos de cobro de la organización
+  globalSponsorships SponsorshipWallet[] // Bolsa global
+  paymentMethods  OrganizationPaymentMethod[]
   providers       Provider[] // Fase 2
 }
 
-// Catálogo Global de Métodos de Pago (ZELLE, Pago Móvil, Transferencia, etc.)
+// Catálogo Global de Métodos de Pago
 model PaymentMethod {
   id              String   @id @default(uuid())
-  name            String   // Ej. "ZELLE", "Pago Móvil"
-  currency        String   // Ej. "USD", "VES"
+  name            String   // Ej. "ZELLE"
+  currency        String   // Ej. "USD"
   isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -47,12 +47,12 @@ model PaymentMethod {
   organizationMethods OrganizationPaymentMethod[]
 }
 
-// Métodos de Pago configurados por cada Organización
+// Métodos de Pago por Organización
 model OrganizationPaymentMethod {
   id              String   @id @default(uuid())
   organizationId  String
   paymentMethodId String
-  details         Json     // Datos dinámicos (correo, teléfono, Cédula, cuenta, etc.)
+  details         Json     // Ej. { email: "pagos@iglesia.com", banco: "Banesco" }
   isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -61,37 +61,48 @@ model OrganizationPaymentMethod {
   paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
   transactions    Transaction[]
 
-  @@unique([organizationId, paymentMethodId]) // Opcional: una organización podría tener múltiples cuentas del mismo método, si es necesario, remover este unique.
+  @@unique([organizationId, paymentMethodId])
 }
 
-// Usuarios administradores del sistema para la organización
+// Administradores del sistema (Acceso al Dashboard)
 model User {
   id              String   @id @default(uuid())
-  organizationId  String
+  organizationId  String?  // Nulo si es Admin Global
   email           String   @unique
   passwordHash    String?
   firstName       String
   lastName        String
-  role            String   @default("ADMIN") // ADMIN, MANAGER, etc.
+  role            UserRole @default(ORGANIZATION_MEMBER)
+  status          UserStatus @default(ACTIVE)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  organization    Organization @relation(fields: [organizationId], references: [id])
+  organization    Organization? @relation(fields: [organizationId], references: [id])
+}
+
+enum UserRole {
+  ADMIN
+  ORGANIZATION_MEMBER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
 }
 
 // ==============================================================================
-// MÓDULO DE PERSONAS (DIRECTORIO / CRM)
+// MÓDULO DE PERSONAS (CRM / ASISTENTES)
 // ==============================================================================
 
 model Person {
   id              String   @id @default(uuid())
   organizationId  String
-  documentId      String?  // Cédula o Documento de Identidad
+  documentId      String?  // Cédula, permite evitar duplicados
   email           String?
   firstName       String
   lastName        String
   phone           String?
-  birthDate       DateTime?
+  birthDate       DateTime? // Usado para cálculo de edad dinámico
   gender          Gender?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -100,7 +111,6 @@ model Person {
   enrollments     Enrollment[]
   medicalRecord   MedicalRecord? // Fase 2
 
-  // Relaciones bidireccionales
   relationships   Relationship[] @relation("PersonToRelationship")
   relatedTo       Relationship[] @relation("RelatedPersonToRelationship")
 
@@ -136,55 +146,76 @@ enum RelationshipType {
 }
 
 // ==============================================================================
-// MÓDULO 1: CONFIGURACIÓN DE EVENTOS Y PRESUPUESTOS (MVP)
+// MÓDULO 1: EVENTOS Y PRESUPUESTOS (MVP)
 // ==============================================================================
 
 model Event {
   id              String   @id @default(uuid())
+  sequentialId    Int      @default(autoincrement()) // Ej. Evento #1
   organizationId  String
   name            String
   startDate       DateTime
   endDate         DateTime
-  totalCapacity   Int      // Límite de cupos totales
-  fundraisingGoal Decimal  @default(0.0) // Meta de recaudación general
+  totalCapacity   Int?     @default(10) // Límite por defecto
+  hasCost         Boolean  @default(false)
+  fundraisingGoal Decimal  @default(0.0)
 
-  // Reglas de inscripción (Alertas/Restricciones)
-  targetGender    Gender?  // MALE, FEMALE o null para ambos
-  minAge          Int?
-  maxAge          Int?
+  requirements    Json     @default("{}") // Reglas dinámicas (edad, género)
+  status          EventStatusType @default(DRAFT)
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   organization    Organization @relation(fields: [organizationId], references: [id])
   costStructures  CostStructure[]
+  ticketStructures TicketStructure[]
   enrollments     Enrollment[]
-  sponsorships    SponsorshipWallet[] // Bolsa específica del evento
+  sponsorships    SponsorshipWallet[]
   logisticGroups  LogisticGroup[] // Fase 2
   payableAccounts PayableAccount[] // Fase 2
 }
 
+enum EventStatusType {
+  DRAFT
+  PUBLISHED
+  COMPLETED
+  CANCELLED
+}
+
+// Costos fijos/obligatorios u opcionales del evento
 model CostStructure {
   id              String   @id @default(uuid())
   eventId         String
-  name            String   // Ej. "Costo Base", "Transporte", "Seguro"
-  amount          Decimal  // Costo real del rubro (en moneda base)
-  isRequired      Boolean  @default(true) // Si es obligatorio para todos o un extra
+  name            String   // Ej. "Transporte"
+  amount          Decimal
+  isMandatory     Boolean  @default(true)
   createdAt       DateTime @default(now())
 
   event           Event    @relation(fields: [eventId], references: [id])
 }
 
-// Representa la participación de una persona en un evento específico con su rol y tarifa
+// Estructura de Tickets
+model TicketStructure {
+  id              String   @id @default(uuid())
+  eventId         String
+  name            String   // Ej. "Ticket VIP"
+  price           Decimal
+  quantity        Int      @default(10)
+  createdAt       DateTime @default(now())
+
+  event           Event    @relation(fields: [eventId], references: [id])
+}
+
+// Inscripción de la Person en un Evento
 model Enrollment {
   id              String   @id @default(uuid())
   eventId         String
   personId        String
-  role            RoleType // "STAFF" | "ATTENDEE"
-  tariffType      TariffType // "FULL_PAYMENT" | "HALF_SCHOLARSHIP" | "FULLY_SPONSORED"
-  totalCost       Decimal  // Suma de los CostStructure aplicables
-  totalPaid       Decimal  @default(0.0) // Monto pagado hasta la fecha (en moneda base)
-  status          EnrollmentStatus @default(PENDING) // "PENDING" | "PARTIAL" | "SOLVENT"
+  role            EnrollmentRole @default(PARTICIPANT)
+  tariffType      TariffType @default(FULL_PAYMENT)
+  totalCost       Decimal
+  totalPaid       Decimal  @default(0.0)
+  status          EnrollmentStatus @default(PENDING)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -192,12 +223,12 @@ model Enrollment {
   person          Person   @relation(fields: [personId], references: [id])
   transactions    Transaction[]
 
-  @@unique([eventId, personId]) // Una persona solo puede inscribirse una vez por evento
+  @@unique([eventId, personId])
 }
 
-enum RoleType {
+enum EnrollmentRole {
   STAFF
-  ATTENDEE
+  PARTICIPANT
 }
 
 enum TariffType {
@@ -213,20 +244,21 @@ enum EnrollmentStatus {
 }
 
 // ==============================================================================
-// MÓDULO 2: CUENTAS POR COBRAR E INGRESOS (MVP)
+// MÓDULO 2: CUENTAS POR COBRAR (MVP)
 // ==============================================================================
 
 model Transaction {
   id              String   @id @default(uuid())
-  enrollmentId    String?  // Nulo si es una donación directa a la bolsa (SponsorshipWallet)
-  walletId        String?  // Presente si este pago es una asignación desde la bolsa de patrocinios
-  amountOriginal  Decimal  // Monto pagado en la moneda en que se dio
-  currencyOriginal String  // "USD", "EUR", "MXN", etc.
-  exchangeRate    Decimal  // Tasa de cambio aplicada ese día
-  amountBase      Decimal  // Monto equivalente exacto en la moneda base del sistema
-  organizationPaymentMethodId String? // Referencia al método de pago usado (Zelle, Pago Móvil, etc.)
-  receiptNumber   String   @unique @default(uuid()) // Comprobante único
-  type            TransactionType // "DIRECT_PAYMENT" | "DONATION" | "SPONSORSHIP_ALLOCATION"
+  enrollmentId    String?
+  walletId        String?
+  amountOriginal  Decimal
+  currencyOriginal String
+  exchangeRate    Decimal
+  amountBase      Decimal
+  organizationPaymentMethodId String?
+  receiptNumber   String   @unique @default(uuid())
+  type            TransactionType
+  status          TransactionStatus @default(PENDING) // pendiente, conciliado, rechazado
   date            DateTime @default(now())
   createdAt       DateTime @default(now())
 
@@ -236,33 +268,37 @@ model Transaction {
 }
 
 enum TransactionType {
-  DIRECT_PAYMENT          // Pago normal de un inscrito
-  DONATION                // Ingreso de dinero a la bolsa de patrocinio
-  SPONSORSHIP_ALLOCATION  // Dinero transferido de la bolsa a la cuenta (Enrollment) de un deudor
+  DIRECT_PAYMENT
+  DONATION
+  SPONSORSHIP_ALLOCATION
 }
 
-// Motor de Patrocinios: La "Bolsa de Dinero"
+enum TransactionStatus {
+  PENDING
+  RECONCILED
+  REJECTED
+}
+
+// Bolsa de Patrocinios
 model SponsorshipWallet {
   id              String   @id @default(uuid())
   organizationId  String
-  eventId         String?  // Si es nulo, la bolsa es global para la organización (sobrantes)
-  donorName       String?  // Opcional, nombre de quien dona
-  totalReceived   Decimal  @default(0.0) // Total donado (en moneda base)
-  totalAllocated  Decimal  @default(0.0) // Total ya fraccionado y asignado a deudores
-  // Saldo disponible = totalReceived - totalAllocated
+  eventId         String?  // Nulo si es global
+  donorName       String?
+  totalReceived   Decimal  @default(0.0)
+  totalAllocated  Decimal  @default(0.0)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   organization    Organization @relation(fields: [organizationId], references: [id])
   event           Event?       @relation(fields: [eventId], references: [id])
-  allocations     Transaction[] // Relación con los pagos hechos usando este fondo
+  allocations     Transaction[]
 }
 
 // ==============================================================================
-// FASE 2: VISIÓN A FUTURO (LOGÍSTICA Y CUENTAS POR PAGAR)
+// FASE 2: LOGÍSTICA Y PROVEEDORES
 // ==============================================================================
 
-// MÓDULO 3: LOGÍSTICA
 model MedicalRecord {
   id              String   @id @default(uuid())
   personId        String   @unique
@@ -277,28 +313,23 @@ model MedicalRecord {
 model LogisticGroup {
   id              String   @id @default(uuid())
   eventId         String
-  name            String   // Ej. "Cabaña A", "Equipo Rojo"
+  name            String
   type            String   // "CABIN" | "TEAM" | "ROOM"
   capacity        Int
-  genderRules     String?  // "MALE", "FEMALE", "MIXED"
+  genderRules     String?
 
   event           Event    @relation(fields: [eventId], references: [id])
-  // Relación a Enrollment o participantes asignados a este grupo (se implementará en Fase 2)
 }
 
-// Control de Acceso (Check-In/Check-Out)
 model AccessControl {
   id              String   @id @default(uuid())
-  enrollmentId    String   @unique // Asumimos Check-In único por evento. Podría ser 1:N si hay salidas diarias.
+  enrollmentId    String   @unique
   checkInDate     DateTime?
-  checkInBy       String?  // Nombre o ID de quien entrega al menor
+  checkInBy       String?
   checkOutDate    DateTime?
-  checkOutBy      String?  // Nombre o ID de quien recibe al menor
-
-  // Relaciones en Fase 2...
+  checkOutBy      String?
 }
 
-// MÓDULO 4: CUENTAS POR PAGAR
 model Provider {
   id              String   @id @default(uuid())
   organizationId  String
@@ -313,14 +344,12 @@ model PayableAccount {
   id              String   @id @default(uuid())
   eventId         String
   providerId      String
-  concept         String   // Ej. "Transporte de ida"
-  totalAmount     Decimal  // Compromiso total
+  concept         String
+  totalAmount     Decimal
   paidAmount      Decimal  @default(0.0)
-  status          String   // "PENDING", "PARTIAL", "PAID"
+  status          String
 
   event           Event    @relation(fields: [eventId], references: [id])
   provider        Provider @relation(fields: [providerId], references: [id])
-  // Pagos o abonos a proveedores en Fase 2...
 }
-
 ```
