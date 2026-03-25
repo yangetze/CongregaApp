@@ -40,7 +40,7 @@ export class PersonController {
 
     getByDocument = async (req: Request, res: Response): Promise<void> => {
         try {
-            const { documentId } = req.params;
+            const documentId = req.params.documentId as string;
             const organizationId = req.query.organizationId as string;
 
             if (!organizationId) {
@@ -64,7 +64,7 @@ export class PersonController {
 
     getEnrollments = async (req: Request, res: Response): Promise<void> => {
         try {
-            const { personId } = req.params;
+            const personId = req.params.personId as string;
 
             const query = new GetPersonEnrollmentsQuery(personId);
             const enrollments = await this.queryBus.execute("GetPersonEnrollmentsQuery", query);

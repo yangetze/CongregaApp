@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PersonController = void 0;
 const CreatePerson_1 = require("../../application/commands/CreatePerson");
 const GetPeople_1 = require("../../application/queries/GetPeople");
+const GetPersonByDocument_1 = require("../../application/queries/GetPersonByDocument");
+const GetPersonEnrollments_1 = require("../../application/queries/GetPersonEnrollments");
 class PersonController {
     commandBus;
     queryBus;
@@ -12,8 +14,8 @@ class PersonController {
     }
     createPerson = async (req, res) => {
         try {
-            const { firstName, lastName, email, organizationId } = req.body;
-            const command = new CreatePerson_1.CreatePersonCommand(firstName, lastName, email, organizationId);
+            const { firstName, lastName, email, organizationId, documentId, phone } = req.body;
+            const command = new CreatePerson_1.CreatePersonCommand(firstName, lastName, email, organizationId, documentId, phone);
             const id = await this.commandBus.execute("CreatePersonCommand", command);
             res.status(201).json({ id, message: "Person created successfully" });
         }
@@ -31,6 +33,37 @@ class PersonController {
             const query = new GetPeople_1.GetPeopleQuery(organizationId);
             const people = await this.queryBus.execute("GetPeopleQuery", query);
             res.status(200).json(people);
+        }
+        catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    };
+    getByDocument = async (req, res) => {
+        try {
+            const documentId = req.params.documentId;
+            const organizationId = req.query.organizationId;
+            if (!organizationId) {
+                res.status(400).json({ error: "organizationId is required" });
+                return;
+            }
+            const query = new GetPersonByDocument_1.GetPersonByDocumentQuery(organizationId, documentId);
+            const person = await this.queryBus.execute("GetPersonByDocumentQuery", query);
+            if (!person) {
+                res.status(404).json({ error: "Person not found" });
+                return;
+            }
+            res.status(200).json(person);
+        }
+        catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    };
+    getEnrollments = async (req, res) => {
+        try {
+            const personId = req.params.personId;
+            const query = new GetPersonEnrollments_1.GetPersonEnrollmentsQuery(personId);
+            const enrollments = await this.queryBus.execute("GetPersonEnrollmentsQuery", query);
+            res.status(200).json(enrollments);
         }
         catch (error) {
             res.status(500).json({ error: error.message });

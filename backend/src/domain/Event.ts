@@ -8,6 +8,14 @@ export class CostStructure {
 
 export type EventRequirements = Record<string, any>;
 
+export class TicketStructure {
+    constructor(
+        public name: string,
+        public price: number,
+        public quantity: number
+    ) {}
+}
+
 export class Event {
     constructor(
         public readonly id: string,
@@ -15,11 +23,12 @@ export class Event {
         public name: string,
         public startDate: Date,
         public endDate: Date,
-        public totalCapacity: number,
+        public totalCapacity: number | null,
         public organizationId: string,
         public hasCost: boolean = false,
         public requirements: EventRequirements = {},
         public costs: CostStructure[] = [],
+        public tickets: TicketStructure[] = [],
         public statusId: string = "DRAFT" // default status
     ) {}
 }

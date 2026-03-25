@@ -7,12 +7,16 @@ class Person {
     lastName;
     email;
     organizationId;
-    constructor(id, firstName, lastName, email, organizationId) {
+    documentId;
+    phone;
+    constructor(id, firstName, lastName, email, organizationId, documentId = null, phone = null) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.organizationId = organizationId;
+        this.documentId = documentId;
+        this.phone = phone;
     }
 }
 exports.Person = Person;

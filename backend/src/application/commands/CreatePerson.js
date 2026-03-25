@@ -8,11 +8,15 @@ class CreatePersonCommand {
     lastName;
     email;
     organizationId;
-    constructor(firstName, lastName, email, organizationId) {
+    documentId;
+    phone;
+    constructor(firstName, lastName, email, organizationId, documentId = null, phone = null) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.organizationId = organizationId;
+        this.documentId = documentId;
+        this.phone = phone;
     }
 }
 exports.CreatePersonCommand = CreatePersonCommand;
@@ -23,9 +27,17 @@ class CreatePersonCommandHandler {
         this.personRepository = personRepository;
     }
     async execute(command) {
+        // Prevent duplicates based on documentId and organizationId
+        if (command.documentId) {
+            const existingPerson = await this.personRepository.findByDocumentId(command.documentId);
+            if (existingPerson && existingPerson.organizationId === command.organizationId) {
+                // Return the existing person's ID instead of throwing an error or duplicating
+                return existingPerson.id;
+            }
+        }
         // Simple mock ID generation
         const id = Math.random().toString(36).substring(2, 9);
-        const person = new Person_1.Person(id, command.firstName, command.lastName, command.email, command.organizationId);
+        const person = new Person_1.Person(id, command.firstName, command.lastName, command.email, command.organizationId, command.documentId, command.phone);
         await this.personRepository.save(person);
         return id;
     }

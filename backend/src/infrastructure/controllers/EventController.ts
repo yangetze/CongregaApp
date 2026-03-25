@@ -13,7 +13,7 @@ export class EventController {
 
     createEvent = async (req: Request, res: Response): Promise<void> => {
         try {
-            const { name, startDate, endDate, totalCapacity, organizationId, hasCost, requirements, costs, statusId, organizers } = req.body;
+            const { name, startDate, endDate, totalCapacity, organizationId, hasCost, requirements, costs, tickets, statusId, organizers, participants } = req.body;
             const command = new CreateEventCommand(
                 name,
                 new Date(startDate),
@@ -23,6 +23,7 @@ export class EventController {
                 hasCost,
                 requirements,
                 costs,
+                tickets,
                 statusId
             );
             const id = await this.commandBus.execute("CreateEventCommand", command);
@@ -31,6 +32,14 @@ export class EventController {
             if (organizers && Array.isArray(organizers)) {
                 for (const organizerId of organizers) {
                     const enrollCommand = new EnrollPersonCommand(String(id), organizerId, "STAFF");
+                    await this.commandBus.execute("EnrollPersonCommand", enrollCommand);
+                }
+            }
+
+            // Enroll participants if provided
+            if (participants && Array.isArray(participants)) {
+                for (const participantId of participants) {
+                    const enrollCommand = new EnrollPersonCommand(String(id), participantId, "PARTICIPANT");
                     await this.commandBus.execute("EnrollPersonCommand", enrollCommand);
                 }
             }
@@ -58,7 +67,7 @@ export class EventController {
 
     enrollPerson = async (req: Request, res: Response): Promise<void> => {
         try {
-            const { eventId } = req.params;
+            const eventId = req.params.eventId as string;
             const { personId, role } = req.body;
 
             if (!eventId || !personId) {

@@ -125,8 +125,8 @@ export default function OrgEventDetailsPage() {
                 })
             });
 
-            if (!personRes.ok) throw new Error('Error creando persona');
             const personData = await personRes.json();
+            if (!personRes.ok) throw new Error(personData.error || 'Error creando persona');
 
             // 2. Enroll Person
             const enrollRes = await fetch(`http://localhost:3000/api/events/${eventId}/enroll`, {

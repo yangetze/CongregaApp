@@ -13,7 +13,7 @@ export default function OrgCreateEventPage() {
     const [name, setName] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [capacity, setCapacity] = useState('100');
+    const [capacity, setCapacity] = useState('10');
     const [hasCost, setHasCost] = useState(false);
 
     const [isMultiDay, setIsMultiDay] = useState(false);
@@ -25,8 +25,12 @@ export default function OrgCreateEventPage() {
     // Budget / Costs
     const [costs, setCosts] = useState<Array<{name: string, amount: string, isMandatory: boolean}>>([]);
 
-    // Organizers
+    // Tickets
+    const [tickets, setTickets] = useState<Array<{name: string, price: string, quantity: string}>>([]);
+
+    // Organizers and Participants
     const [organizers, setOrganizers] = useState<string[]>([]);
+    const [participants, setParticipants] = useState<string[]>([]);
     const [people, setPeople] = useState<any[]>([]);
 
     useEffect(() => {
@@ -61,17 +65,33 @@ export default function OrgCreateEventPage() {
 
         const finalEndDate = isMultiDay ? endDate : startDate;
 
+        // Validate Tickets against capacity
+        const totalTicketCapacity = tickets.reduce((sum, t) => sum + (Number(t.quantity) || 0), 0);
+        const finalCapacity = capacity ? Number(capacity) : 0;
+
+        if (finalCapacity > 0 && totalTicketCapacity > finalCapacity) {
+            alert('La sumatoria de la cantidad de tickets no puede superar la capacidad total del evento.');
+            setIsSubmitting(false);
+            return;
+        }
+
         const data = {
             name,
             startDate,
             endDate: finalEndDate,
-            totalCapacity: Number(capacity),
+            totalCapacity: capacity ? Number(capacity) : null,
             organizationId: orgId,
             hasCost,
             requirements: reqObj,
             costs: formattedCosts,
+            tickets: tickets.map(t => ({
+                name: t.name || 'General',
+                price: Number(t.price) || 0,
+                quantity: Number(t.quantity) || 0
+            })),
             statusId: 'DRAFT',
-            organizers: organizers
+            organizers: organizers,
+            participants: participants
         };
 
         try {
@@ -141,9 +161,9 @@ export default function OrgCreateEventPage() {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Capacidad Total *</label>
-                                <input required type="number" min="1" className="w-full p-2 border rounded-lg"
-                                    value={capacity} onChange={e => setCapacity(e.target.value)} />
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Capacidad Total</label>
+                                <input type="number" min="0" className="w-full p-2 border rounded-lg"
+                                    value={capacity} onChange={e => setCapacity(e.target.value)} placeholder="Opcional" />
                             </div>
                             <div className="flex items-center pt-6">
                                 <label className="flex items-center gap-2 cursor-pointer">
@@ -154,40 +174,112 @@ export default function OrgCreateEventPage() {
                             </div>
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Organizadores (Staff)</label>
-                            <div className="border rounded-lg p-3 space-y-2 max-h-40 overflow-y-auto bg-gray-50">
-                                {people.length === 0 ? (
-                                    <p className="text-sm text-gray-500 italic">No hay personas registradas en la organización.</p>
-                                ) : (
-                                    people.map(person => (
-                                        <label key={person.id} className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                className="rounded text-brand-primary"
-                                                checked={organizers.includes(person.id)}
-                                                onChange={(e) => {
-                                                    if (e.target.checked) {
-                                                        setOrganizers([...organizers, person.id]);
-                                                    } else {
-                                                        setOrganizers(organizers.filter(id => id !== person.id));
-                                                    }
-                                                }}
-                                            />
-                                            <span className="text-sm font-medium text-gray-900">
-                                                {person.firstName} {person.lastName} {person.documentId ? `(${person.documentId})` : ''}
-                                            </span>
-                                        </label>
-                                    ))
-                                )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Organizadores (Staff)</label>
+                                <div className="border rounded-lg p-3 space-y-2 max-h-40 overflow-y-auto bg-gray-50">
+                                    {people.length === 0 ? (
+                                        <p className="text-sm text-gray-500 italic">No hay personas registradas en la organización.</p>
+                                    ) : (
+                                        people.map(person => (
+                                            <label key={person.id} className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    className="rounded text-brand-primary"
+                                                    checked={organizers.includes(person.id)}
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            setOrganizers([...organizers, person.id]);
+                                                        } else {
+                                                            setOrganizers(organizers.filter(id => id !== person.id));
+                                                        }
+                                                    }}
+                                                />
+                                                <span className="text-sm font-medium text-gray-900">
+                                                    {person.firstName} {person.lastName} {person.documentId ? `(${person.documentId})` : ''}
+                                                </span>
+                                            </label>
+                                        ))
+                                    )}
+                                </div>
+                                <p className="text-xs text-gray-500 mt-1">Serán añadidas como STAFF.</p>
                             </div>
-                            <p className="text-xs text-gray-500 mt-1">Las personas seleccionadas serán añadidas automáticamente como STAFF al evento.</p>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Participantes (Conocidos)</label>
+                                <div className="border rounded-lg p-3 space-y-2 max-h-40 overflow-y-auto bg-gray-50">
+                                    {people.length === 0 ? (
+                                        <p className="text-sm text-gray-500 italic">No hay personas registradas en la organización.</p>
+                                    ) : (
+                                        people.map(person => (
+                                            <label key={`part-${person.id}`} className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    className="rounded text-brand-primary"
+                                                    checked={participants.includes(person.id)}
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            setParticipants([...participants, person.id]);
+                                                        } else {
+                                                            setParticipants(participants.filter(id => id !== person.id));
+                                                        }
+                                                    }}
+                                                />
+                                                <span className="text-sm font-medium text-gray-900">
+                                                    {person.firstName} {person.lastName} {person.documentId ? `(${person.documentId})` : ''}
+                                                </span>
+                                            </label>
+                                        ))
+                                    )}
+                                </div>
+                                <p className="text-xs text-gray-500 mt-1">Serán añadidas como PARTICIPANTE.</p>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
 
                 <Card>
-                    <CardHeader className="flex flex-row items-center justify-between">
+                    <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <CardTitle>Tipos de Tickets</CardTitle>
+                            <CardDescription>Define los tickets disponibles y su cantidad.</CardDescription>
+                        </div>
+                        <Button type="button" variant="outline" size="sm" onClick={() => setTickets([...tickets, {name: 'General', price: '', quantity: ''}])}>
+                            <Plus className="w-4 h-4 mr-2" /> Agregar Ticket
+                        </Button>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                        {tickets.map((ticket, idx) => (
+                            <div key={idx} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center bg-gray-50 p-3 rounded-lg">
+                                <input type="text" placeholder="Descripción (ej. General)" required className="p-2 border rounded-lg bg-white w-full sm:flex-1"
+                                    value={ticket.name} onChange={e => {
+                                        const newTickets = [...tickets];
+                                        newTickets[idx].name = e.target.value;
+                                        setTickets(newTickets);
+                                    }} />
+                                <input type="number" placeholder="Precio ($)" className="p-2 border rounded-lg bg-white w-full sm:w-32"
+                                    value={ticket.price} onChange={e => {
+                                        const newTickets = [...tickets];
+                                        newTickets[idx].price = e.target.value;
+                                        setTickets(newTickets);
+                                    }} />
+                                <input type="number" placeholder="Cantidad" className="p-2 border rounded-lg bg-white w-full sm:w-32"
+                                    value={ticket.quantity} onChange={e => {
+                                        const newTickets = [...tickets];
+                                        newTickets[idx].quantity = e.target.value;
+                                        setTickets(newTickets);
+                                    }} />
+                                <Button type="button" variant="ghost" size="icon" className="text-red-500 w-full sm:w-auto mt-2 sm:mt-0"
+                                    onClick={() => setTickets(tickets.filter((_, i) => i !== idx))}>
+                                    <Trash2 className="w-4 h-4 mx-auto" />
+                                </Button>
+                            </div>
+                        ))}
+                        {tickets.length === 0 && <p className="text-sm text-gray-500 italic">No hay tickets configurados. Se creará un ticket general por defecto si tiene costo.</p>}
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
                             <CardTitle>Requisitos Dinámicos</CardTitle>
                             <CardDescription>Añade reglas específicas para la inscripción.</CardDescription>
@@ -198,8 +290,8 @@ export default function OrgCreateEventPage() {
                     </CardHeader>
                     <CardContent className="space-y-3">
                         {requirements.map((req, idx) => (
-                            <div key={idx} className="flex gap-3 items-center bg-gray-50 p-3 rounded-lg">
-                                <select className="p-2 border rounded-lg bg-white flex-1"
+                            <div key={idx} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center bg-gray-50 p-3 rounded-lg">
+                                <select className="p-2 border rounded-lg bg-white w-full sm:flex-1"
                                     value={req.key} onChange={e => {
                                         const newReqs = [...requirements];
                                         newReqs[idx].key = e.target.value;
@@ -208,15 +300,15 @@ export default function OrgCreateEventPage() {
                                     {availableReqKeys.map(k => <option key={k} value={k}>{k}</option>)}
                                     <option value="custom">Otro (Personalizado)</option>
                                 </select>
-                                <input type="text" placeholder="Valor (ej. 18, FEMALE, true)" className="p-2 border rounded-lg bg-white flex-1"
+                                <input type="text" placeholder="Valor (ej. 18, FEMALE, true)" className="p-2 border rounded-lg bg-white w-full sm:flex-1"
                                     value={req.value} onChange={e => {
                                         const newReqs = [...requirements];
                                         newReqs[idx].value = e.target.value;
                                         setRequirements(newReqs);
                                     }} />
-                                <Button type="button" variant="ghost" size="icon" className="text-red-500"
+                                <Button type="button" variant="ghost" size="icon" className="text-red-500 w-full sm:w-auto mt-2 sm:mt-0"
                                     onClick={() => setRequirements(requirements.filter((_, i) => i !== idx))}>
-                                    <Trash2 className="w-4 h-4" />
+                                    <Trash2 className="w-4 h-4 mx-auto" />
                                 </Button>
                             </div>
                         ))}
@@ -226,10 +318,10 @@ export default function OrgCreateEventPage() {
 
                 {hasCost && (
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between">
+                        <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div>
                                 <CardTitle>Estructura de Costos</CardTitle>
-                                <CardDescription>Define el presupuesto y rubros a cobrar.</CardDescription>
+                                <CardDescription>Opcional: Define el presupuesto y rubros internos.</CardDescription>
                             </div>
                             <Button type="button" variant="outline" size="sm" onClick={() => setCosts([...costs, {name: '', amount: '', isMandatory: true}])}>
                                 <Plus className="w-4 h-4 mr-2" /> Agregar Rubro
@@ -237,14 +329,14 @@ export default function OrgCreateEventPage() {
                         </CardHeader>
                         <CardContent className="space-y-3">
                             {costs.map((cost, idx) => (
-                                <div key={idx} className="flex gap-3 items-center bg-gray-50 p-3 rounded-lg">
-                                    <input type="text" placeholder="Nombre (ej. Base, Transporte)" required className="p-2 border rounded-lg bg-white flex-1"
+                                <div key={idx} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center bg-gray-50 p-3 rounded-lg">
+                                    <input type="text" placeholder="Nombre (ej. Base, Transporte)" required className="p-2 border rounded-lg bg-white w-full sm:flex-1"
                                         value={cost.name} onChange={e => {
                                             const newCosts = [...costs];
                                             newCosts[idx].name = e.target.value;
                                             setCosts(newCosts);
                                         }} />
-                                    <input type="number" placeholder="Monto ($)" required className="p-2 border rounded-lg bg-white w-32"
+                                    <input type="number" placeholder="Monto ($)" required className="p-2 border rounded-lg bg-white w-full sm:w-32"
                                         value={cost.amount} onChange={e => {
                                             const newCosts = [...costs];
                                             newCosts[idx].amount = e.target.value;
@@ -259,19 +351,19 @@ export default function OrgCreateEventPage() {
                                             }} />
                                         Obligatorio
                                     </label>
-                                    <Button type="button" variant="ghost" size="icon" className="text-red-500"
+                                    <Button type="button" variant="ghost" size="icon" className="text-red-500 w-full sm:w-auto mt-2 sm:mt-0"
                                         onClick={() => setCosts(costs.filter((_, i) => i !== idx))}>
-                                        <Trash2 className="w-4 h-4" />
+                                        <Trash2 className="w-4 h-4 mx-auto" />
                                     </Button>
                                 </div>
                             ))}
-                            {costs.length === 0 && <p className="text-sm text-red-500 font-medium">Si el evento tiene costo, debes agregar al menos un rubro.</p>}
+                            {costs.length === 0 && <p className="text-sm text-gray-500 italic">No hay estructura de costos definida (Opcional).</p>}
                         </CardContent>
                     </Card>
                 )}
 
                 <div className="flex justify-end pt-4">
-                    <Button type="submit" size="lg" disabled={isSubmitting || (hasCost && costs.length === 0)}>
+                    <Button type="submit" size="lg" disabled={isSubmitting}>
                         {isSubmitting ? 'Guardando...' : 'Crear Evento'}
                     </Button>
                 </div>
