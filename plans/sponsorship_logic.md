@@ -1,33 +1,32 @@
 # Lógica Crítica: El Motor de Patrocinios ("Bolsa de Dinero")
 
-El Motor de Patrocinios es una de las funcionalidades más críticas para garantizar que los fondos no se pierdan ni se desvíen de la contabilidad oficial de la organización. A continuación, detallo la lógica de cómo se modela y maneja este sistema en la base de datos sin descuadrar la contabilidad general.
+¡El Motor de Patrocinios es la joya de la corona en CongregaApp! Sabemos que muchas personas asisten a los eventos gracias al apoyo de donantes y padrinos. El gran reto de las organizaciones es que ese dinero de patrocinio a veces se desvía, y la contabilidad global deja de cuadrar. Aquí explicamos de manera sencilla cómo resolvemos este problema de forma precisa.
 
-## 1. Naturaleza de la "Bolsa" (SponsorshipWallet)
+## 1. La "Bolsa" (`SponsorshipWallet`)
 
-La "Bolsa" (modelo `SponsorshipWallet`) no es más que una cuenta contable temporal que retiene fondos que han ingresado a la organización (o a un evento en particular) pero que aún **no han sido facturados/asociados al estado de cuenta de ningún usuario**.
+Imagina la "Bolsa" como una alcancía o una cuenta temporal. Aquí guardamos el dinero que ingresa a la organización o a un evento, pero que **aún no se le ha adjudicado a ninguna persona en particular**.
 
-* Si un donante regala \$1,000 para el campamento, este dinero se registra en la tabla `Transaction` con `type = DONATION` y `walletId` apuntando a la bolsa correspondiente. El `enrollmentId` queda nulo, ya que no pertenece a ningún inscrito todavía.
-* La bolsa incrementa su campo `totalReceived` en \$1,000 (ya convertido a la moneda base, ej. USD).
+* Si alguien dona de buen corazón \$1,000 para el retiro, ese ingreso queda registrado en una `Transaction` de tipo `DONATION`. Esa transacción señala directamente a nuestra bolsa (`walletId`). Como no está atada a nadie todavía, no tiene un `enrollmentId`.
+* De inmediato, la bolsa (`SponsorshipWallet`) incrementa su valor `totalReceived` a \$1,000, convertido siempre a la moneda base de la organización (ej. USD) usando la tasa de cambio del momento.
 
-## 2. El Proceso de "Asignación" (Allocation)
+## 2. El Proceso de Asignación (Hacer magia con los fondos)
 
-Cuando el administrador decide subsidiar a un Staff o cubrir la "Media Matrícula" de un inscrito, ejecuta un **fraccionamiento de la bolsa**.
+Cuando el Administrador de la Organización decide apoyar a alguien (por ejemplo, cubrirle la mitad de su inscripción a un participante), ejecutamos una **asignación**.
 
-### Reglas de Negocio en la Asignación:
-1. **Validación de Disponibilidad:** El sistema verifica que el monto a asignar (`amountBase`) no exceda el saldo disponible de la bolsa (`totalReceived - totalAllocated`).
-2. **Registro de la Transacción Interna:** Se crea una nueva entrada en la tabla `Transaction` con `type = SPONSORSHIP_ALLOCATION`.
-   * Esta transacción **sí tiene** `enrollmentId` (apunta al usuario beneficiado).
-   * Esta transacción **también tiene** `walletId` (apunta a la bolsa origen de los fondos).
-3. **Actualización de Saldos (Transacción de Base de Datos - ACID):**
-   * El `Enrollment` del beneficiado incrementa su `totalPaid` con el monto asignado.
-   * El `SponsorshipWallet` incrementa su `totalAllocated` con el monto asignado.
+### ¿Cómo lo mantenemos seguro?
+1. **Verificar el saldo:** Nos aseguramos de que el dinero a usar (`amountBase`) no sobrepase lo que realmente hay disponible en la bolsa (`totalReceived - totalAllocated`). ¡Nada de quedar en rojo!
+2. **Registro Claro:** Se genera un movimiento interno tipo `SPONSORSHIP_ALLOCATION`.
+   * Aquí **sí asociamos** al beneficiado (`enrollmentId`).
+   * Y **también apuntamos** a la bolsa de donde salió el dinero (`walletId`).
+3. **Todo de un solo golpe (ACID):**
+   * El participante (`Enrollment`) ahora refleja que se le ha abonado parte de su deuda (`totalPaid`).
+   * La bolsa aumenta su `totalAllocated` (lo que ya gastamos).
+   * Todo pasa simultáneamente. Si hay algún error informático, se revierte todo, sin que el dinero se pierda en el limbo.
 
-### ¿Por qué esto cuadra la contabilidad?
-La contabilidad global (Ingresos Totales de la Organización/Evento) **solo suma las transacciones de tipo `DIRECT_PAYMENT` y `DONATION`**.
-Las transacciones de tipo `SPONSORSHIP_ALLOCATION` **no son ingresos nuevos de dinero** al sistema, sino simplemente un movimiento interno (un asiento contable) de una bolsa a la deuda de un usuario. Por lo tanto, al generar un reporte de ingresos reales de dinero a las cuentas bancarias de la organización, no se duplican los montos.
+### ¿Por qué la contabilidad no sufre descuadres?
+La magia de esta arquitectura está en los reportes financieros. Para reportar los *ingresos reales* que cayeron a la cuenta bancaria de la organización, **solo contamos los cobros directos (`DIRECT_PAYMENT`) y las donaciones (`DONATION`)**.
+Los movimientos de `SPONSORSHIP_ALLOCATION` son simplemente "dinero pasando de la bolsa a una cuenta interna". Al ignorarlos de los ingresos globales, prevenimos el temido conteo doble de dinero, pero logramos que la deuda del usuario llegue a cero.
 
-## 3. Sobrantes Globales (Multi-tenancy)
-Si al finalizar un evento, una bolsa (`SponsorshipWallet` con `eventId != null`) queda con un saldo disponible (ej. \$200 no asignados), el administrador puede realizar un "traspaso" a la bolsa global de la organización.
-
-* **Traspaso:** Se podría implementar simplemente poniendo el `eventId` de la bolsa a `null` (lo cual la convierte automáticamente en una bolsa global para futuros eventos de la organización).
-* Alternativamente, se puede registrar una salida de la bolsa del evento y una entrada a la bolsa global, manteniendo la trazabilidad perfecta de que los fondos sobrantes del Evento A ahora están disponibles para el Evento B.
+## 3. ¿Qué pasa con los sobrantes?
+Si el Evento "Retiro #1" terminó y la bolsa quedó con \$200 libres, el sistema permite que el administrador convierta esta bolsa a nivel Organización.
+* **Solución Rápida:** Basta con poner el `eventId` de esa bolsa como `null`. De repente, esos \$200 están listos para apoyar a alguien en el próximo campamento, con total transparencia y rastreabilidad.

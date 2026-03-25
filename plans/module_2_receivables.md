@@ -1,42 +1,36 @@
 # Plan de Módulo 2: Cuentas por Cobrar (Ingresos y Abonos)
 
-Este módulo gestiona la recaudación de fondos, los pagos fraccionados, los métodos de pago y el Motor de Patrocinios ("Bolsa de Dinero").
+Este módulo es vital para mantener la salud financiera de la organización. Gestiona la recaudación de fondos de manera estructurada y centralizada, abarcando abonos, pagos fraccionados, configuración de métodos de pago y el potente Motor de Patrocinios.
+
+## Arquitectura de Pagos (Dos Niveles)
+
+Para garantizar consistencia global y flexibilidad local, CongregaApp implementa una arquitectura de pago en dos niveles:
+
+1.  **Catálogo Global de Métodos de Pago:** El Administrador Global, mediante la pantalla unificada `AdminMaintenancePage` (que sincroniza pestañas con rutas como `/admin/payment-methods`), define la institución y moneda (ej. "Zelle USD", "Pago Móvil VES").
+2.  **Configuración de Métodos por Organización:** Cada Organización selecciona métodos de este catálogo global y les añade sus propios datos bancarios dinámicos mediante un campo JSON (ej. `email`, `teléfono`, o `cuenta bancaria`), representados en el modelo `OrganizationPaymentMethod`.
 
 ## Micro-Tareas
 
-1.  **Catálogo Global de Métodos de Pago (Panel Administrador Global):**
-    *   Definir DTO y rutas CRUD (`/api/admin/payment-methods`) para gestionar los métodos de pago globales disponibles en el sistema (ZELLE, Pago Móvil, etc.).
-    *   Gestionar nombre de la institución, moneda (USD, VES, etc.) y estado (Activo/Inactivo).
+1.  **Mantenimiento Global (Panel Administrador Global):**
+    *   Mantener el catálogo de Métodos de Pago, Divisas, Variables y Estados de Evento.
+    *   Asegurar que `AdminMaintenancePage` maneje las rutas correctamente.
 
-2.  **Configuración de Métodos de Pago por Organización (Panel Organización):**
-    *   Implementar endpoints (`/api/organizations/:id/payment-methods`) para que cada organización pueda agregar y configurar sus métodos de pago basados en el catálogo global.
-    *   Definir un DTO que permita recibir la relación con el método global (`paymentMethodId`) y un objeto JSON `details` dinámico (ej. correo de Zelle, datos de Pago Móvil, cuenta bancaria).
-    *   Permitir listar los métodos activos configurados por la organización para mostrarlos a los usuarios al registrar un pago.
+2.  **Configuración de Métodos de Pago por Organización:**
+    *   Implementar endpoints para agregar los detalles JSON al `OrganizationPaymentMethod`.
+    *   Listar métodos activos a los participantes durante el proceso de pago de sus `Enrollments`.
 
-3.  **Pagos Directos (Transacciones de Inscritos):**
-    *   Definir DTO para registrar un abono (`amountOriginal`, `currencyOriginal`, `exchangeRate`, `organizationPaymentMethodId`).
-    *   Implementar controlador y servicio `POST /enrollments/:enrollmentId/transactions`.
-    *   Calcular `amountBase` = `amountOriginal` * `exchangeRate`.
-    *   Actualizar `totalPaid` del `Enrollment` y cambiar el `status` a `PARTIAL` o `SOLVENT` (usando transacciones ACID de Prisma).
-    *   Generar un `receiptNumber` único.
+3.  **Registro de Transacciones y Estados:**
+    *   Definir DTO para registrar abonos.
+    *   Manejar los estados de la transacción para mantener claridad contable: "pendiente/por conciliar", "conciliado", y "rechazado".
+    *   Actualizar automáticamente el saldo en el modelo `Enrollment` (status de SOLVENT o PARTIAL) de manera ACID, una vez la transacción sea "conciliada".
 
-4.  **Estado de Cuenta (Reportes):**
-    *   Implementar endpoint `GET /enrollments/:enrollmentId` para mostrar el resumen del estado de cuenta de un inscrito.
-    *   Incluir el desglose de su estructura de costos y todo el historial de pagos asociados.
+4.  **Estado de Cuenta:**
+    *   Endpoints para consultar el saldo y todo el historial de transacciones (conciliadas o pendientes) asociados a un inscrito en el evento.
 
-5.  **Motor de Patrocinios - Recepción de Fondos (Bolsa):**
-    *   Implementar endpoint `POST /sponsorships` para recibir donaciones generales o por evento.
-    *   Crear una transacción tipo `DONATION` que apunte al `SponsorshipWallet` correspondiente.
-    *   Sumar el equivalente en moneda base al `totalReceived` de la bolsa.
+5.  **Motor de Patrocinios:**
+    *   Implementar la recepción y asignación de fondos a través de las bolsas (`SponsorshipWallet`).
+    *   Asegurar que una transacción de tipo `SPONSORSHIP_ALLOCATION` afecte simultáneamente la bolsa donada y el saldo pendiente de un asistente.
 
-6.  **Motor de Patrocinios - Asignación de Fondos (Subsidios):**
-    *   Implementar endpoint `POST /sponsorships/:walletId/allocate`.
-    *   Validar saldo disponible en la bolsa antes de asignar (`totalReceived` - `totalAllocated`).
-    *   Crear transacción interna `SPONSORSHIP_ALLOCATION`.
-    *   Actualizar `totalAllocated` en la bolsa.
-    *   Actualizar `totalPaid` y el `status` del `Enrollment` beneficiado en una única transacción de base de datos.
-
-7.  **Pruebas (Testing):**
-    *   Escribir pruebas exhaustivas para asegurar que una transacción fallida no debite fondos de la bolsa (Rollback).
-    *   Escribir pruebas de concurrencia: simular dos asignaciones simultáneas y verificar que no sobregiren el saldo de la bolsa.
-    *   Pruebas de cambio de divisa (precisión decimal de PostgreSQL).
+6.  **Pruebas de Transacciones:**
+    *   Validar los estados (por conciliar vs conciliado) y cómo impactan el estado de cuenta.
+    *   Asegurar que los datos JSON de `OrganizationPaymentMethod` no se corrompan al ser creados o actualizados.
