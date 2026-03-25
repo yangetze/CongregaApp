@@ -12,10 +12,12 @@ import OrgFinancesPage from './pages/org/OrgFinancesPage';
 import OrgEventsListPage from './pages/events/OrgEventsListPage';
 import OrgCreateEventPage from './pages/events/OrgCreateEventPage';
 import OrgEventDetailsPage from './pages/events/OrgEventDetailsPage';
+import { Toaster } from 'sonner';
 
 function App() {
   return (
     <Router>
+      <Toaster position="top-right" richColors />
       <Routes>
         {/* Pantalla Principal */}
         <Route path="/" element={<HomePage />} />
