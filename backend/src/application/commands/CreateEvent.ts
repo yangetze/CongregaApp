@@ -36,9 +36,16 @@ export class CreateEventCommandHandler implements ICommandHandler<CreateEventCom
             c => new CostStructure(c.name, c.amount, c.isMandatory)
         );
 
-        const ticketStructures = command.tickets.map(
+        let finalTickets = command.tickets;
+        if (!finalTickets || finalTickets.length === 0) {
+            finalTickets = [{ name: 'General', price: 0, quantity: 10 }];
+        }
+
+        const ticketStructures = finalTickets.map(
             t => new TicketStructure(t.name, t.price, t.quantity)
         );
+
+        const calculatedTotalCapacity = ticketStructures.reduce((sum, t) => sum + t.quantity, 0);
 
         const event = new Event(
             id,
@@ -46,7 +53,7 @@ export class CreateEventCommandHandler implements ICommandHandler<CreateEventCom
             command.name,
             command.startDate,
             command.endDate,
-            command.totalCapacity,
+            calculatedTotalCapacity,
             command.organizationId,
             command.hasCost,
             command.requirements,
