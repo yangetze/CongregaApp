@@ -31,10 +31,10 @@ export default function AdminOrganizationsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">Organizaciones</h1>
-          <p className="text-gray-500 mt-1">Gestiona las organizaciones registradas en la plataforma.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900">Organizaciones</h1>
+          <p className="text-sm sm:text-base text-gray-500 mt-1">Gestiona las organizaciones registradas en la plataforma.</p>
         </div>
-        <Button className="shrink-0 flex items-center gap-2">
+        <Button className="w-full sm:w-auto shrink-0 flex items-center justify-center gap-2">
           <Plus className="w-4 h-4" />
           Nueva Organización
         </Button>
@@ -57,9 +57,9 @@ export default function AdminOrganizationsPage() {
       {/* Table */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
              <CardTitle className="text-lg">Lista de Organizaciones</CardTitle>
-             <div className="relative w-64">
+             <div className="relative w-full sm:w-64">
                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                <input
                  type="text"

@@ -20,10 +20,10 @@ export default function OrgDashboardPage() {
     <div className="space-y-6">
        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">Eventos Activos</h1>
-          <p className="text-gray-500 mt-1">Gestiona los eventos, campamentos o congresos de tu organización.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900">Eventos Activos</h1>
+          <p className="text-sm sm:text-base text-gray-500 mt-1">Gestiona los eventos, campamentos o congresos de tu organización.</p>
         </div>
-        <Button className="shrink-0 flex items-center gap-2" onClick={() => navigate(`/org/${orgId}/events/new`)}>
+        <Button className="w-full sm:w-auto shrink-0 flex items-center justify-center gap-2" onClick={() => navigate(`/org/${orgId}/events/new`)}>
           <Plus className="w-4 h-4" />
           Crear Evento
         </Button>
@@ -128,8 +128,8 @@ export default function OrgDashboardPage() {
                   <Activity className="w-5 h-5 text-brand-primary" />
                   <span className="text-sm font-semibold uppercase tracking-wider text-brand-primary">Vista de Detalle</span>
                 </div>
-                <CardTitle className="text-2xl font-bold text-gray-900">{selectedEvent.name}</CardTitle>
-                <CardDescription className="text-base flex items-center gap-2">
+                <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900">{selectedEvent.name}</CardTitle>
+                <CardDescription className="text-sm sm:text-base flex items-center gap-2">
                    Programado para el {new Date(selectedEvent.date).toLocaleDateString()}
                 </CardDescription>
               </CardHeader>
@@ -183,7 +183,7 @@ export default function OrgDashboardPage() {
 
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-surface-border flex gap-3">
+                <div className="mt-8 pt-6 border-t border-surface-border flex flex-col sm:flex-row gap-3">
                   <Button className="w-full">Gestionar Inscripciones</Button>
                   <Button variant="outline" className="w-full">Ver Finanzas Detalladas</Button>
                 </div>
