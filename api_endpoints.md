@@ -2,6 +2,8 @@
 
 A continuación, se define la estructura de las rutas necesarias para que el Frontend consuma los módulos de Personas, Eventos y Cuentas por Cobrar. Todas las rutas asumirán que existe un middleware de autenticación que inyecta el `organizationId` a partir del token del usuario administrador (ej. JWT).
 
+**IMPORTANTE:** Por cada endpoint o API desarrollada, es un requisito estricto realizar y agregar pruebas (tests) sobre esa funcionalidad.
+
 ## Módulo 1: Personas (Directorio / CRM)
 
 ### 1. Crear / Registrar a una Persona
