@@ -1,4 +1,5 @@
 import { ICommand, ICommandHandler } from "../../shared/cqrs/CommandBus";
+import { randomUUID } from "node:crypto";
 import { Enrollment, EnrollmentRole } from "../../domain/Event";
 
 export class EnrollPersonCommand implements ICommand {
@@ -19,7 +20,7 @@ export class EnrollPersonCommandHandler implements ICommandHandler<EnrollPersonC
     constructor(private readonly enrollmentRepository: IEnrollmentRepository) {}
 
     async execute(command: EnrollPersonCommand): Promise<string> {
-        const id = Math.random().toString(36).substring(2, 9);
+        const id = randomUUID();
         const role = command.role as EnrollmentRole || EnrollmentRole.PARTICIPANT;
 
         const enrollment = new Enrollment(

@@ -1,4 +1,5 @@
 import { ICommand, ICommandHandler } from "../../shared/cqrs/CommandBus";
+import { randomUUID } from "node:crypto";
 import { Event, CostStructure, TicketStructure } from "../../domain/Event";
 
 import { EventRequirements } from "../../domain/Event";
@@ -29,7 +30,7 @@ export class CreateEventCommandHandler implements ICommandHandler<CreateEventCom
     constructor(private readonly eventRepository: IEventRepository) {}
 
     async execute(command: CreateEventCommand): Promise<string> {
-        const id = Math.random().toString(36).substring(2, 9);
+        const id = randomUUID();
         const sequentialId = await this.eventRepository.getNextSequentialId(command.organizationId);
 
         const costStructures = command.costs.map(

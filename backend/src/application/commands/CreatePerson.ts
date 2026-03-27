@@ -1,4 +1,5 @@
 import { ICommand, ICommandHandler } from "../../shared/cqrs/CommandBus";
+import { randomUUID } from "node:crypto";
 import { Person } from "../../domain/Person";
 
 // Command Definition
@@ -36,7 +37,7 @@ export class CreatePersonCommandHandler implements ICommandHandler<CreatePersonC
         }
 
         // Simple mock ID generation
-        const id = Math.random().toString(36).substring(2, 9);
+        const id = randomUUID();
         const person = new Person(
             id,
             command.firstName,
