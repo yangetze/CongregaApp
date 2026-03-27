@@ -6,8 +6,9 @@ export declare class PersonController {
     private readonly queryBus;
     constructor(commandBus: CommandBus, queryBus: QueryBus);
     createPerson: (req: Request, res: Response) => Promise<void>;
-    getPeople: (req: Request, res: Response) => Promise<void>;
+    getPersons: (req: Request, res: Response) => Promise<void>;
     getByDocument: (req: Request, res: Response) => Promise<void>;
     getEnrollments: (req: Request, res: Response) => Promise<void>;
+    establishRelationship: (req: Request, res: Response) => Promise<void>;
 }
 //# sourceMappingURL=PersonController.d.ts.map

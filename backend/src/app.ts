@@ -9,15 +9,17 @@ import { InMemoryPersonRepository } from "./infrastructure/repositories/InMemory
 import { InMemoryEventRepository } from "./infrastructure/repositories/InMemoryEventRepository";
 import { InMemoryEnrollmentRepository } from "./infrastructure/repositories/InMemoryEnrollmentRepository";
 import { InMemoryGlobalConfigRepository } from "./infrastructure/repositories/admin/InMemoryGlobalConfigRepository";
+import { InMemoryRelationshipRepository } from "./infrastructure/repositories/InMemoryRelationshipRepository";
 
 // Application Handlers
 import { CreatePersonCommandHandler } from "./application/commands/CreatePerson";
-import { GetPeopleQueryHandler } from "./application/queries/GetPeople";
+import { GetPersonsQueryHandler } from "./application/queries/GetPersons";
 import { GetPersonByDocumentQueryHandler } from "./application/queries/GetPersonByDocument";
 import { GetPersonEnrollmentsQueryHandler } from "./application/queries/GetPersonEnrollments";
 import { CreateEventCommandHandler } from "./application/commands/CreateEvent";
 import { EnrollPersonCommandHandler } from "./application/commands/EnrollPerson";
 import { GetEventsQueryHandler } from "./application/queries/GetEvents";
+import { EstablishRelationshipCommandHandler } from "./application/commands/EstablishRelationship";
 
 // Controllers
 import { PersonController } from "./infrastructure/controllers/PersonController";
@@ -41,15 +43,17 @@ export const createApp = () => {
     const eventRepository = new InMemoryEventRepository();
     const enrollmentRepository = new InMemoryEnrollmentRepository();
     const globalConfigRepository = new InMemoryGlobalConfigRepository();
+    const relationshipRepository = new InMemoryRelationshipRepository();
 
     // Controllers
     const adminController = new AdminController(globalConfigRepository);
 
     // Register Handlers
     commandBus.register("CreatePersonCommand", new CreatePersonCommandHandler(personRepository));
-    queryBus.register("GetPeopleQuery", new GetPeopleQueryHandler(personRepository));
+    queryBus.register("GetPersonsQuery", new GetPersonsQueryHandler(personRepository));
     queryBus.register("GetPersonByDocumentQuery", new GetPersonByDocumentQueryHandler(personRepository));
     queryBus.register("GetPersonEnrollmentsQuery", new GetPersonEnrollmentsQueryHandler(enrollmentRepository));
+    commandBus.register("EstablishRelationshipCommand", new EstablishRelationshipCommandHandler(relationshipRepository));
 
     commandBus.register("CreateEventCommand", new CreateEventCommandHandler(eventRepository));
     commandBus.register("EnrollPersonCommand", new EnrollPersonCommandHandler(enrollmentRepository));
@@ -62,10 +66,11 @@ export const createApp = () => {
     // Routes
     const apiRouter = express.Router();
 
-    apiRouter.post("/people", (req, res) => personController.createPerson(req, res));
-    apiRouter.get("/people/document/:documentId", (req, res) => personController.getByDocument(req, res));
-    apiRouter.get("/people/:personId/enrollments", (req, res) => personController.getEnrollments(req, res));
-    apiRouter.get("/people", (req, res) => personController.getPeople(req, res));
+    apiRouter.post("/persons", (req, res) => personController.createPerson(req, res));
+    apiRouter.get("/persons/document/:documentId", (req, res) => personController.getByDocument(req, res));
+    apiRouter.get("/persons/:personId/enrollments", (req, res) => personController.getEnrollments(req, res));
+    apiRouter.get("/persons", (req, res) => personController.getPersons(req, res));
+    apiRouter.post("/persons/:personId/relationships", (req, res) => personController.establishRelationship(req, res));
 
     apiRouter.post("/events", (req, res) => eventController.createEvent(req, res));
     apiRouter.post("/events/:eventId/enroll", (req, res) => eventController.enrollPerson(req, res));
@@ -107,7 +112,7 @@ export const createApp = () => {
     app.use("/api", apiRouter);
 
     app.get("/", (req, res) => {
-        res.send("CongregaApp API is running. Try /api/people or /api/events");
+        res.send("CongregaApp API is running. Try /api/persons or /api/events");
     });
 
     return app;
