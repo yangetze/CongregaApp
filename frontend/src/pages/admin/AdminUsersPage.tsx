@@ -12,9 +12,9 @@ export default function AdminUsersPage() {
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">Usuarios Globales</h1>
           <p className="text-gray-500 mt-1">Administra el acceso y roles de los usuarios en la plataforma.</p>
         </div>
-        <Button className="shrink-0 flex items-center gap-2 bg-brand-primary hover:bg-brand-primary/90 text-white">
+        <Button className="shrink-0 flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          Nuevo Usuario
+          Crear Usuario
         </Button>
       </div>
 

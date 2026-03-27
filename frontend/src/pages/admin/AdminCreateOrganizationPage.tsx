@@ -64,7 +64,7 @@ export default function AdminCreateOrganizationPage() {
                     <ArrowLeft className="w-4 h-4" />
                 </Button>
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">Nueva Organización</h1>
+                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">Crear Organización</h1>
                     <p className="text-gray-500 mt-1">Registra una nueva iglesia, campamento o ministerio.</p>
                 </div>
             </div>

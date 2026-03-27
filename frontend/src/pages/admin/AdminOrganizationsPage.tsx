@@ -38,7 +38,7 @@ export default function AdminOrganizationsPage() {
         </div>
         <Button className="w-full sm:w-auto shrink-0 flex items-center justify-center gap-2">
           <Plus className="w-4 h-4" />
-          Nueva Organización
+          Crear Organización
         </Button>
       </div>
 

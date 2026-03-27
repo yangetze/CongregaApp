@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Search, Plus, UserCircle, Calendar, Phone, Mail, Activity, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { Button } from '../../components/ui/button';
 
 interface Person {
     id: string;
@@ -152,13 +153,13 @@ export default function OrgPeoplePage() {
                     <h1 className="text-3xl font-bold tracking-tight text-gray-900">Directorio de Personas</h1>
                     <p className="text-gray-500 mt-1">Gestiona el directorio general de miembros y asistentes de tu organización.</p>
                 </div>
-                <button
+                <Button
                     onClick={() => setIsModalOpen(true)}
-                    className="shrink-0 flex items-center justify-center gap-2 bg-brand-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-brand-primary/90 transition-colors"
+                    className="shrink-0 flex items-center gap-2"
                 >
                     <Plus className="w-4 h-4" />
-                    Agregar Persona
-                </button>
+                    Crear Persona
+                </Button>
             </div>
 
             <div className="bg-white border border-surface-border rounded-xl shadow-sm overflow-hidden">
@@ -285,7 +286,7 @@ export default function OrgPeoplePage() {
                     <div className="fixed inset-0 bg-black/50 transition-opacity" onClick={() => setIsModalOpen(false)} />
                     <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
                         <div className="flex items-center justify-between p-6 border-b border-gray-100">
-                            <h2 className="text-xl font-semibold text-gray-900">Nueva Persona</h2>
+                            <h2 className="text-xl font-semibold text-gray-900">Crear Persona</h2>
                             <button
                                 onClick={() => setIsModalOpen(false)}
                                 className="text-gray-400 hover:text-gray-500 hover:bg-gray-100 p-2 rounded-full transition-colors"
@@ -371,20 +372,19 @@ export default function OrgPeoplePage() {
                             </div>
 
                             <div className="pt-4 flex justify-end gap-3 border-t border-gray-100 mt-6">
-                                <button
+                                <Button
                                     type="button"
+                                    variant="outline"
                                     onClick={() => setIsModalOpen(false)}
-                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary transition-colors"
                                 >
                                     Cancelar
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     type="submit"
                                     disabled={isSaving}
-                                    className="px-4 py-2 text-sm font-medium text-white bg-brand-primary rounded-lg hover:bg-brand-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    {isSaving ? 'Guardando...' : 'Guardar Persona'}
-                                </button>
+                                    {isSaving ? 'Guardando...' : 'Crear Persona'}
+                                </Button>
                             </div>
                         </form>
                     </div>

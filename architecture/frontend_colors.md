@@ -17,6 +17,20 @@ Nuestra paleta combina profundidad con energía, creando interfaces claras y vib
 
 ---
 
+## 🔘 Botones y Llamadas a la Acción (CTAs)
+
+Para mantener una consistencia visual en toda la aplicación, se han establecido las siguientes reglas para los botones de acción principales:
+
+**1. Color de Botones Principales:**
+Todos los botones de acción principales (como crear o registrar entidades) deben utilizar el color **Secundario (Accent) - Naranja Coral (`#FB923C`)** por defecto.
+En el sistema de componentes (`Button.tsx`), la variante `default` corresponde a este color (`bg-brand-accent`). Se debe evitar el uso de otras clases como `bg-brand-primary` (morado) para estas acciones principales.
+
+**2. Convención de Textos:**
+- **Regla General:** Para la creación de cualquier entidad, el texto del botón debe seguir el formato **"Crear {NombreDelModuloEnSingular}"**. Ejemplos: "Crear Evento", "Crear Persona", "Crear Organización".
+- **Excepción en Finanzas:** En el módulo de finanzas y pagos, debido a la naturaleza de la acción, el texto debe ser **"Registrar {NombreDeLaAccion}"**. Ejemplo: "Registrar Pago".
+
+---
+
 ## 🚦 Colores de Estado Semánticos
 
 Para facilitar la rápida lectura de la información en el Dashboard y las listas del CRM, hemos definido colores mandatorios. Son vitales para comunicar estados financieros, disponibilidad de tickets y alertas sin necesidad de leer todo el texto.

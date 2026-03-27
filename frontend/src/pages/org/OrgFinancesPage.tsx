@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Search, Plus, DollarSign, ArrowUpRight, Activity, Filter } from 'lucide-react';
+import { Button } from '../../components/ui/button';
 
 interface Transaction {
     id: string;
@@ -67,10 +68,10 @@ export default function OrgFinancesPage() {
                     <h1 className="text-3xl font-bold tracking-tight text-gray-900">Finanzas</h1>
                     <p className="text-gray-500 mt-1">Gestiona los ingresos, abonos y transacciones de los participantes.</p>
                 </div>
-                <button className="shrink-0 flex items-center justify-center gap-2 bg-brand-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-brand-primary/90 transition-colors">
+                <Button className="shrink-0 flex items-center gap-2">
                     <Plus className="w-4 h-4" />
                     Registrar Pago
-                </button>
+                </Button>
             </div>
 
             {/* Resumen Cards */}

@@ -45,7 +45,7 @@ export default function OrgEventsListPage() {
                 </div>
                 <Button onClick={() => navigate(`/org/${orgId}/events/new`)} className="flex items-center gap-2">
                     <Plus className="w-4 h-4" />
-                    Nuevo Evento
+                    Crear Evento
                 </Button>
             </div>
 
