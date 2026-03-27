@@ -10,13 +10,15 @@ class CreatePersonCommand {
     organizationId;
     documentId;
     phone;
-    constructor(firstName, lastName, email, organizationId, documentId = null, phone = null) {
+    birthDate;
+    constructor(firstName, lastName, email, organizationId, documentId = null, phone = null, birthDate = null) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.organizationId = organizationId;
         this.documentId = documentId;
         this.phone = phone;
+        this.birthDate = birthDate;
     }
 }
 exports.CreatePersonCommand = CreatePersonCommand;
@@ -37,7 +39,7 @@ class CreatePersonCommandHandler {
         }
         // Simple mock ID generation
         const id = Math.random().toString(36).substring(2, 9);
-        const person = new Person_1.Person(id, command.firstName, command.lastName, command.email, command.organizationId, command.documentId, command.phone);
+        const person = new Person_1.Person(id, command.firstName, command.lastName, command.email, command.organizationId, command.documentId, command.phone, command.birthDate);
         await this.personRepository.save(person);
         return id;
     }

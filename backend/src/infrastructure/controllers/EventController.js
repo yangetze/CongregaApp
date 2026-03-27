@@ -33,7 +33,8 @@ class EventController {
             res.status(201).json({ id, message: "Event created successfully" });
         }
         catch (error) {
-            res.status(500).json({ error: error.message });
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            res.status(500).json({ error: errorMessage });
         }
     };
     getEvents = async (req, res) => {
@@ -48,7 +49,8 @@ class EventController {
             res.status(200).json(events);
         }
         catch (error) {
-            res.status(500).json({ error: error.message });
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            res.status(500).json({ error: errorMessage });
         }
     };
     enrollPerson = async (req, res) => {
@@ -64,7 +66,8 @@ class EventController {
             res.status(201).json({ id, message: "Person enrolled successfully" });
         }
         catch (error) {
-            res.status(500).json({ error: error.message });
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            res.status(500).json({ error: errorMessage });
         }
     };
 }

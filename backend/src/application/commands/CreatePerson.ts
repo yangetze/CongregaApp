@@ -9,7 +9,8 @@ export class CreatePersonCommand implements ICommand {
         public readonly email: string | null,
         public readonly organizationId: string,
         public readonly documentId: string | null = null,
-        public readonly phone: string | null = null
+        public readonly phone: string | null = null,
+        public readonly birthDate: Date | null = null,
     ) {}
 }
 
@@ -44,7 +45,8 @@ export class CreatePersonCommandHandler implements ICommandHandler<CreatePersonC
             command.email,
             command.organizationId,
             command.documentId,
-            command.phone
+            command.phone,
+            command.birthDate
         );
 
         await this.personRepository.save(person);

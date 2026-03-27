@@ -13,7 +13,8 @@ class AdminController {
             res.status(200).json(methods);
         }
         catch (error) {
-            res.status(500).json({ error: error.message });
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            res.status(500).json({ error: errorMessage });
         }
     };
     createPaymentMethod = async (req, res) => {
@@ -29,7 +30,8 @@ class AdminController {
             res.status(201).json({ id, message: "Payment method created successfully" });
         }
         catch (error) {
-            res.status(500).json({ error: error.message });
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            res.status(500).json({ error: errorMessage });
         }
     };
     getEventStatuses = async (req, res) => {
@@ -38,7 +40,8 @@ class AdminController {
             res.status(200).json(statuses);
         }
         catch (error) {
-            res.status(500).json({ error: error.message });
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            res.status(500).json({ error: errorMessage });
         }
     };
 }

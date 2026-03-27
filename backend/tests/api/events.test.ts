@@ -56,7 +56,7 @@ describe("Events API", () => {
     it("should create an event and enroll organizers and participants", async () => {
         // Create an organizer
         const createOrganizerRes = await request(app)
-            .post("/api/people")
+            .post("/api/persons")
             .send({
                 firstName: "John",
                 lastName: "Organizer",
@@ -67,7 +67,7 @@ describe("Events API", () => {
 
         // Create a participant
         const createParticipantRes = await request(app)
-            .post("/api/people")
+            .post("/api/persons")
             .send({
                 firstName: "Jane",
                 lastName: "Participant",
@@ -93,14 +93,14 @@ describe("Events API", () => {
         const eventId = createEventRes.body.id;
 
         // Now verify the enrollments exist for the organizer
-        const orgEnrollmentsRes = await request(app).get(`/api/people/${organizerId}/enrollments`);
+        const orgEnrollmentsRes = await request(app).get(`/api/persons/${organizerId}/enrollments`);
         expect(orgEnrollmentsRes.status).toBe(200);
         expect(orgEnrollmentsRes.body.length).toBe(1);
         expect(orgEnrollmentsRes.body[0].eventId).toBe(eventId);
         expect(orgEnrollmentsRes.body[0].role).toBe("STAFF");
 
         // Verify the enrollments exist for the participant
-        const partEnrollmentsRes = await request(app).get(`/api/people/${participantId}/enrollments`);
+        const partEnrollmentsRes = await request(app).get(`/api/persons/${participantId}/enrollments`);
         expect(partEnrollmentsRes.status).toBe(200);
         expect(partEnrollmentsRes.body.length).toBe(1);
         expect(partEnrollmentsRes.body[0].eventId).toBe(eventId);
@@ -122,7 +122,7 @@ describe("Events API", () => {
 
         // Create a person
         const createPersonRes = await request(app)
-            .post("/api/people")
+            .post("/api/persons")
             .send({
                 firstName: "Alice",
                 lastName: "Student",
@@ -143,7 +143,7 @@ describe("Events API", () => {
         expect(enrollRes.body.message).toBe("Person enrolled successfully");
 
         // Verify enrollment
-        const enrollmentsRes = await request(app).get(`/api/people/${personId}/enrollments`);
+        const enrollmentsRes = await request(app).get(`/api/persons/${personId}/enrollments`);
         expect(enrollmentsRes.status).toBe(200);
         expect(enrollmentsRes.body.length).toBe(1);
         expect(enrollmentsRes.body[0].eventId).toBe(eventId);
