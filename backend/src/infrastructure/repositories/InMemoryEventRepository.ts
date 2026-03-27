@@ -16,6 +16,10 @@ export class InMemoryEventRepository implements IEventRepository {
         return this.events.find(e => e.id === id) || null;
     }
 
+    async findByOrganizationId(organizationId: string): Promise<Event[]> {
+        return this.events.filter(e => e.organizationId === organizationId);
+    }
+
     async getNextSequentialId(organizationId: string): Promise<number> {
         const orgEvents = this.events.filter(e => e.organizationId === organizationId);
         if (orgEvents.length === 0) {

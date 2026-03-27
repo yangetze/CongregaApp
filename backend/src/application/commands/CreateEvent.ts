@@ -23,6 +23,7 @@ export interface IEventRepository {
     save(event: Event): Promise<void>;
     findAll(): Promise<Event[]>;
     findById(id: string): Promise<Event | null>;
+    findByOrganizationId(organizationId: string): Promise<Event[]>;
     getNextSequentialId(organizationId: string): Promise<number>;
 }
 

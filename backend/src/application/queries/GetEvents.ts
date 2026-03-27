@@ -10,7 +10,6 @@ export class GetEventsQueryHandler implements IQueryHandler<GetEventsQuery, Even
     constructor(private readonly eventRepository: IEventRepository) {}
 
     async execute(query: GetEventsQuery): Promise<Event[]> {
-        const allEvents = await this.eventRepository.findAll();
-        return allEvents.filter(e => e.organizationId === query.organizationId);
+        return await this.eventRepository.findByOrganizationId(query.organizationId);
     }
 }
