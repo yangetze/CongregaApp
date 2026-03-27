@@ -15,4 +15,3 @@ class QueryBus {
     }
 }
 exports.QueryBus = QueryBus;
-//# sourceMappingURL=QueryBus.js.map

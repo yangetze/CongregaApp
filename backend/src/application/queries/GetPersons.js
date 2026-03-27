@@ -16,8 +16,7 @@ class GetPersonsQueryHandler {
         this.personRepository = personRepository;
     }
     async execute(query) {
-        const allPeople = await this.personRepository.findAll();
-        let filtered = allPeople.filter(p => p.organizationId === query.organizationId);
+        let filtered = await this.personRepository.findByOrganizationId(query.organizationId);
         if (query.search) {
             const searchLower = query.search.toLowerCase();
             filtered = filtered.filter(p => {
@@ -32,4 +31,3 @@ class GetPersonsQueryHandler {
     }
 }
 exports.GetPersonsQueryHandler = GetPersonsQueryHandler;
-//# sourceMappingURL=GetPersons.js.map
