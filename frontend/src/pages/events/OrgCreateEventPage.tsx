@@ -118,7 +118,7 @@ export default function OrgCreateEventPage() {
                     <ArrowLeft className="w-4 h-4" />
                 </Button>
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">Crear Nuevo Evento</h1>
+                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">Crear Evento</h1>
                     <p className="text-gray-500 mt-1">Configura los detalles básicos, reglas de inscripción y costos.</p>
                 </div>
             </div>

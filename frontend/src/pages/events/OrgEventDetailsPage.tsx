@@ -209,7 +209,7 @@ export default function OrgEventDetailsPage() {
                     {!isEnrollmentMode && (
                         <Button onClick={() => setIsEnrollmentMode(true)} className="flex items-center gap-2">
                             <Plus className="w-4 h-4" />
-                            Nueva Inscripción
+                            Crear Inscripción
                         </Button>
                     )}
                 </div>
