@@ -11,15 +11,17 @@ export default function AdminOrganizationsPage() {
     // Fetch events for mock statistics for all organizations
     const fetchAllEvents = async () => {
       try {
-        const events = [];
-        for (const org of MOCK_ORGANIZATIONS) {
-           const res = await fetch(`http://localhost:3000/api/events?organizationId=${org.id}`);
-           if (res.ok) {
-             const data = await res.json();
-             events.push(...data);
-           }
-        }
-        setEventsData(events);
+        const eventPromises = MOCK_ORGANIZATIONS.map(async (org) => {
+          const res = await fetch(`http://localhost:3000/api/events?organizationId=${org.id}`);
+          if (res.ok) {
+            return await res.json();
+          }
+          return [];
+        });
+
+        const results = await Promise.all(eventPromises);
+        const allEvents = results.flat();
+        setEventsData(allEvents);
       } catch (err) {
         console.error("Error fetching events", err);
       }
