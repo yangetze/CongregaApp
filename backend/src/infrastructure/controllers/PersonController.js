@@ -16,6 +16,10 @@ class PersonController {
     createPerson = async (req, res) => {
         try {
             const { firstName, lastName, email, organizationId, documentId, phone } = req.body;
+            if (!firstName || !lastName || !organizationId) {
+                res.status(400).json({ error: "Missing required fields: firstName, lastName, and organizationId are required." });
+                return;
+            }
             const parsedBirthDate = req.body.birthDate ? new Date(req.body.birthDate) : null;
             const command = new CreatePerson_1.CreatePersonCommand(firstName, lastName, email, organizationId, documentId, phone, parsedBirthDate);
             const id = await this.commandBus.execute("CreatePersonCommand", command);

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreatePersonCommandHandler = exports.CreatePersonCommand = void 0;
+const node_crypto_1 = require("node:crypto");
 const Person_1 = require("../../domain/Person");
 // Command Definition
 class CreatePersonCommand {
@@ -38,7 +39,7 @@ class CreatePersonCommandHandler {
             }
         }
         // Simple mock ID generation
-        const id = Math.random().toString(36).substring(2, 9);
+        const id = (0, node_crypto_1.randomUUID)();
         const person = new Person_1.Person(id, command.firstName, command.lastName, command.email, command.organizationId, command.documentId, command.phone, command.birthDate);
         await this.personRepository.save(person);
         return id;

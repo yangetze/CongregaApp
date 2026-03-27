@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EnrollPersonCommandHandler = exports.EnrollPersonCommand = void 0;
+const node_crypto_1 = require("node:crypto");
 const Event_1 = require("../../domain/Event");
 class EnrollPersonCommand {
     eventId;
@@ -19,7 +20,7 @@ class EnrollPersonCommandHandler {
         this.enrollmentRepository = enrollmentRepository;
     }
     async execute(command) {
-        const id = Math.random().toString(36).substring(2, 9);
+        const id = (0, node_crypto_1.randomUUID)();
         const role = command.role || Event_1.EnrollmentRole.PARTICIPANT;
         const enrollment = new Event_1.Enrollment(id, command.eventId, command.personId, role);
         await this.enrollmentRepository.save(enrollment);

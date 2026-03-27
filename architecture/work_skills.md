@@ -19,6 +19,7 @@ El enfoque principal para desarrollar y evolucionar CongregaApp se basa en entre
 
 ## Excelencia Frontend (React + Vite + Tailwind)
 * **Accesible y Moderno (2025):** Creación de interfaces responsivas y agradables, que no solo "funcionen" sino que deleiten (usando la paleta Contemporánea y Espiritual).
+* **Manejo de Errores con el Backend:** Si hay un error con los Endpoints (p. ej. validaciones faltantes o fallas de lógica de negocio), el mensaje descriptivo del error **debe venir del backend**. El frontend no debe "inventar" razones, sino parsear la respuesta (`const data = await res.json()`) y mostrar el mensaje en la UI usando una notificación de `sonner` (`toast.error()`), evitando el uso de `alert()` genéricos.
 * **Manejo de Estado Centralizado:** Empleo de enrutadores declarativos (react-router-dom) y sincronización del estado de la URL con la navegación, facilitando enlaces directos (`/admin/payment-methods`).
 
 ## Prácticas de Código y Colaboración

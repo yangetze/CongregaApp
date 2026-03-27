@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import { PersonSearch } from '@/components/PersonSearch';
+import { toast } from 'sonner';
 
 export default function OrgCreateEventPage() {
     const { orgId } = useParams();
@@ -39,7 +40,7 @@ export default function OrgCreateEventPage() {
     const [people, setPeople] = useState<any[]>([]);
 
     useEffect(() => {
-        fetch(`http://localhost:3000/api/people?organizationId=${orgId}`)
+        fetch(`http://localhost:3000/api/persons?organizationId=${orgId}`)
             .then(res => res.json())
             .then(data => setPeople(data))
             .catch(console.error);
@@ -99,11 +100,12 @@ export default function OrgCreateEventPage() {
                 const result = await res.json();
                 navigate(`/org/${orgId}/events/${result.id}`);
             } else {
-                alert('Error al crear evento');
+                const errorData = await res.json();
+                toast.error(errorData.error || 'Error al crear evento');
             }
         } catch (error) {
             console.error(error);
-            alert('Error de red');
+            toast.error('Error de red');
         } finally {
             setIsSubmitting(false);
         }

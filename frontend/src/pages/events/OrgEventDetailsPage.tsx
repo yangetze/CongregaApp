@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CalendarDays, Users, Search, Plus, ArrowLeft, Mail, Phone, Ticket } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface EventData {
     id: string;
@@ -73,7 +74,7 @@ export default function OrgEventDetailsPage() {
         setIsCreatingNewPerson(false);
 
         try {
-            const res = await fetch(`http://localhost:3000/api/people/document/${documentSearch}?organizationId=${orgId}`);
+            const res = await fetch(`http://localhost:3000/api/persons/document/${documentSearch}?organizationId=${orgId}`);
             if (res.ok) {
                 const data = await res.json();
                 setFoundPerson(data);
@@ -97,17 +98,18 @@ export default function OrgEventDetailsPage() {
             });
 
             if (res.ok) {
-                alert('¡Inscripción exitosa!');
+                toast.success('¡Inscripción exitosa!');
                 setIsEnrollmentMode(false);
                 setDocumentSearch('');
                 setFoundPerson(null);
                 setIsCreatingNewPerson(false);
             } else {
-                alert('Error al inscribir persona');
+                const data = await res.json();
+                toast.error(data.error || 'Error al inscribir persona');
             }
         } catch (error) {
             console.error(error);
-            alert('Error de conexión');
+            toast.error('Error de conexión');
         }
     };
 
@@ -115,7 +117,7 @@ export default function OrgEventDetailsPage() {
         e.preventDefault();
         try {
             // 1. Create Person
-            const personRes = await fetch('http://localhost:3000/api/people', {
+            const personRes = await fetch('http://localhost:3000/api/persons', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -126,7 +128,10 @@ export default function OrgEventDetailsPage() {
             });
 
             const personData = await personRes.json();
-            if (!personRes.ok) throw new Error(personData.error || 'Error creando persona');
+            if (!personRes.ok) {
+                toast.error(personData.error || 'Error creando persona');
+                return;
+            }
 
             // 2. Enroll Person
             const enrollRes = await fetch(`http://localhost:3000/api/events/${eventId}/enroll`, {
@@ -136,18 +141,20 @@ export default function OrgEventDetailsPage() {
             });
 
             if (enrollRes.ok) {
-                alert('¡Inscripción exitosa!');
+                toast.success('¡Inscripción exitosa!');
                 setIsEnrollmentMode(false);
                 setDocumentSearch('');
                 setFoundPerson(null);
                 setIsCreatingNewPerson(false);
             } else {
-                alert('Error al inscribir persona. Puede que ya esté inscrita.');
+                const enrollData = await enrollRes.json();
+                toast.error(enrollData.error || 'Error al inscribir persona. Puede que ya esté inscrita.');
             }
 
         } catch (error) {
             console.error(error);
-            alert('Hubo un error al crear e inscribir a la persona.');
+            const errorMessage = error instanceof Error ? error.message : 'Hubo un error al crear e inscribir a la persona.';
+            toast.error(errorMessage);
         }
     };
 

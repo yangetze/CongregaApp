@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminController = void 0;
+const node_crypto_1 = require("node:crypto");
 const GlobalConfig_1 = require("../../../domain/admin/GlobalConfig");
 class AdminController {
     configRepo;
@@ -24,7 +25,7 @@ class AdminController {
                 res.status(400).json({ error: "Name and currency are required" });
                 return;
             }
-            const id = Math.random().toString(36).substring(2, 9);
+            const id = (0, node_crypto_1.randomUUID)();
             const method = new GlobalConfig_1.PaymentMethod(id, name, currency);
             await this.configRepo.savePaymentMethod(method);
             res.status(201).json({ id, message: "Payment method created successfully" });
