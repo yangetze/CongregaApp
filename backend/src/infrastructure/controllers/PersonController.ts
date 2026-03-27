@@ -18,8 +18,9 @@ export class PersonController {
             const command = new CreatePersonCommand(firstName, lastName, email, organizationId, documentId, phone);
             const id = await this.commandBus.execute("CreatePersonCommand", command);
             res.status(201).json({ id, message: "Person created successfully" });
-        } catch (error: any) {
-            res.status(500).json({ error: error.message });
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            res.status(500).json({ error: errorMessage });
         }
     };
 
@@ -33,8 +34,9 @@ export class PersonController {
             const query = new GetPeopleQuery(organizationId);
             const people = await this.queryBus.execute("GetPeopleQuery", query);
             res.status(200).json(people);
-        } catch (error: any) {
-            res.status(500).json({ error: error.message });
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            res.status(500).json({ error: errorMessage });
         }
     };
 
@@ -57,8 +59,9 @@ export class PersonController {
             }
 
             res.status(200).json(person);
-        } catch (error: any) {
-            res.status(500).json({ error: error.message });
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            res.status(500).json({ error: errorMessage });
         }
     };
 
@@ -70,8 +73,9 @@ export class PersonController {
             const enrollments = await this.queryBus.execute("GetPersonEnrollmentsQuery", query);
 
             res.status(200).json(enrollments);
-        } catch (error: any) {
-            res.status(500).json({ error: error.message });
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            res.status(500).json({ error: errorMessage });
         }
     };
 }

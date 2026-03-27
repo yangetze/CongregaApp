@@ -9,8 +9,9 @@ export class AdminController {
         try {
             const methods = await this.configRepo.getPaymentMethods();
             res.status(200).json(methods);
-        } catch (error: any) {
-            res.status(500).json({ error: error.message });
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            res.status(500).json({ error: errorMessage });
         }
     };
 
@@ -25,8 +26,9 @@ export class AdminController {
             const method = new PaymentMethod(id, name, currency);
             await this.configRepo.savePaymentMethod(method);
             res.status(201).json({ id, message: "Payment method created successfully" });
-        } catch (error: any) {
-            res.status(500).json({ error: error.message });
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            res.status(500).json({ error: errorMessage });
         }
     };
 
@@ -34,8 +36,9 @@ export class AdminController {
         try {
             const statuses = await this.configRepo.getEventStatuses();
             res.status(200).json(statuses);
-        } catch (error: any) {
-            res.status(500).json({ error: error.message });
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            res.status(500).json({ error: errorMessage });
         }
     };
 }

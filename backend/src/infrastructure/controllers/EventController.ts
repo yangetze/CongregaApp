@@ -45,8 +45,9 @@ export class EventController {
             }
 
             res.status(201).json({ id, message: "Event created successfully" });
-        } catch (error: any) {
-            res.status(500).json({ error: error.message });
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            res.status(500).json({ error: errorMessage });
         }
     };
 
@@ -60,8 +61,9 @@ export class EventController {
             const query = new GetEventsQuery(organizationId);
             const events = await this.queryBus.execute("GetEventsQuery", query);
             res.status(200).json(events);
-        } catch (error: any) {
-            res.status(500).json({ error: error.message });
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            res.status(500).json({ error: errorMessage });
         }
     };
 
@@ -79,8 +81,9 @@ export class EventController {
             const id = await this.commandBus.execute("EnrollPersonCommand", command);
 
             res.status(201).json({ id, message: "Person enrolled successfully" });
-        } catch (error: any) {
-            res.status(500).json({ error: error.message });
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            res.status(500).json({ error: errorMessage });
         }
     }
 }
