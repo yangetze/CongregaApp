@@ -2,6 +2,8 @@
 
 Este módulo es vital para mantener la salud financiera de la organización. Gestiona la recaudación de fondos de manera estructurada y centralizada, abarcando abonos, pagos fraccionados, configuración de métodos de pago y el potente Motor de Patrocinios.
 
+> **Nota Importante:** Este módulo ha sido rediseñado para implementar una arquitectura financiera centralizada en dos pasos: Registro de Pagos (a una Wallet genérica) y Asignación de Pagos (a Inscripciones o Eventos). Por favor, consulta `plans/module_5_financial_allocations.md` para los detalles de esta nueva regla de negocio.
+
 ## Arquitectura de Pagos (Dos Niveles)
 
 Para garantizar consistencia global y flexibilidad local, CongregaApp implementa una arquitectura de pago en dos niveles:

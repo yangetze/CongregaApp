@@ -30,7 +30,7 @@ model Organization {
   users           User[]     // Administradores de la plataforma
   persons         Person[]   // CRM de asistentes
   events          Event[]
-  globalSponsorships SponsorshipWallet[] // Bolsa global
+  wallets         Wallet[]   // Bolsas de dinero de la organización
   paymentMethods  OrganizationPaymentMethod[]
   providers       Provider[] // Fase 2
 }
@@ -170,7 +170,8 @@ model Event {
   costStructures  CostStructure[]
   ticketStructures TicketStructure[]
   enrollments     Enrollment[]
-  sponsorships    SponsorshipWallet[]
+  wallets         Wallet[] // Wallet asociado específicamente a este evento
+  allocations     Transaction[] @relation("EventAllocations") // Dinero asignado directamente a este evento
   logisticGroups  LogisticGroup[] // Fase 2
   payableAccounts PayableAccount[] // Fase 2
 }
@@ -204,6 +205,7 @@ model TicketStructure {
   createdAt       DateTime @default(now())
 
   event           Event    @relation(fields: [eventId], references: [id])
+  enrollments     Enrollment[]
 }
 
 // Inscripción de la Person en un Evento
@@ -211,17 +213,19 @@ model Enrollment {
   id              String   @id @default(uuid())
   eventId         String
   personId        String
+  ticketId        String?  // Obligatorio, si se borra el ticket que pasa
   role            EnrollmentRole @default(PARTICIPANT)
   tariffType      TariffType @default(FULL_PAYMENT)
-  totalCost       Decimal
+  totalCost       Decimal  // Copia inicial del precio del ticket para congelar el valor, o para tarifas diferentes
   totalPaid       Decimal  @default(0.0)
-  status          EnrollmentStatus @default(PENDING)
+  status          EnrollmentStatus @default(PENDING) // Puede ser un modelo separado luego, como TransactionStatus
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   event           Event    @relation(fields: [eventId], references: [id])
   person          Person   @relation(fields: [personId], references: [id])
-  transactions    Transaction[]
+  ticket          TicketStructure? @relation(fields: [ticketId], references: [id])
+  allocations     Transaction[] @relation("EnrollmentAllocations")
 
   @@unique([eventId, personId])
 }
@@ -244,47 +248,54 @@ enum EnrollmentStatus {
 }
 
 // ==============================================================================
-// MÓDULO 2: CUENTAS POR COBRAR (MVP)
+// MÓDULO 2: CUENTAS POR COBRAR (MVP) - NUEVO MODELO DE WALLET
 // ==============================================================================
+
+model TransactionStatus {
+  id              String   @id @default(uuid())
+  code            String   @unique // Ej. "PENDING", "RECONCILED", "REJECTED"
+  name            String   // Nombre amigable "Por Conciliar", "Conciliado", "Rechazado"
+  description     String?
+  transactions    Transaction[]
+}
 
 model Transaction {
   id              String   @id @default(uuid())
-  enrollmentId    String?
-  walletId        String?
+  // Para asignar (Allocation)
+  enrollmentId    String?  // Destino 1: Asignado a Inscripción (Person)
+  eventId         String?  // Destino 2: Asignado a Evento
+
+  walletId        String?  // Origen (para Allocations) o Destino (para Registros de Ingreso)
   amountOriginal  Decimal
   currencyOriginal String
   exchangeRate    Decimal
   amountBase      Decimal
   organizationPaymentMethodId String?
-  receiptNumber   String   @unique @default(uuid())
+  receiptNumber   String?  @unique @default(uuid())
   type            TransactionType
-  status          TransactionStatus @default(PENDING) // pendiente, conciliado, rechazado
+  statusId        String   // Referencia a TransactionStatus
   date            DateTime @default(now())
   createdAt       DateTime @default(now())
 
-  enrollment      Enrollment? @relation(fields: [enrollmentId], references: [id])
-  wallet          SponsorshipWallet? @relation(fields: [walletId], references: [id])
+  enrollment      Enrollment? @relation("EnrollmentAllocations", fields: [enrollmentId], references: [id])
+  event           Event?      @relation("EventAllocations", fields: [eventId], references: [id])
+  wallet          Wallet?     @relation(fields: [walletId], references: [id])
+  status          TransactionStatus @relation(fields: [statusId], references: [id])
   organizationPaymentMethod OrganizationPaymentMethod? @relation(fields: [organizationPaymentMethodId], references: [id])
 }
 
 enum TransactionType {
-  DIRECT_PAYMENT
-  DONATION
-  SPONSORSHIP_ALLOCATION
+  WALLET_DEPOSIT   // Registro de pago/donación hacia la Wallet
+  WALLET_ALLOCATION // Asignación de dinero desde la Wallet (hacia Evento o Enrollment)
 }
 
-enum TransactionStatus {
-  PENDING
-  RECONCILED
-  REJECTED
-}
-
-// Bolsa de Patrocinios
-model SponsorshipWallet {
+// Bolsa de Fondos Centralizada (Genérica)
+model Wallet {
   id              String   @id @default(uuid())
   organizationId  String
-  eventId         String?  // Nulo si es global
-  donorName       String?
+  eventId         String?  // Nulo si es global, con valor si es para un evento específico
+  ownerName       String?  // Nombre del Donante o de la Persona que hace el pago general
+  category        WalletCategory @default(PAYMENT) // Para discriminar donaciones externas de pagos regulares
   totalReceived   Decimal  @default(0.0)
   totalAllocated  Decimal  @default(0.0)
   createdAt       DateTime @default(now())
@@ -292,7 +303,13 @@ model SponsorshipWallet {
 
   organization    Organization @relation(fields: [organizationId], references: [id])
   event           Event?       @relation(fields: [eventId], references: [id])
-  allocations     Transaction[]
+  transactions    Transaction[]
+}
+
+enum WalletCategory {
+  DONATION              // Donaciones externas/fondo perdido
+  PAYMENT               // Pagos regulares o saldo a favor
+  MEMBER_CONTRIBUTION   // Aportes directos
 }
 
 // ==============================================================================
