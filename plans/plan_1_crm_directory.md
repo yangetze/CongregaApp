@@ -2,7 +2,7 @@
 
 ## Contexto de Negocio
 Para que cualquier organización pueda gestionar asistentes a sus eventos, primero necesita una base de datos centralizada de su comunidad.
-En CongregaApp, esta entidad se denomina `Person` (diferenciada de `User`, que es el administrador del sistema).
+En CongregaApp, esta entidad se denomina `Person` (diferenciada de `User`, que es el administrador del sistema). A nivel de interfaz, este directorio se presenta como "Personas" (ruta `/org/:orgId/people`), distinguiéndose del término "Participante" el cual se reserva estrictamente para las personas ya inscritas en un evento (`Enrollment`).
 El módulo CRM permite a las organizaciones gestionar de forma segura los datos personales (Nombres, Cédula/Documento de Identidad, Teléfono, Correo y Fecha de Nacimiento) e incluso establecer relaciones familiares (ej. Padre a Hijo) que servirán para futuros procesos logísticos.
 
 Este módulo debe operar bajo el modelo Multi-Tenancy asegurando siempre el filtro por `organizationId`.
@@ -10,9 +10,9 @@ Este módulo debe operar bajo el modelo Multi-Tenancy asegurando siempre el filt
 ## Tareas Funcionales a Desarrollar
 
 ### Tarea 1.1: Registro de Nuevas Personas (`POST /api/persons`)
-- **Descripción:** Desarrollar el endpoint para la creación de un nuevo participante.
+- **Descripción:** Desarrollar el endpoint para la creación de una nueva persona en el directorio general.
 - **Validaciones:**
-  - El sistema **no debe permitir la creación de participantes duplicados**. Si se envía un `documentId` (cédula) que ya está registrado para esa misma organización (`organizationId`), el sistema no debe fallar con un error, sino que debe retornar el ID de la persona existente de forma silenciosa para continuar el flujo de inscripción.
+  - El sistema **no debe permitir la creación de personas duplicadas**. Si se envía un `documentId` (cédula) que ya está registrado para esa misma organización (`organizationId`), el sistema no debe fallar con un error, sino que debe retornar el ID de la persona existente de forma silenciosa para continuar el flujo de inscripción.
   - La edad se calculará de forma dinámica a partir de la fecha de nacimiento ingresada y de cara al futuro. No se debe guardar como un entero fijo en base de datos.
 - **Tests Requeridos:**
   - `[Test]` Prueba unitaria/integración validando que se crea una nueva persona si el documento no existe en la organización.

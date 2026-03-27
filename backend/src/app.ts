@@ -19,6 +19,7 @@ import { GetPersonEnrollmentsQueryHandler } from "./application/queries/GetPerso
 import { CreateEventCommandHandler } from "./application/commands/CreateEvent";
 import { EnrollPersonCommandHandler } from "./application/commands/EnrollPerson";
 import { GetEventsQueryHandler } from "./application/queries/GetEvents";
+import { GetEventEnrollmentsQueryHandler } from "./application/queries/GetEventEnrollments";
 import { EstablishRelationshipCommandHandler } from "./application/commands/EstablishRelationship";
 
 // Controllers
@@ -58,6 +59,7 @@ export const createApp = () => {
     commandBus.register("CreateEventCommand", new CreateEventCommandHandler(eventRepository));
     commandBus.register("EnrollPersonCommand", new EnrollPersonCommandHandler(enrollmentRepository));
     queryBus.register("GetEventsQuery", new GetEventsQueryHandler(eventRepository));
+    queryBus.register("GetEventEnrollmentsQuery", new GetEventEnrollmentsQueryHandler(enrollmentRepository));
 
     // Initialize Controllers
     const personController = new PersonController(commandBus, queryBus);
@@ -74,6 +76,7 @@ export const createApp = () => {
 
     apiRouter.post("/events", (req, res) => eventController.createEvent(req, res));
     apiRouter.post("/events/:eventId/enroll", (req, res) => eventController.enrollPerson(req, res));
+    apiRouter.get("/events/:eventId/enrollments", (req, res) => eventController.getEventEnrollments(req, res));
     apiRouter.get("/events", (req, res) => eventController.getEvents(req, res));
 
     // Admin Global Routes

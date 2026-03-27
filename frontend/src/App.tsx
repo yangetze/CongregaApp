@@ -7,7 +7,7 @@ import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminMaintenancePage from './pages/admin/AdminMaintenancePage';
 import OrgLayout from './pages/org/OrgLayout';
 import OrgDashboardPage from './pages/org/OrgDashboardPage';
-import OrgParticipantsPage from './pages/people/OrgParticipantsPage';
+import OrgPeoplePage from './pages/people/OrgPeoplePage';
 import OrgFinancesPage from './pages/org/OrgFinancesPage';
 import OrgEventsListPage from './pages/events/OrgEventsListPage';
 import OrgCreateEventPage from './pages/events/OrgCreateEventPage';
@@ -38,7 +38,7 @@ function App() {
         <Route path="/org/:orgId" element={<OrgLayout />}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<OrgDashboardPage />} />
-          <Route path="participants" element={<OrgParticipantsPage />} />
+          <Route path="people" element={<OrgPeoplePage />} />
           <Route path="finances" element={<OrgFinancesPage />} />
           <Route path="events" element={<OrgEventsListPage />} />
           <Route path="events/new" element={<OrgCreateEventPage />} />

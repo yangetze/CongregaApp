@@ -3,6 +3,7 @@ import { CommandBus } from "../../shared/cqrs/CommandBus";
 import { QueryBus } from "../../shared/cqrs/QueryBus";
 import { CreateEventCommand } from "../../application/commands/CreateEvent";
 import { GetEventsQuery } from "../../application/queries/GetEvents";
+import { GetEventEnrollmentsQuery } from "../../application/queries/GetEventEnrollments";
 import { EnrollPersonCommand } from "../../application/commands/EnrollPerson";
 
 export class EventController {
@@ -61,6 +62,25 @@ export class EventController {
             const query = new GetEventsQuery(organizationId);
             const events = await this.queryBus.execute("GetEventsQuery", query);
             res.status(200).json(events);
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            res.status(500).json({ error: errorMessage });
+        }
+    };
+
+    getEventEnrollments = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const eventId = req.params.eventId as string;
+
+            if (!eventId) {
+                res.status(400).json({ error: "eventId is required" });
+                return;
+            }
+
+            const query = new GetEventEnrollmentsQuery(eventId);
+            const enrollments = await this.queryBus.execute("GetEventEnrollmentsQuery", query);
+
+            res.status(200).json(enrollments);
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
             res.status(500).json({ error: errorMessage });
