@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateEventCommandHandler = exports.CreateEventCommand = void 0;
+const node_crypto_1 = require("node:crypto");
 const Event_1 = require("../../domain/Event");
 class CreateEventCommand {
     name;
@@ -33,7 +34,7 @@ class CreateEventCommandHandler {
         this.eventRepository = eventRepository;
     }
     async execute(command) {
-        const id = Math.random().toString(36).substring(2, 9);
+        const id = (0, node_crypto_1.randomUUID)();
         const sequentialId = await this.eventRepository.getNextSequentialId(command.organizationId);
         const costStructures = command.costs.map(c => new Event_1.CostStructure(c.name, c.amount, c.isMandatory));
         let finalTickets = command.tickets;
