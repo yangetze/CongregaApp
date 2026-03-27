@@ -4,6 +4,8 @@ A continuación, se define la estructura de las rutas necesarias para que el Fro
 
 **IMPORTANTE:** Por cada endpoint o API desarrollada, es un requisito estricto realizar y agregar pruebas (tests) sobre esa funcionalidad.
 
+*Nota de Terminología:* El sistema diferencia entre "Persona" (Person) y "Participante" (Participant). "Persona" se refiere a cualquier individuo en el Directorio/CRM de la organización. "Participante" se refiere exclusivamente a una Persona inscrita (`Enrollment`) en un Evento específico. Las rutas del Frontend reflejan esto (ej. `/org/:orgId/people` para el directorio general).
+
 ## Módulo 1: Personas (Directorio / CRM)
 
 ### 1. Crear / Registrar a una Persona

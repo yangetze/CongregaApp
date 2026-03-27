@@ -38,6 +38,8 @@ export default function OrgEventDetailsPage() {
 
     // Enrollment Flow State
     const [isEnrollmentMode, setIsEnrollmentMode] = useState(false);
+    const [enrollments, setEnrollments] = useState<any[]>([]);
+    const [people, setPeople] = useState<Person[]>([]);
     const [documentSearch, setDocumentSearch] = useState('');
     const [foundPerson, setFoundPerson] = useState<Person | null>(null);
     const [searchMessage, setSearchMessage] = useState('');
@@ -52,19 +54,37 @@ export default function OrgEventDetailsPage() {
         phone: ''
     });
 
-    useEffect(() => {
+    const fetchData = async () => {
         setIsLoading(true);
-        fetch(`http://localhost:3000/api/events?organizationId=${orgId}`)
-            .then(res => res.json())
-            .then(data => {
-                const found = data.find((e: any) => e.id === eventId);
-                setEvent(found || null);
-                setIsLoading(false);
-            })
-            .catch(err => {
-                console.error(err);
-                setIsLoading(false);
-            });
+        try {
+            // Fetch Event
+            const eventRes = await fetch(`http://localhost:3000/api/events?organizationId=${orgId}`);
+            const eventData = await eventRes.json();
+            const found = eventData.find((e: any) => e.id === eventId);
+            setEvent(found || null);
+
+            // Fetch Enrollments for this event
+            const enrollmentsRes = await fetch(`http://localhost:3000/api/events/${eventId}/enrollments`);
+            if (enrollmentsRes.ok) {
+                const enrollmentsData = await enrollmentsRes.json();
+                setEnrollments(enrollmentsData);
+            }
+
+            // Fetch People to map names
+            const peopleRes = await fetch(`http://localhost:3000/api/people?organizationId=${orgId}`);
+            if (peopleRes.ok) {
+                const peopleData = await peopleRes.json();
+                setPeople(peopleData);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
     }, [orgId, eventId]);
 
     const handleSearchDocument = async () => {
@@ -103,6 +123,7 @@ export default function OrgEventDetailsPage() {
                 setDocumentSearch('');
                 setFoundPerson(null);
                 setIsCreatingNewPerson(false);
+                fetchData(); // Refresh enrollments list
             } else {
                 const data = await res.json();
                 toast.error(data.error || 'Error al inscribir persona');
@@ -146,6 +167,7 @@ export default function OrgEventDetailsPage() {
                 setDocumentSearch('');
                 setFoundPerson(null);
                 setIsCreatingNewPerson(false);
+                fetchData(); // Refresh enrollments list
             } else {
                 const enrollData = await enrollRes.json();
                 toast.error(enrollData.error || 'Error al inscribir persona. Puede que ya esté inscrita.');
@@ -294,7 +316,8 @@ export default function OrgEventDetailsPage() {
                     </CardContent>
                 </Card>
             ) : (
-                /* EVENT DETAILS */
+                <>
+                {/* EVENT DETAILS */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <Card className="lg:col-span-2">
                         <CardHeader>
@@ -356,6 +379,67 @@ export default function OrgEventDetailsPage() {
                         </CardContent>
                     </Card>
                 </div>
+
+                {/* PARTICIPANTS LIST */}
+                <Card className="mt-6">
+                    <CardHeader className="flex flex-row items-center justify-between border-b border-gray-100 pb-4">
+                        <div>
+                            <CardTitle>Participantes Registrados</CardTitle>
+                            <CardDescription>Personas inscritas en este evento.</CardDescription>
+                        </div>
+                        <Badge variant="info" className="text-brand-primary border-brand-primary">
+                            {enrollments.length} Inscritos
+                        </Badge>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                        {enrollments.length === 0 ? (
+                            <div className="text-center py-8 text-gray-500">
+                                <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                                <p>No hay participantes inscritos aún.</p>
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm text-left text-gray-600">
+                                    <thead className="text-xs text-gray-500 uppercase bg-gray-50/50 border-b border-surface-border">
+                                        <tr>
+                                            <th className="px-6 py-4 font-medium">Nombre completo</th>
+                                            <th className="px-6 py-4 font-medium">Rol</th>
+                                            <th className="px-6 py-4 font-medium">Fecha de Inscripción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {enrollments.map((enrollment, idx) => {
+                                            const person = people.find(p => p.id === enrollment.personId);
+                                            return (
+                                                <tr key={idx} className="border-b border-surface-border last:border-0 hover:bg-gray-50/50 transition-colors">
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-8 h-8 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center font-bold text-xs">
+                                                                {person ? `${person.firstName.charAt(0)}${person.lastName.charAt(0)}` : '?'}
+                                                            </div>
+                                                            <div className="font-medium text-gray-900">
+                                                                {person ? `${person.firstName} ${person.lastName}` : 'Persona Desconocida'}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <Badge variant={enrollment.role === 'STAFF' ? 'info' : 'default'} className="text-xs">
+                                                            {enrollment.role}
+                                                        </Badge>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-gray-500">
+                                                        {new Date(enrollment.createdAt).toLocaleDateString()}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+                </>
             )}
         </div>
     );

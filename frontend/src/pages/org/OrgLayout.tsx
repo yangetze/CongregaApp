@@ -64,7 +64,7 @@ export default function OrgLayout() {
           </NavLink>
 
           <NavLink
-            to={`/org/${orgId}/participants`}
+            to={`/org/${orgId}/people`}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 isActive ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-600 hover:bg-surface-background hover:text-gray-900'
@@ -72,7 +72,7 @@ export default function OrgLayout() {
             }
           >
             <Users className="w-5 h-5" />
-            Participantes
+            Personas
           </NavLink>
 
           <NavLink
@@ -157,7 +157,7 @@ export default function OrgLayout() {
               </NavLink>
 
               <NavLink
-                to={`/org/${orgId}/participants`}
+                to={`/org/${orgId}/people`}
                 onClick={closeMobileMenu}
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
@@ -166,7 +166,7 @@ export default function OrgLayout() {
                 }
               >
                 <Users className="w-5 h-5" />
-                Participantes
+                Personas
               </NavLink>
 
               <NavLink
