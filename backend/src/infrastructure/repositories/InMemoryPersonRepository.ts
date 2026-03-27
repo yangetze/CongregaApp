@@ -19,4 +19,8 @@ export class InMemoryPersonRepository implements IPersonRepository {
     async findByDocumentId(documentId: string): Promise<Person | null> {
         return this.persons.find(p => p.documentId === documentId) || null;
     }
+
+    async findByOrganizationId(organizationId: string): Promise<Person[]> {
+        return this.persons.filter(p => p.organizationId === organizationId);
+    }
 }

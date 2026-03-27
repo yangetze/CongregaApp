@@ -13,9 +13,7 @@ export class GetPersonsQueryHandler implements IQueryHandler<GetPersonsQuery, Pe
     constructor(private readonly personRepository: IPersonRepository) {}
 
     async execute(query: GetPersonsQuery): Promise<Person[]> {
-        const allPeople = await this.personRepository.findAll();
-
-        let filtered = allPeople.filter(p => p.organizationId === query.organizationId);
+        let filtered = await this.personRepository.findByOrganizationId(query.organizationId);
 
         if (query.search) {
             const searchLower = query.search.toLowerCase();

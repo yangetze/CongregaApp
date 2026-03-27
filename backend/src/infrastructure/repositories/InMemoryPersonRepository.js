@@ -15,6 +15,8 @@ class InMemoryPersonRepository {
     async findByDocumentId(documentId) {
         return this.persons.find(p => p.documentId === documentId) || null;
     }
+    async findByOrganizationId(organizationId) {
+        return this.persons.filter(p => p.organizationId === organizationId);
+    }
 }
 exports.InMemoryPersonRepository = InMemoryPersonRepository;
-//# sourceMappingURL=InMemoryPersonRepository.js.map

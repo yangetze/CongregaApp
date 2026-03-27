@@ -21,6 +21,7 @@ export interface IPersonRepository {
     findAll(): Promise<Person[]>;
     findById(id: string): Promise<Person | null>;
     findByDocumentId(documentId: string): Promise<Person | null>;
+    findByOrganizationId(organizationId: string): Promise<Person[]>;
 }
 
 // Command Handler
