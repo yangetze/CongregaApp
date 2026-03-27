@@ -4,7 +4,7 @@
 
 ## Visión del Producto
 CongregaApp es un SaaS B2B moderno (pensado con una estética 2025) enfocado en la gestión financiera, administrativa y logística de eventos para organizaciones como iglesias, campamentos, retiros y convenciones.
-Queremos resolver los problemas más críticos de nuestros clientes con un tono comercial pero con cercanía, facilitándoles la vida: control de cupos (tickets), estructuración de presupuestos por tipo de asistente (Staff o Participante) y la gestión de cuentas por cobrar (abonos fraccionados, donaciones y asignación de fondos). En el futuro, cubriremos también la logística del evento y el control de cuentas por pagar a proveedores.
+Queremos resolver los problemas más críticos de nuestros clientes. Nuestra comunicación (tanto dentro de la app como hacia los usuarios finales) debe reflejar siempre un **tono comercial pero con cercanía**, facilitándoles la vida mediante procesos intuitivos para: control de cupos (tickets), estructuración de presupuestos por tipo de asistente (Staff o Participante) y la gestión de cuentas por cobrar (abonos fraccionados, donaciones y asignación de fondos). En el futuro, cubriremos también la logística del evento y el control de cuentas por pagar a proveedores.
 
 ## Arquitectura del Sistema
 El sistema sigue una arquitectura robusta Cliente-Servidor (Backend API y Frontend SPA).
