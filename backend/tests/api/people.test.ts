@@ -1,6 +1,7 @@
 import request from "supertest";
 import { createApp } from "../../src/app";
 import { Express } from "express";
+import { QueryBus } from "../../src/shared/cqrs/QueryBus";
 
 describe("People API", () => {
     let app: Express;
@@ -85,5 +86,23 @@ describe("People API", () => {
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body)).toBe(true);
         expect(response.body.length).toBe(0);
+    });
+
+    it("should return 500 when getPersons query fails with an Error", async () => {
+        jest.spyOn(QueryBus.prototype, "execute").mockRejectedValueOnce(new Error("Query failed"));
+
+        const response = await request(app).get("/api/persons?organizationId=org-1");
+
+        expect(response.status).toBe(500);
+        expect(response.body.error).toBe("Query failed");
+    });
+
+    it("should return 500 when getPersons query fails with a non-Error", async () => {
+        jest.spyOn(QueryBus.prototype, "execute").mockRejectedValueOnce("Unknown error");
+
+        const response = await request(app).get("/api/persons?organizationId=org-1");
+
+        expect(response.status).toBe(500);
+        expect(response.body.error).toBe("An unknown error occurred");
     });
 });
