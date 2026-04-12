@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EstablishRelationshipCommandHandler = exports.EstablishRelationshipCommand = void 0;
+const node_crypto_1 = require("node:crypto");
 const Relationship_1 = require("../../domain/Relationship");
 class EstablishRelationshipCommand {
     personId;
@@ -27,9 +28,9 @@ class EstablishRelationshipCommandHandler {
         if (existing) {
             return; // Or update, but for now we just return
         }
-        const id1 = Math.random().toString(36).substring(2, 9);
+        const id1 = (0, node_crypto_1.randomUUID)();
         const rel1 = new Relationship_1.Relationship(id1, command.personId, command.relatedPersonId, command.relationshipType);
-        const id2 = Math.random().toString(36).substring(2, 9);
+        const id2 = (0, node_crypto_1.randomUUID)();
         const rel2 = new Relationship_1.Relationship(id2, command.relatedPersonId, command.personId, (0, Relationship_1.getInverseRelationshipType)(command.relationshipType));
         await this.relationshipRepository.save(rel1);
         await this.relationshipRepository.save(rel2);
