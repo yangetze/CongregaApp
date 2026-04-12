@@ -16,12 +16,14 @@ interface Transaction {
     receiptNumber?: string;
 }
 
+type StatusFilter = 'ALL' | 'PENDING' | 'RECONCILED' | 'REJECTED';
+
 export default function OrgFinancesPage() {
     const { orgId } = useParams();
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'RECONCILED' | 'REJECTED'>('ALL');
+    const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
 
     useEffect(() => {
         setIsLoading(true);
@@ -122,7 +124,7 @@ export default function OrgFinancesPage() {
                         <Filter className="w-4 h-4 text-gray-400" />
                         <select
                             value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value as any)}
+                            onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
                             className="w-full sm:w-auto text-sm border border-gray-300 rounded-lg py-2 pl-3 pr-8 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white"
                         >
                             <option value="ALL">Todos los estados</option>
