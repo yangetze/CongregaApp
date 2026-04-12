@@ -18,17 +18,19 @@ class EventController {
             const id = await this.commandBus.execute("CreateEventCommand", command);
             // Enroll organizers if provided
             if (organizers && Array.isArray(organizers)) {
-                for (const organizerId of organizers) {
+                const enrollmentPromises = organizers.map(organizerId => {
                     const enrollCommand = new EnrollPerson_1.EnrollPersonCommand(String(id), organizerId, "STAFF");
-                    await this.commandBus.execute("EnrollPersonCommand", enrollCommand);
-                }
+                    return this.commandBus.execute("EnrollPersonCommand", enrollCommand);
+                });
+                await Promise.all(enrollmentPromises);
             }
             // Enroll participants if provided
             if (participants && Array.isArray(participants)) {
-                for (const participantId of participants) {
+                const enrollmentPromises = participants.map(participantId => {
                     const enrollCommand = new EnrollPerson_1.EnrollPersonCommand(String(id), participantId, "PARTICIPANT");
-                    await this.commandBus.execute("EnrollPersonCommand", enrollCommand);
-                }
+                    return this.commandBus.execute("EnrollPersonCommand", enrollCommand);
+                });
+                await Promise.all(enrollmentPromises);
             }
             res.status(201).json({ id, message: "Event created successfully" });
         }
