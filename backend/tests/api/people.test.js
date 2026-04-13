@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const supertest_1 = __importDefault(require("supertest"));
 const app_1 = require("../../src/app");
+const QueryBus_1 = require("../../src/shared/cqrs/QueryBus");
 describe("People API", () => {
     let app;
     beforeEach(() => {
@@ -77,6 +78,18 @@ describe("People API", () => {
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body)).toBe(true);
         expect(response.body.length).toBe(0);
+    });
+    it("should return 500 when getPersons query fails with an Error", async () => {
+        jest.spyOn(QueryBus_1.QueryBus.prototype, "execute").mockRejectedValueOnce(new Error("Query failed"));
+        const response = await (0, supertest_1.default)(app).get("/api/persons?organizationId=org-1");
+        expect(response.status).toBe(500);
+        expect(response.body.error).toBe("Query failed");
+    });
+    it("should return 500 when getPersons query fails with a non-Error", async () => {
+        jest.spyOn(QueryBus_1.QueryBus.prototype, "execute").mockRejectedValueOnce("Unknown error");
+        const response = await (0, supertest_1.default)(app).get("/api/persons?organizationId=org-1");
+        expect(response.status).toBe(500);
+        expect(response.body.error).toBe("An unknown error occurred");
     });
 });
 //# sourceMappingURL=people.test.js.map

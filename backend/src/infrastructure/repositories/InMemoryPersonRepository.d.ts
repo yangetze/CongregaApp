@@ -6,5 +6,6 @@ export declare class InMemoryPersonRepository implements IPersonRepository {
     findAll(): Promise<Person[]>;
     findById(id: string): Promise<Person | null>;
     findByDocumentId(documentId: string): Promise<Person | null>;
+    findByOrganizationId(organizationId: string): Promise<Person[]>;
 }
 //# sourceMappingURL=InMemoryPersonRepository.d.ts.map

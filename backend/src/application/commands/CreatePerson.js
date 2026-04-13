@@ -46,3 +46,4 @@ class CreatePersonCommandHandler {
     }
 }
 exports.CreatePersonCommandHandler = CreatePersonCommandHandler;
+//# sourceMappingURL=CreatePerson.js.map

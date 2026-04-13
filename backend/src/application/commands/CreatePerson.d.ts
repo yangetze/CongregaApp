@@ -15,6 +15,7 @@ export interface IPersonRepository {
     findAll(): Promise<Person[]>;
     findById(id: string): Promise<Person | null>;
     findByDocumentId(documentId: string): Promise<Person | null>;
+    findByOrganizationId(organizationId: string): Promise<Person[]>;
 }
 export declare class CreatePersonCommandHandler implements ICommandHandler<CreatePersonCommand, string> {
     private readonly personRepository;

@@ -27,7 +27,11 @@ export default function OrgFinancesPage() {
 
     useEffect(() => {
         setIsLoading(true);
-        fetch(`http://localhost:3000/api/transactions?organizationId=${orgId}`)
+        fetch(`http://localhost:3000/api/transactions?organizationId=${orgId}`, {
+            headers: {
+                'Authorization': 'Bearer mock-token'
+            }
+        })
             .then(res => res.json())
             .then(data => {
                 setTransactions(data);

@@ -31,3 +31,4 @@ class GetPersonsQueryHandler {
     }
 }
 exports.GetPersonsQueryHandler = GetPersonsQueryHandler;
+//# sourceMappingURL=GetPersons.js.map

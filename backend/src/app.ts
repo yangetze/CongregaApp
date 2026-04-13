@@ -85,22 +85,31 @@ export const createApp = () => {
     apiRouter.get("/admin/event-statuses", adminController.getEventStatuses);
 
     // --- MOCK API FOR UI DEMO ---
+    const mockAuthMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction): void => {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || authHeader !== "Bearer mock-token") {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+      next();
+    };
+
     const getMockData = () => {
       const dataPath = path.join(__dirname, "infrastructure", "data", "db.json");
       return JSON.parse(fs.readFileSync(dataPath, "utf-8"));
     };
 
-    apiRouter.get("/organizations", (req, res) => {
+    apiRouter.get("/organizations", mockAuthMiddleware, (req, res) => {
       const data = getMockData();
       res.json(data.organizations);
     });
 
-    apiRouter.get("/users", (req, res) => {
+    apiRouter.get("/users", mockAuthMiddleware, (req, res) => {
       const data = getMockData();
       res.json(data.users);
     });
 
-    apiRouter.get("/transactions", (req, res) => {
+    apiRouter.get("/transactions", mockAuthMiddleware, (req, res) => {
       const data = getMockData();
       let transactions = data.transactions;
 
