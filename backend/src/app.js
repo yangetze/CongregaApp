@@ -31,7 +31,9 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const createApp = () => {
     const app = (0, express_1.default)();
-    app.use((0, cors_1.default)());
+    app.use((0, cors_1.default)({
+        origin: process.env.CORS_ORIGIN || "http://localhost:5173"
+    }));
     app.use(express_1.default.json());
     // Initialize CQRS Buses
     const commandBus = new CommandBus_1.CommandBus();
