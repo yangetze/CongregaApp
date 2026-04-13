@@ -32,7 +32,9 @@ import path from "path";
 
 export const createApp = () => {
     const app = express();
-    app.use(cors());
+    app.use(cors({
+        origin: process.env.CORS_ORIGIN || "http://localhost:5173"
+    }));
     app.use(express.json());
 
     // Initialize CQRS Buses
