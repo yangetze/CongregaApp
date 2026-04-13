@@ -2,6 +2,7 @@ import request from "supertest";
 import { createApp } from "../../src/app";
 import { Express } from "express";
 import { QueryBus } from "../../src/shared/cqrs/QueryBus";
+import { CommandBus } from "../../src/shared/cqrs/CommandBus";
 
 describe("People API", () => {
     let app: Express;
@@ -104,5 +105,29 @@ describe("People API", () => {
 
         expect(response.status).toBe(500);
         expect(response.body.error).toBe("An unknown error occurred");
+    });
+
+    it("should return 400 when establishRelationship command fails with an Error", async () => {
+        jest.spyOn(CommandBus.prototype, "execute").mockRejectedValueOnce(new Error("Relationship failed"));
+
+        const response = await request(app)
+            .post("/api/persons/person-1/relationships")
+            .send({ relatedPersonId: "person-2", relationshipType: "PARENT" });
+
+        expect(response.status).toBe(400);
+        expect(response.body.error).toBe("Relationship failed");
+        jest.restoreAllMocks();
+    });
+
+    it("should return 400 when establishRelationship command fails with a non-Error", async () => {
+        jest.spyOn(CommandBus.prototype, "execute").mockRejectedValueOnce("Unknown error");
+
+        const response = await request(app)
+            .post("/api/persons/person-1/relationships")
+            .send({ relatedPersonId: "person-2", relationshipType: "PARENT" });
+
+        expect(response.status).toBe(400);
+        expect(response.body.error).toBe("An unknown error occurred");
+        jest.restoreAllMocks();
     });
 });
