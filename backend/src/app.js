@@ -22,6 +22,7 @@ const GetPersonEnrollments_1 = require("./application/queries/GetPersonEnrollmen
 const CreateEvent_1 = require("./application/commands/CreateEvent");
 const EnrollPerson_1 = require("./application/commands/EnrollPerson");
 const GetEvents_1 = require("./application/queries/GetEvents");
+const GetEventEnrollments_1 = require("./application/queries/GetEventEnrollments");
 const EstablishRelationship_1 = require("./application/commands/EstablishRelationship");
 // Controllers
 const PersonController_1 = require("./infrastructure/controllers/PersonController");
@@ -69,6 +70,7 @@ const createApp = () => {
     commandBus.register("CreateEventCommand", new CreateEvent_1.CreateEventCommandHandler(eventRepository));
     commandBus.register("EnrollPersonCommand", new EnrollPerson_1.EnrollPersonCommandHandler(enrollmentRepository));
     queryBus.register("GetEventsQuery", new GetEvents_1.GetEventsQueryHandler(eventRepository));
+    queryBus.register("GetEventEnrollmentsQuery", new GetEventEnrollments_1.GetEventEnrollmentsQueryHandler(enrollmentRepository));
     // Initialize Controllers
     const personController = new PersonController_1.PersonController(commandBus, queryBus);
     const eventController = new EventController_1.EventController(commandBus, queryBus);
@@ -81,25 +83,34 @@ const createApp = () => {
     apiRouter.post("/persons/:personId/relationships", (req, res) => personController.establishRelationship(req, res));
     apiRouter.post("/events", (req, res) => eventController.createEvent(req, res));
     apiRouter.post("/events/:eventId/enroll", (req, res) => eventController.enrollPerson(req, res));
+    apiRouter.get("/events/:eventId/enrollments", (req, res) => eventController.getEventEnrollments(req, res));
     apiRouter.get("/events", (req, res) => eventController.getEvents(req, res));
     // Admin Global Routes
     apiRouter.get("/admin/payment-methods", adminController.getPaymentMethods);
     apiRouter.post("/admin/payment-methods", adminController.createPaymentMethod);
     apiRouter.get("/admin/event-statuses", adminController.getEventStatuses);
     // --- MOCK API FOR UI DEMO ---
+    const mockAuthMiddleware = (req, res, next) => {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || authHeader !== "Bearer mock-token") {
+            res.status(401).json({ error: "Unauthorized" });
+            return;
+        }
+        next();
+    };
     const getMockData = () => {
         const dataPath = path_1.default.join(__dirname, "infrastructure", "data", "db.json");
         return JSON.parse(fs_1.default.readFileSync(dataPath, "utf-8"));
     };
-    apiRouter.get("/organizations", (req, res) => {
+    apiRouter.get("/organizations", mockAuthMiddleware, (req, res) => {
         const data = getMockData();
         res.json(data.organizations);
     });
-    apiRouter.get("/users", (req, res) => {
+    apiRouter.get("/users", mockAuthMiddleware, (req, res) => {
         const data = getMockData();
         res.json(data.users);
     });
-    apiRouter.get("/transactions", (req, res) => {
+    apiRouter.get("/transactions", mockAuthMiddleware, (req, res) => {
         const data = getMockData();
         let transactions = data.transactions;
         if (req.query.organizationId) {

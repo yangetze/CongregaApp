@@ -7,6 +7,7 @@ export declare class EventController {
     constructor(commandBus: CommandBus, queryBus: QueryBus);
     createEvent: (req: Request, res: Response) => Promise<void>;
     getEvents: (req: Request, res: Response) => Promise<void>;
+    getEventEnrollments: (req: Request, res: Response) => Promise<void>;
     enrollPerson: (req: Request, res: Response) => Promise<void>;
 }
 //# sourceMappingURL=EventController.d.ts.map

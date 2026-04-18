@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.EventController = void 0;
 const CreateEvent_1 = require("../../application/commands/CreateEvent");
 const GetEvents_1 = require("../../application/queries/GetEvents");
+const GetEventEnrollments_1 = require("../../application/queries/GetEventEnrollments");
 const EnrollPerson_1 = require("../../application/commands/EnrollPerson");
 class EventController {
     commandBus;
@@ -49,6 +50,22 @@ class EventController {
             const query = new GetEvents_1.GetEventsQuery(organizationId);
             const events = await this.queryBus.execute("GetEventsQuery", query);
             res.status(200).json(events);
+        }
+        catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            res.status(500).json({ error: errorMessage });
+        }
+    };
+    getEventEnrollments = async (req, res) => {
+        try {
+            const eventId = req.params.eventId;
+            if (!eventId) {
+                res.status(400).json({ error: "eventId is required" });
+                return;
+            }
+            const query = new GetEventEnrollments_1.GetEventEnrollmentsQuery(eventId);
+            const enrollments = await this.queryBus.execute("GetEventEnrollmentsQuery", query);
+            res.status(200).json(enrollments);
         }
         catch (error) {
             const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";

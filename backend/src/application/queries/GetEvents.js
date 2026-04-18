@@ -14,8 +14,7 @@ class GetEventsQueryHandler {
         this.eventRepository = eventRepository;
     }
     async execute(query) {
-        const allEvents = await this.eventRepository.findAll();
-        return allEvents.filter(e => e.organizationId === query.organizationId);
+        return await this.eventRepository.findByOrganizationId(query.organizationId);
     }
 }
 exports.GetEventsQueryHandler = GetEventsQueryHandler;

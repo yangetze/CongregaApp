@@ -7,7 +7,11 @@ export function useOrganizations() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/organizations`)
+    fetch(`${API_BASE_URL}/organizations`, {
+      headers: {
+        'Authorization': 'Bearer mock-token'
+      }
+    })
       .then(res => res.json())
       .then(setData)
       .finally(() => setLoading(false));
@@ -21,7 +25,11 @@ export function useUsers() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/users`)
+    fetch(`${API_BASE_URL}/users`, {
+      headers: {
+        'Authorization': 'Bearer mock-token'
+      }
+    })
       .then(res => res.json())
       .then(setData)
       .finally(() => setLoading(false));

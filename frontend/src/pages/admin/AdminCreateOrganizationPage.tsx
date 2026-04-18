@@ -41,7 +41,10 @@ export default function AdminCreateOrganizationPage() {
         try {
             const res = await fetch('http://localhost:3000/api/organizations', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer mock-token'
+                },
                 body: JSON.stringify(data)
             });
             if (res.ok) {

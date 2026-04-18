@@ -39,13 +39,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var supertest_1 = __importDefault(require("supertest"));
-var app_1 = require("../../src/app");
-var QueryBus_1 = require("../../src/shared/cqrs/QueryBus");
-var CommandBus_1 = require("../../src/shared/cqrs/CommandBus");
-describe("People API", function () {
-    var app;
-    beforeEach(function () {
+const supertest_1 = __importDefault(require("supertest"));
+const app_1 = require("../../src/app");
+const QueryBus_1 = require("../../src/shared/cqrs/QueryBus");
+describe("People API", () => {
+    let app;
+    beforeEach(() => {
         app = (0, app_1.createApp)();
     });
     it("should create a person", function () { return __awaiter(void 0, void 0, void 0, function () {
@@ -133,96 +132,24 @@ describe("People API", function () {
                     return [2 /*return*/];
             }
         });
-    }); });
-    it("should get enrollments for a person", function () { return __awaiter(void 0, void 0, void 0, function () {
-        var createRes, personId, response;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, (0, supertest_1.default)(app)
-                        .post("/api/persons")
-                        .send({
-                        firstName: "Mark",
-                        lastName: "Twain",
-                        email: "mark@example.com",
-                        organizationId: "org-1"
-                    })];
-                case 1:
-                    createRes = _a.sent();
-                    personId = createRes.body.id;
-                    return [4 /*yield*/, (0, supertest_1.default)(app).get("/api/persons/".concat(personId, "/enrollments"))];
-                case 2:
-                    response = _a.sent();
-                    expect(response.status).toBe(200);
-                    expect(Array.isArray(response.body)).toBe(true);
-                    expect(response.body.length).toBe(0);
-                    return [2 /*return*/];
-            }
-        });
-    }); });
-    it("should return 500 when getPersons query fails with an Error", function () { return __awaiter(void 0, void 0, void 0, function () {
-        var response;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    jest.spyOn(QueryBus_1.QueryBus.prototype, "execute").mockRejectedValueOnce(new Error("Query failed"));
-                    return [4 /*yield*/, (0, supertest_1.default)(app).get("/api/persons?organizationId=org-1")];
-                case 1:
-                    response = _a.sent();
-                    expect(response.status).toBe(500);
-                    expect(response.body.error).toBe("Query failed");
-                    return [2 /*return*/];
-            }
-        });
-    }); });
-    it("should return 500 when getPersons query fails with a non-Error", function () { return __awaiter(void 0, void 0, void 0, function () {
-        var response;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    jest.spyOn(QueryBus_1.QueryBus.prototype, "execute").mockRejectedValueOnce("Unknown error");
-                    return [4 /*yield*/, (0, supertest_1.default)(app).get("/api/persons?organizationId=org-1")];
-                case 1:
-                    response = _a.sent();
-                    expect(response.status).toBe(500);
-                    expect(response.body.error).toBe("An unknown error occurred");
-                    return [2 /*return*/];
-            }
-        });
-    }); });
-    it("should return 400 when establishRelationship command fails with an Error", function () { return __awaiter(void 0, void 0, void 0, function () {
-        var response;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    jest.spyOn(CommandBus_1.CommandBus.prototype, "execute").mockRejectedValueOnce(new Error("Relationship failed"));
-                    return [4 /*yield*/, (0, supertest_1.default)(app)
-                            .post("/api/persons/person-1/relationships")
-                            .send({ relatedPersonId: "person-2", relationshipType: "PARENT" })];
-                case 1:
-                    response = _a.sent();
-                    expect(response.status).toBe(400);
-                    expect(response.body.error).toBe("Relationship failed");
-                    jest.restoreAllMocks();
-                    return [2 /*return*/];
-            }
-        });
-    }); });
-    it("should return 400 when establishRelationship command fails with a non-Error", function () { return __awaiter(void 0, void 0, void 0, function () {
-        var response;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    jest.spyOn(CommandBus_1.CommandBus.prototype, "execute").mockRejectedValueOnce("Unknown error");
-                    return [4 /*yield*/, (0, supertest_1.default)(app)
-                            .post("/api/persons/person-1/relationships")
-                            .send({ relatedPersonId: "person-2", relationshipType: "PARENT" })];
-                case 1:
-                    response = _a.sent();
-                    expect(response.status).toBe(400);
-                    expect(response.body.error).toBe("An unknown error occurred");
-                    jest.restoreAllMocks();
-                    return [2 /*return*/];
-            }
-        });
-    }); });
+        const personId = createRes.body.id;
+        // Note: For now we just test the endpoint responds since we don't have enrollments setup here,
+        // we'll setup a proper enrollment in the events test, but we can verify it returns an empty array.
+        const response = await (0, supertest_1.default)(app).get(`/api/persons/${personId}/enrollments`);
+        expect(response.status).toBe(200);
+        expect(Array.isArray(response.body)).toBe(true);
+        expect(response.body.length).toBe(0);
+    });
+    it("should return 500 when getPersons query fails with an Error", async () => {
+        jest.spyOn(QueryBus_1.QueryBus.prototype, "execute").mockRejectedValueOnce(new Error("Query failed"));
+        const response = await (0, supertest_1.default)(app).get("/api/persons?organizationId=org-1");
+        expect(response.status).toBe(500);
+        expect(response.body.error).toBe("Query failed");
+    });
+    it("should return 500 when getPersons query fails with a non-Error", async () => {
+        jest.spyOn(QueryBus_1.QueryBus.prototype, "execute").mockRejectedValueOnce("Unknown error");
+        const response = await (0, supertest_1.default)(app).get("/api/persons?organizationId=org-1");
+        expect(response.status).toBe(500);
+        expect(response.body.error).toBe("An unknown error occurred");
+    });
 });

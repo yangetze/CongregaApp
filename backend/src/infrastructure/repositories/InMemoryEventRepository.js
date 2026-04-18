@@ -12,6 +12,9 @@ class InMemoryEventRepository {
     async findById(id) {
         return this.events.find(e => e.id === id) || null;
     }
+    async findByOrganizationId(organizationId) {
+        return this.events.filter(e => e.organizationId === organizationId);
+    }
     async getNextSequentialId(organizationId) {
         const orgEvents = this.events.filter(e => e.organizationId === organizationId);
         if (orgEvents.length === 0) {
