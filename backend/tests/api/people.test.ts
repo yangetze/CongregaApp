@@ -1,6 +1,8 @@
 import request from "supertest";
 import { createApp } from "../../src/app";
 import { Express } from "express";
+import { QueryBus } from "../../src/shared/cqrs/QueryBus";
+import { CommandBus } from "../../src/shared/cqrs/CommandBus";
 
 describe("People API", () => {
     let app: Express;
@@ -85,5 +87,47 @@ describe("People API", () => {
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body)).toBe(true);
         expect(response.body.length).toBe(0);
+    });
+
+    it("should return 500 when getPersons query fails with an Error", async () => {
+        jest.spyOn(QueryBus.prototype, "execute").mockRejectedValueOnce(new Error("Query failed"));
+
+        const response = await request(app).get("/api/persons?organizationId=org-1");
+
+        expect(response.status).toBe(500);
+        expect(response.body.error).toBe("Query failed");
+    });
+
+    it("should return 500 when getPersons query fails with a non-Error", async () => {
+        jest.spyOn(QueryBus.prototype, "execute").mockRejectedValueOnce("Unknown error");
+
+        const response = await request(app).get("/api/persons?organizationId=org-1");
+
+        expect(response.status).toBe(500);
+        expect(response.body.error).toBe("An unknown error occurred");
+    });
+
+    it("should return 400 when establishRelationship command fails with an Error", async () => {
+        jest.spyOn(CommandBus.prototype, "execute").mockRejectedValueOnce(new Error("Relationship failed"));
+
+        const response = await request(app)
+            .post("/api/persons/person-1/relationships")
+            .send({ relatedPersonId: "person-2", relationshipType: "PARENT" });
+
+        expect(response.status).toBe(400);
+        expect(response.body.error).toBe("Relationship failed");
+        jest.restoreAllMocks();
+    });
+
+    it("should return 400 when establishRelationship command fails with a non-Error", async () => {
+        jest.spyOn(CommandBus.prototype, "execute").mockRejectedValueOnce("Unknown error");
+
+        const response = await request(app)
+            .post("/api/persons/person-1/relationships")
+            .send({ relatedPersonId: "person-2", relationshipType: "PARENT" });
+
+        expect(response.status).toBe(400);
+        expect(response.body.error).toBe("An unknown error occurred");
+        jest.restoreAllMocks();
     });
 });
