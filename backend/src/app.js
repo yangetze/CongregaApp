@@ -28,6 +28,8 @@ const EstablishRelationship_1 = require("./application/commands/EstablishRelatio
 const PersonController_1 = require("./infrastructure/controllers/PersonController");
 const EventController_1 = require("./infrastructure/controllers/EventController");
 const AdminController_1 = require("./infrastructure/controllers/admin/AdminController");
+// Middleware
+const authMiddleware_1 = require("./infrastructure/middleware/authMiddleware");
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const createApp = () => {
@@ -76,6 +78,10 @@ const createApp = () => {
     const eventController = new EventController_1.EventController(commandBus, queryBus);
     // Routes
     const apiRouter = express_1.default.Router();
+    // Protected Routes
+    apiRouter.use("/persons", authMiddleware_1.authMiddleware);
+    apiRouter.use("/events", authMiddleware_1.authMiddleware);
+    apiRouter.use("/admin", authMiddleware_1.authMiddleware);
     apiRouter.post("/persons", (req, res) => personController.createPerson(req, res));
     apiRouter.get("/persons/document/:documentId", (req, res) => personController.getByDocument(req, res));
     apiRouter.get("/persons/:personId/enrollments", (req, res) => personController.getEnrollments(req, res));
@@ -90,27 +96,19 @@ const createApp = () => {
     apiRouter.post("/admin/payment-methods", adminController.createPaymentMethod);
     apiRouter.get("/admin/event-statuses", adminController.getEventStatuses);
     // --- MOCK API FOR UI DEMO ---
-    const mockAuthMiddleware = (req, res, next) => {
-        const authHeader = req.headers.authorization;
-        if (!authHeader || authHeader !== "Bearer mock-token") {
-            res.status(401).json({ error: "Unauthorized" });
-            return;
-        }
-        next();
-    };
     const getMockData = () => {
         const dataPath = path_1.default.join(__dirname, "infrastructure", "data", "db.json");
         return JSON.parse(fs_1.default.readFileSync(dataPath, "utf-8"));
     };
-    apiRouter.get("/organizations", mockAuthMiddleware, (req, res) => {
+    apiRouter.get("/organizations", authMiddleware_1.authMiddleware, (req, res) => {
         const data = getMockData();
         res.json(data.organizations);
     });
-    apiRouter.get("/users", mockAuthMiddleware, (req, res) => {
+    apiRouter.get("/users", authMiddleware_1.authMiddleware, (req, res) => {
         const data = getMockData();
         res.json(data.users);
     });
-    apiRouter.get("/transactions", mockAuthMiddleware, (req, res) => {
+    apiRouter.get("/transactions", authMiddleware_1.authMiddleware, (req, res) => {
         const data = getMockData();
         let transactions = data.transactions;
         if (req.query.organizationId) {

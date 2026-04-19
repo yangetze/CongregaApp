@@ -8,6 +8,7 @@ const app_1 = require("../../src/app");
 const app = (0, app_1.createApp)();
 describe("Person API Integration Tests", () => {
     let orgId = "org-1";
+    const authHeader = { "Authorization": "Bearer mock-token" };
     it("should create a person and calculate age dynamically", async () => {
         const payload = {
             firstName: "John",
@@ -18,10 +19,10 @@ describe("Person API Integration Tests", () => {
             phone: "1234567890",
             birthDate: "1990-01-01T00:00:00Z"
         };
-        const res = await (0, supertest_1.default)(app).post("/api/persons").send(payload);
+        const res = await (0, supertest_1.default)(app).post("/api/persons").set(authHeader).send(payload);
         expect(res.status).toBe(201);
         expect(res.body).toHaveProperty("id");
-        const getRes = await (0, supertest_1.default)(app).get(`/api/persons/document/DOC-123?organizationId=${orgId}`);
+        const getRes = await (0, supertest_1.default)(app).get(`/api/persons/document/DOC-123?organizationId=${orgId}`).set(authHeader);
         expect(getRes.status).toBe(200);
         expect(getRes.body.firstName).toBe("John");
         expect(getRes.body.age).toBeGreaterThanOrEqual(30); // dynamic age test
@@ -35,7 +36,7 @@ describe("Person API Integration Tests", () => {
             documentId: "DOC-456",
             birthDate: "1995-05-05T00:00:00Z"
         };
-        const res1 = await (0, supertest_1.default)(app).post("/api/persons").send(payload);
+        const res1 = await (0, supertest_1.default)(app).post("/api/persons").set(authHeader).send(payload);
         expect(res1.status).toBe(201);
         const firstId = res1.body.id;
         const payloadDuplicate = {
@@ -46,17 +47,17 @@ describe("Person API Integration Tests", () => {
             documentId: "DOC-456",
             birthDate: "1995-05-05T00:00:00Z"
         };
-        const res2 = await (0, supertest_1.default)(app).post("/api/persons").send(payloadDuplicate);
+        const res2 = await (0, supertest_1.default)(app).post("/api/persons").set(authHeader).send(payloadDuplicate);
         expect(res2.status).toBe(201);
         expect(res2.body.id).toBe(firstId); // same id returned
     });
     it("should search and filter directory", async () => {
         // We know Jane and John are created from previous tests
-        const resList = await (0, supertest_1.default)(app).get(`/api/persons?organizationId=${orgId}&search=john`);
+        const resList = await (0, supertest_1.default)(app).get(`/api/persons?organizationId=${orgId}&search=john`).set(authHeader);
         expect(resList.status).toBe(200);
         expect(resList.body.length).toBe(1);
         expect(resList.body[0].firstName).toBe("John");
-        const resListEmpty = await (0, supertest_1.default)(app).get(`/api/persons?organizationId=${orgId}&search=nonexistent`);
+        const resListEmpty = await (0, supertest_1.default)(app).get(`/api/persons?organizationId=${orgId}&search=nonexistent`).set(authHeader);
         expect(resListEmpty.status).toBe(200);
         expect(resListEmpty.body.length).toBe(0);
     });
@@ -68,7 +69,7 @@ describe("Person API Integration Tests", () => {
             organizationId: orgId,
             documentId: "DOC-PARENT"
         };
-        const res1 = await (0, supertest_1.default)(app).post("/api/persons").send(payload1);
+        const res1 = await (0, supertest_1.default)(app).post("/api/persons").set(authHeader).send(payload1);
         const parentId = res1.body.id;
         const payload2 = {
             firstName: "Child",
@@ -77,16 +78,16 @@ describe("Person API Integration Tests", () => {
             organizationId: orgId,
             documentId: "DOC-CHILD"
         };
-        const res2 = await (0, supertest_1.default)(app).post("/api/persons").send(payload2);
+        const res2 = await (0, supertest_1.default)(app).post("/api/persons").set(authHeader).send(payload2);
         const childId = res2.body.id;
         // Establish relationship PARENT -> CHILD
-        const relRes = await (0, supertest_1.default)(app).post(`/api/persons/${parentId}/relationships`).send({
+        const relRes = await (0, supertest_1.default)(app).post(`/api/persons/${parentId}/relationships`).set(authHeader).send({
             relatedPersonId: childId,
             relationshipType: "PARENT"
         });
         expect(relRes.status).toBe(201);
         // Try self-relation
-        const selfRelRes = await (0, supertest_1.default)(app).post(`/api/persons/${parentId}/relationships`).send({
+        const selfRelRes = await (0, supertest_1.default)(app).post(`/api/persons/${parentId}/relationships`).set(authHeader).send({
             relatedPersonId: parentId,
             relationshipType: "SIBLING"
         });
