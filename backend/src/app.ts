@@ -27,6 +27,9 @@ import { PersonController } from "./infrastructure/controllers/PersonController"
 import { EventController } from "./infrastructure/controllers/EventController";
 import { AdminController } from "./infrastructure/controllers/admin/AdminController";
 
+// Middleware
+import { authMiddleware } from "./infrastructure/middleware/authMiddleware";
+
 import fs from "fs";
 import path from "path";
 
@@ -86,6 +89,11 @@ export const createApp = () => {
     // Routes
     const apiRouter = express.Router();
 
+    // Protected Routes
+    apiRouter.use("/persons", authMiddleware);
+    apiRouter.use("/events", authMiddleware);
+    apiRouter.use("/admin", authMiddleware);
+
     apiRouter.post("/persons", (req, res) => personController.createPerson(req, res));
     apiRouter.get("/persons/document/:documentId", (req, res) => personController.getByDocument(req, res));
     apiRouter.get("/persons/:personId/enrollments", (req, res) => personController.getEnrollments(req, res));
@@ -103,31 +111,22 @@ export const createApp = () => {
     apiRouter.get("/admin/event-statuses", adminController.getEventStatuses);
 
     // --- MOCK API FOR UI DEMO ---
-    const mockAuthMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction): void => {
-      const authHeader = req.headers.authorization;
-      if (!authHeader || authHeader !== "Bearer mock-token") {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
-      }
-      next();
-    };
-
     const getMockData = () => {
       const dataPath = path.join(__dirname, "infrastructure", "data", "db.json");
       return JSON.parse(fs.readFileSync(dataPath, "utf-8"));
     };
 
-    apiRouter.get("/organizations", mockAuthMiddleware, (req, res) => {
+    apiRouter.get("/organizations", authMiddleware, (req, res) => {
       const data = getMockData();
       res.json(data.organizations);
     });
 
-    apiRouter.get("/users", mockAuthMiddleware, (req, res) => {
+    apiRouter.get("/users", authMiddleware, (req, res) => {
       const data = getMockData();
       res.json(data.users);
     });
 
-    apiRouter.get("/transactions", mockAuthMiddleware, (req, res) => {
+    apiRouter.get("/transactions", authMiddleware, (req, res) => {
       const data = getMockData();
       let transactions = data.transactions;
 
