@@ -22,11 +22,11 @@ describe("EnrollPersonCommandHandler", () => {
         expect(typeof id).toBe("string");
         expect(id.length).toBeGreaterThan(0);
         expect(eventEnrollments.length).toBe(1);
-        expect(eventEnrollments[0]!.id).toBe(id);
-        expect(eventEnrollments[0]!.eventId).toBe("event-1");
-        expect(eventEnrollments[0]!.personId).toBe("person-1");
-        expect(eventEnrollments[0]!.role).toBe(EnrollmentRole.STAFF);
-        expect(eventEnrollments[0]!.createdAt).toBeInstanceOf(Date);
+        expect(eventEnrollments[0].id).toBe(id);
+        expect(eventEnrollments[0].eventId).toBe("event-1");
+        expect(eventEnrollments[0].personId).toBe("person-1");
+        expect(eventEnrollments[0].role).toBe(EnrollmentRole.STAFF);
+        expect(eventEnrollments[0].createdAt).toBeInstanceOf(Date);
     });
 
     it("should default to PARTICIPANT role if no valid role is provided", async () => {
@@ -46,9 +46,31 @@ describe("EnrollPersonCommandHandler", () => {
         // Assert
         expect(id).toBeDefined();
         expect(personEnrollments.length).toBe(1);
-        expect(personEnrollments[0]!.id).toBe(id);
-        expect(personEnrollments[0]!.eventId).toBe("event-2");
-        expect(personEnrollments[0]!.personId).toBe("person-2");
-        expect(personEnrollments[0]!.role).toBe(EnrollmentRole.PARTICIPANT);
+        expect(personEnrollments[0].id).toBe(id);
+        expect(personEnrollments[0].eventId).toBe("event-2");
+        expect(personEnrollments[0].personId).toBe("person-2");
+        expect(personEnrollments[0].role).toBe(EnrollmentRole.PARTICIPANT);
+    });
+
+
+    it("should store the optional ticketNumber when provided", async () => {
+        // Arrange
+        const repository = new InMemoryEnrollmentRepository();
+        const handler = new EnrollPersonCommandHandler(repository);
+        const command = new EnrollPersonCommand(
+            "event-3",
+            "person-3",
+            EnrollmentRole.PARTICIPANT,
+            "TICKET-123"
+        );
+
+        // Act
+        const id = await handler.execute(command);
+        const eventEnrollments = await repository.findByEventId("event-3");
+
+        // Assert
+        expect(id).toBeDefined();
+        expect(eventEnrollments.length).toBe(1);
+        expect(eventEnrollments[0].ticketNumber).toBe("TICKET-123");
     });
 });

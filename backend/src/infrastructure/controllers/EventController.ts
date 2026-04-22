@@ -93,14 +93,14 @@ export class EventController {
     enrollPerson = async (req: Request, res: Response): Promise<void> => {
         try {
             const eventId = req.params.eventId as string;
-            const { personId, role } = req.body;
+            const { personId, role, ticketNumber } = req.body;
 
             if (!eventId || !personId) {
                 res.status(400).json({ error: "eventId and personId are required" });
                 return;
             }
 
-            const command = new EnrollPersonCommand(eventId, personId, role);
+            const command = new EnrollPersonCommand(eventId, personId, role, ticketNumber);
             const id = await this.commandBus.execute("EnrollPersonCommand", command);
 
             res.status(201).json({ id, message: "Person enrolled successfully" });

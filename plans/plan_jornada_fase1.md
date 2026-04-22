@@ -6,7 +6,7 @@
 
 - [ ] **Extensión del Modelo `Event`:**
   - Agregar un mecanismo para identificar si un evento es una "Jornada" (Ej: un campo `eventType: EventType` o `isJornada: Boolean`). Esto permitirá a la interfaz de usuario habilitar los módulos de servicios.
-- [ ] **Extensión del Modelo `Enrollment`:**
+- [x] **Extensión del Modelo `Enrollment`:**
   - Agregar el campo `ticketNumber` (String, opcional) para la logística física (pulseras, tickets).
 - [ ] **Crear Modelo `EventServiceArea` (Áreas de Servicio de la Jornada):**
   - Campos:

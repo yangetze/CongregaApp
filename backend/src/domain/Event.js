@@ -71,12 +71,14 @@ class Enrollment {
     personId;
     role;
     createdAt;
-    constructor(id, eventId, personId, role = EnrollmentRole.PARTICIPANT, createdAt = new Date()) {
+    ticketNumber;
+    constructor(id, eventId, personId, role = EnrollmentRole.PARTICIPANT, createdAt = new Date(), ticketNumber) {
         this.id = id;
         this.eventId = eventId;
         this.personId = personId;
         this.role = role;
         this.createdAt = createdAt;
+        this.ticketNumber = ticketNumber;
     }
 }
 exports.Enrollment = Enrollment;

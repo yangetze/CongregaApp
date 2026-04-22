@@ -7,10 +7,12 @@ class EnrollPersonCommand {
     eventId;
     personId;
     role;
-    constructor(eventId, personId, role) {
+    ticketNumber;
+    constructor(eventId, personId, role, ticketNumber) {
         this.eventId = eventId;
         this.personId = personId;
         this.role = role;
+        this.ticketNumber = ticketNumber;
     }
 }
 exports.EnrollPersonCommand = EnrollPersonCommand;
@@ -22,7 +24,7 @@ class EnrollPersonCommandHandler {
     async execute(command) {
         const id = (0, node_crypto_1.randomUUID)();
         const role = command.role || Event_1.EnrollmentRole.PARTICIPANT;
-        const enrollment = new Event_1.Enrollment(id, command.eventId, command.personId, role);
+        const enrollment = new Event_1.Enrollment(id, command.eventId, command.personId, role, undefined, command.ticketNumber);
         await this.enrollmentRepository.save(enrollment);
         return id;
     }

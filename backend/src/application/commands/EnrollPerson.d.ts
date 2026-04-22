@@ -4,7 +4,8 @@ export declare class EnrollPersonCommand implements ICommand {
     readonly eventId: string;
     readonly personId: string;
     readonly role: string;
-    constructor(eventId: string, personId: string, role: string);
+    readonly ticketNumber?: string;
+    constructor(eventId: string, personId: string, role: string, ticketNumber?: string);
 }
 export interface IEnrollmentRepository {
     save(enrollment: Enrollment): Promise<void>;

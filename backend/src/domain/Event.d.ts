@@ -42,6 +42,7 @@ export declare class Enrollment {
     readonly personId: string;
     role: EnrollmentRole;
     createdAt: Date;
-    constructor(id: string, eventId: string, personId: string, role?: EnrollmentRole, createdAt?: Date);
+    ticketNumber?: string;
+    constructor(id: string, eventId: string, personId: string, role?: EnrollmentRole, createdAt?: Date, ticketNumber?: string);
 }
 //# sourceMappingURL=Event.d.ts.map
