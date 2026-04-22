@@ -1,39 +1,38 @@
-# FASE 1: Base de Datos, Usuarios y Autenticación (Backend)
+# FASE 1: Integración con Eventos, CRM y Bases de Datos (Backend)
 
-**Objetivo:** Establecer la estructura de datos relacional y el sistema de seguridad basado en roles (Administrador y Servidor). En esta fase se contemplará la flexibilidad para permitir registros de participantes sin cédula inicial.
+**Objetivo:** Establecer la estructura de datos relacional extendiendo el ecosistema existente de CongregaApp. Se utilizarán las entidades `Event` y `Person` como base, incorporando tablas específicas (`EventServiceArea` y `ServiceAssignment`) para gestionar la logística de servicios y asignaciones.
 
-## Micro-tareas de Base de Datos (PostgreSQL / Prisma o Sequelize)
+## Micro-tareas de Base de Datos (Prisma)
 
-- [ ] **Crear Tabla `Usuarios` (Personal):**
-  - Campos: `id`, `cedula` (Unique), `nombre`, `apellido`, `correo`, `rol` (Enum: 'ADMINISTRADOR', 'SERVIDOR').
-- [ ] **Crear Tabla `Participantes` (Asistentes):**
+- [ ] **Extensión del Modelo `Event`:**
+  - Agregar un mecanismo para identificar si un evento es una "Jornada" (Ej: un campo `eventType: EventType` o `isJornada: Boolean`). Esto permitirá a la interfaz de usuario habilitar los módulos de servicios.
+- [ ] **Extensión del Modelo `Enrollment`:**
+  - Agregar el campo `ticketNumber` (String, opcional) para la logística física (pulseras, tickets).
+- [ ] **Crear Modelo `EventServiceArea` (Áreas de Servicio de la Jornada):**
   - Campos:
-    - `id` (UUID o Auto-incremental).
-    - `identificador` (String, Unique): Número de ticket, brazalete o autogenerado si no se provee nada.
-    - `cedula` (String, Nullable, Unique): Opcional. Permite registrar a la persona y actualizar este dato después.
-    - `nombre` (String).
-    - `apellido` (String).
-- [ ] **Crear Tabla `Jornadas`:**
-  - Campos: `id`, `nombre`, `fecha_inicio`, `is_activa` (Boolean).
-- [ ] **Crear Tabla `Servicios_Jornada`:**
-  - Campos: `id`, `jornada_id` (FK), `nombre`, `ubicacion`, `capacidad_max` (Int, Nullable), `tipo` (Enum: 'COLA', 'FLUJO').
-- [ ] **Crear Tabla `Asignaciones`:**
-  - Campos: `id`, `participante_id` (FK), `servicio_id` (FK), `estado` (Enum: 'ASIGNADO', 'EN_ESPERA', 'ATENDIDO', 'CANCELADO'), `timestamp`.
+    - `id` (UUID).
+    - `eventId` (FK a Event).
+    - `name` (String, Ej: Odontología, Ropero).
+    - `type` (Enum: 'QUEUE' [Cola], 'FLOW' [Flujo]).
+    - `maxCapacity` (Int, Nullable).
+- [ ] **Crear Modelo `ServiceAssignment` (Asignaciones de Servicio):**
+  - Campos:
+    - `id` (UUID).
+    - `enrollmentId` (FK a Enrollment). *Vincula al participante y su número de ticket/cédula al servicio.*
+    - `serviceAreaId` (FK a EventServiceArea).
+    - `status` (Enum: 'ASSIGNED', 'WAITING', 'ATTENDED', 'CANCELLED').
+    - `createdAt` y `updatedAt`.
 
-## Micro-tareas de Autenticación (Express / Node.js)
+## Micro-tareas de Autenticación y Roles
 
-- [ ] **Endpoint Login (`/api/auth/login`):**
-  - Recibe `cedula` como username y password. Valida contra la tabla `Usuarios`.
-- [ ] **Generación JWT:**
-  - Si la validación es exitosa, generar un token JWT que incluya el `id`, `cedula` y `rol` del usuario. Configurar expiración estricta de 8 horas.
-- [ ] **Middlewares de Protección:**
-  - [ ] `verifyToken`: Middleware genérico para proteger rutas privadas (verificando el JWT).
-  - [ ] `requireAdmin`: Middleware para proteger rutas exclusivas del Administrador (Ej: Crear jornadas).
+*Nota: Se usará el sistema de seguridad global existente basado en el modelo `User` con rol `ORGANIZATION_MEMBER`. No es necesario crear nuevos endpoints de login ni emitir tokens especiales para la Jornada.*
+
+- [ ] **Revisión de Políticas de Acceso (Middlewares actuales):**
+  - Asegurar que los miembros de la organización (`ORGANIZATION_MEMBER`) tengan permisos adecuados para acceder a las rutas de gestión de colas dentro del evento, mientras que la configuración administrativa del evento requiera los permisos convencionales de gestión de eventos.
 
 ## Micro-tareas de Pruebas y Calidad (Testing)
 
-- [ ] **Tests de Modelos/Migraciones:** Verificar que las restricciones únicas (Ej: `cedula`) y opcionales (`identificador`) funcionen correctamente en la base de datos (Test de Integración).
-- [ ] **Test de Endpoint de Login (Happy Path):** Validar que enviar credenciales correctas retorna un status 200 y el token JWT.
-- [ ] **Test de Endpoint de Login (Casos de Error):** Validar que enviar credenciales inválidas retorna un status 401.
-- [ ] **Test de Middlewares:** Verificar que el middleware `requireAdmin` bloquee peticiones de usuarios con rol 'SERVIDOR' retornando status 403.
-- [ ] **Verificación de Compilación:** Asegurar que el backend levanta sin errores tras definir los modelos y rutas iniciales.
+- [ ] **Tests de Migración (Prisma):** Verificar que la creación de las tablas `EventServiceArea` y `ServiceAssignment` se ejecuta sin errores.
+- [ ] **Tests de Modelos:** Validar que un `Enrollment` puede guardar un `ticketNumber` de forma opcional.
+- [ ] **Tests de Relación:** Asegurar que eliminar un `Event` elimina (en cascada o restringe) sus `EventServiceArea` correspondientes, y que lo mismo ocurre con los `ServiceAssignment` si se elimina un `Enrollment`.
+- [ ] **Verificación de Compilación:** Asegurar que el backend compila sin errores tras actualizar el esquema de Prisma y generar los tipos correspondientes.
