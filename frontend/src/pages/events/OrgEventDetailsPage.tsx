@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CalendarDays, Users, Search, Plus, ArrowLeft, Mail, Phone, Ticket } from 'lucide-react';
+import { CalendarDays, Users, Search, Plus, ArrowLeft, Mail, Phone, Ticket, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface EventData {
@@ -17,6 +17,8 @@ interface EventData {
     hasCost: boolean;
     requirements: Record<string, any>;
     costs: any[];
+    eventType?: string;
+    serviceAreas?: Array<{id?: string, name: string, type: string, maxCapacity: number | null}>;
 }
 
 interface Person {
@@ -37,6 +39,10 @@ export default function OrgEventDetailsPage() {
     const [isLoading, setIsLoading] = useState(true);
 
     // Enrollment Flow State
+    const [isEditingServiceAreas, setIsEditingServiceAreas] = useState(false);
+    const [editableServiceAreas, setEditableServiceAreas] = useState<Array<{id?: string, name: string, type: string, maxCapacity: string}>>([]);
+    const [isSavingServiceAreas, setIsSavingServiceAreas] = useState(false);
+
     const [isEnrollmentMode, setIsEnrollmentMode] = useState(false);
     const [enrollments, setEnrollments] = useState<any[]>([]);
     const [people, setPeople] = useState<Person[]>([]);
@@ -62,6 +68,14 @@ export default function OrgEventDetailsPage() {
             const eventData = await eventRes.json();
             const found = eventData.find((e: any) => e.id === eventId);
             setEvent(found || null);
+            if (found && found.serviceAreas) {
+                setEditableServiceAreas(found.serviceAreas.map((sa: any) => ({
+                    id: sa.id,
+                    name: sa.name,
+                    type: sa.type,
+                    maxCapacity: sa.maxCapacity ? String(sa.maxCapacity) : ''
+                })));
+            }
 
             // Fetch Enrollments for this event
             const enrollmentsRes = await fetch(`http://localhost:3000/api/events/${eventId}/enrollments`);
@@ -106,6 +120,36 @@ export default function OrgEventDetailsPage() {
             }
         } catch (error) {
             setSearchMessage('Error al buscar la persona.');
+        }
+    };
+
+
+    const handleSaveServiceAreas = async () => {
+        setIsSavingServiceAreas(true);
+        try {
+            const payload = editableServiceAreas.map(sa => ({
+                id: sa.id,
+                name: sa.name,
+                type: sa.type,
+                maxCapacity: sa.maxCapacity ? Number(sa.maxCapacity) : null
+            }));
+            const res = await fetch(`http://localhost:3000/api/events/${eventId}/service-areas`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ serviceAreas: payload })
+            });
+            if (res.ok) {
+                toast.success("Áreas de servicio actualizadas correctamente");
+                setEvent(prev => prev ? { ...prev, serviceAreas: payload } : prev);
+                setIsEditingServiceAreas(false);
+            } else {
+                const data = await res.json();
+                toast.error(data.error || "Error al actualizar áreas de servicio");
+            }
+        } catch (error) {
+            toast.error("Error de conexión");
+        } finally {
+            setIsSavingServiceAreas(false);
         }
     };
 
@@ -214,6 +258,127 @@ export default function OrgEventDetailsPage() {
                     )}
                 </div>
             </div>
+
+
+            {/* Service Areas Section for JORNADA */}
+            {event.eventType === 'JORNADA' && !isEnrollmentMode && (
+                <Card className="mb-6 shadow-sm border-gray-200">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <div>
+                            <CardTitle className="text-lg text-brand-dark flex items-center">
+                                Áreas de Servicio
+                            </CardTitle>
+                            <CardDescription>Estaciones y consultorios de la jornada.</CardDescription>
+                        </div>
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsEditingServiceAreas(!isEditingServiceAreas)}
+                            className="text-brand-accent border-brand-accent"
+                        >
+                            {isEditingServiceAreas ? 'Cancelar Edición' : 'Editar Áreas'}
+                        </Button>
+                    </CardHeader>
+                    <CardContent>
+                        {isEditingServiceAreas ? (
+                            <div className="space-y-4 mt-4">
+                                {editableServiceAreas.map((area, index) => (
+                                    <div key={index} className="flex flex-col sm:flex-row gap-4 items-start sm:items-end bg-gray-50 p-4 rounded-md">
+                                        <div className="w-full sm:w-1/3">
+                                            <label className="text-sm font-medium text-brand-dark">Nombre del Área</label>
+                                            <input
+                                                type="text"
+                                                value={area.name}
+                                                onChange={e => {
+                                                    const newArr = [...editableServiceAreas];
+                                                    newArr[index].name = e.target.value;
+                                                    setEditableServiceAreas(newArr);
+                                                }}
+                                                className="mt-1 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="w-full sm:w-1/4">
+                                            <label className="text-sm font-medium text-brand-dark">Tipo de Flujo</label>
+                                            <select
+                                                value={area.type}
+                                                onChange={e => {
+                                                    const newArr = [...editableServiceAreas];
+                                                    newArr[index].type = e.target.value;
+                                                    setEditableServiceAreas(newArr);
+                                                }}
+                                                className="mt-1 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent"
+                                            >
+                                                <option value="QUEUE">Cola (Espera)</option>
+                                                <option value="FLOW">Flujo (Continuo)</option>
+                                            </select>
+                                        </div>
+                                        <div className="w-full sm:w-1/4">
+                                            <label className="text-sm font-medium text-brand-dark">Capacidad Máxima</label>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                value={area.maxCapacity}
+                                                onChange={e => {
+                                                    const newArr = [...editableServiceAreas];
+                                                    newArr[index].maxCapacity = e.target.value;
+                                                    setEditableServiceAreas(newArr);
+                                                }}
+                                                placeholder="Ilimitada"
+                                                className="mt-1 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent"
+                                            />
+                                        </div>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            onClick={() => setEditableServiceAreas(editableServiceAreas.filter((_, i) => i !== index))}
+                                            className="text-red-500 hover:text-red-700 sm:mb-1 w-full sm:w-auto"
+                                        >
+                                            <Trash2 className="w-4 h-4 mr-2 sm:mr-0" />
+                                            <span className="sm:hidden">Eliminar Área</span>
+                                        </Button>
+                                    </div>
+                                ))}
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => setEditableServiceAreas([...editableServiceAreas, { name: '', type: 'QUEUE', maxCapacity: '' }])}
+                                    className="w-full text-brand-accent border-brand-accent hover:bg-brand-accent/10"
+                                >
+                                    <Plus className="w-4 h-4 mr-2" /> Añadir Área de Servicio
+                                </Button>
+                                <div className="flex justify-end pt-4">
+                                    <Button
+                                        onClick={handleSaveServiceAreas}
+                                        disabled={isSavingServiceAreas || editableServiceAreas.some(sa => !sa.name)}
+                                    >
+                                        {isSavingServiceAreas ? "Guardando..." : "Guardar Cambios"}
+                                    </Button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                                {event.serviceAreas && event.serviceAreas.length > 0 ? (
+                                    event.serviceAreas.map((sa, idx) => (
+                                        <div key={idx} className="bg-gray-50 border border-gray-100 rounded-md p-4">
+                                            <div className="font-semibold text-brand-dark mb-1">{sa.name}</div>
+                                            <div className="text-sm text-gray-600 flex justify-between">
+                                                <span>{sa.type === 'QUEUE' ? 'Cola' : 'Flujo'}</span>
+                                                <span className="font-medium">
+                                                    {sa.maxCapacity ? `Cap: ${sa.maxCapacity}` : 'Cap: Ilimitada'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="col-span-full text-gray-500 text-sm text-center py-4">
+                                        No hay áreas de servicio configuradas.
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            )}
 
             {isEnrollmentMode ? (
                 /* ENROLLMENT FLOW */
