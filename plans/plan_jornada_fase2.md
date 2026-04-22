@@ -1,31 +1,34 @@
-# FASE 2: Panel de Administrador y Gestión de Jornadas
+# FASE 2: Configuración del Evento (Tipo Jornada) y Servicios
 
-**Objetivo:** Permitir a los administradores crear nuevas jornadas y definir qué servicios estarán disponibles dinámicamente en cada una.
+**Objetivo:** Permitir a los organizadores configurar eventos tipo "Jornada" y definir qué áreas de servicio (`EventServiceArea`) estarán disponibles dinámicamente para los participantes durante la operación.
 
-## Micro-tareas de Backend (Endpoints Protegidos por `requireAdmin`)
+## Micro-tareas de Backend (Endpoints Multi-tenant)
 
-- [ ] **Endpoint POST `/api/jornadas`:**
-  - Crea una nueva jornada. Recibe `nombre` y `fecha_inicio`.
-- [ ] **Endpoint POST `/api/jornadas/:id/servicios`:**
-  - Añade un nuevo servicio a una jornada específica. El administrador envía el `nombre` del servicio (ej: Médico, Ropero, Infantil), el `tipo` (COLA o FLUJO) y la `capacidad_max`.
-- [ ] **Endpoint GET `/api/jornadas/activa`:**
-  - Retorna la jornada que actualmente tiene `is_activa = true`, junto con todos sus `Servicios_Jornada` anidados.
-- [ ] **Endpoint PATCH `/api/jornadas/:id/activar`:**
-  - Cambia el estado de todas las jornadas a inactivo y activa la jornada especificada en el parámetro ID.
+*Nota: Todas estas rutas deben estar protegidas por el middleware de autenticación global y verificar el acceso a la Organización (`orgId`).*
 
-## Micro-tareas de Frontend (Panel Admin - React + Tailwind/shadcn)
+- [ ] **Endpoint POST `/api/org/:orgId/events` (Ajuste):**
+  - Asegurar que el endpoint existente soporte la creación de eventos con la configuración específica de Jornada (ej. `eventType: 'JORNADA'`).
+- [ ] **Endpoint POST `/api/org/:orgId/events/:eventId/service-areas`:**
+  - Crea una nueva área de servicio vinculada al evento. Recibe el `name` (ej: Medicina General, Ropero), el `type` (`QUEUE` o `FLOW`) y la `maxCapacity`.
+- [ ] **Endpoint GET `/api/org/:orgId/events/:eventId/service-areas`:**
+  - Retorna todas las áreas de servicio configuradas para un evento específico.
+- [ ] **Endpoint PATCH `/api/org/:orgId/events/:eventId/status` (Uso de flujo existente):**
+  - En lugar de un flag `is_activa`, utilizaremos el ciclo de vida natural del evento (`status: 'PUBLISHED'` u `ONGOING` si existe). La jornada actual del día será el evento publicado que transcurra en la fecha de hoy.
 
-- [ ] **Vista 'Crear Jornada':**
-  - Formulario sencillo con inputs para "Nombre de la Jornada" y "Fecha".
-- [ ] **Vista 'Gestión de Servicios':**
-  - Interfaz dinámica (tipo lista con botón "Agregar Servicio") para vincular múltiples servicios a la jornada recién creada. Debe incluir un selector ('Select' o 'Radio') para definir si el flujo de ese servicio es tipo 'COLA' o 'FLUJO'.
-- [ ] **Botón 'Activar Jornada':**
-  - Acción principal (botón grande destacado) en el panel de detalles para marcar una jornada como la activa del día.
+## Micro-tareas de Frontend (Panel de Organización - React + Tailwind/shadcn)
+
+- [ ] **Vista 'Crear Evento' (Ajustes):**
+  - Incorporar la selección del tipo de evento o template ("Jornada de Servicio").
+- [ ] **Pestaña 'Áreas de Servicio' (Nueva Vista en Detalles del Evento):**
+  - Interfaz dinámica (tipo tabla o tarjetas) exclusiva para eventos tipo Jornada.
+  - Botón "Agregar Área de Servicio" con un modal/formulario para definir el nombre, capacidad y un selector para definir el flujo (`QUEUE` para colas convencionales o `FLOW` para zonas de tránsito rápido).
+- [ ] **Botón 'Publicar Evento':**
+  - Botón primario (`bg-brand-accent`) para activar el evento (`status = PUBLISHED`), haciéndolo visible para el registro y los dashboards móviles de los servidores el día de la operación.
 
 ## Micro-tareas de Pruebas y Calidad (Testing)
 
-- [ ] **Test CRUD Jornadas (Happy Path):** Validar que un Administrador puede crear una jornada y esta se guarda correctamente en BD.
-- [ ] **Test Creación de Servicios:** Validar que al agregar servicios a una jornada, se respeta el tipo de servicio ('COLA' o 'FLUJO').
-- [ ] **Test Endpoint Jornada Activa:** Verificar que al consultar la jornada activa, solo retorna aquella con el flag `is_activa = true`.
-- [ ] **Test Frontend (Componentes):** Validar que el componente de "Crear Jornada" renderiza correctamente y que el selector de "COLA/FLUJO" responde al estado.
-- [ ] **Verificación de Compilación:** Correr el proceso de `build` del frontend y el servidor backend para garantizar la ausencia de errores.
+- [ ] **Test Creación de Áreas de Servicio (Happy Path):** Validar que un usuario autorizado puede agregar un `EventServiceArea` a su evento.
+- [ ] **Test Autorización (Tenant-Isolation):** Verificar que un usuario no pueda agregar áreas de servicio a un evento de otra organización (`orgId`).
+- [ ] **Test Obtención de Áreas:** Validar que el endpoint GET retorna correctamente la lista de servicios filtrados por `eventId`.
+- [ ] **Test Frontend (Componentes):** Validar que el componente de creación de áreas renderiza correctamente el selector 'QUEUE/FLOW' y actualiza el estado.
+- [ ] **Verificación de Compilación:** Correr el proceso de `build` del frontend y ejecutar los test suites del backend para garantizar la ausencia de errores.
