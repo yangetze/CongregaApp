@@ -1,5 +1,5 @@
 import { ICommand, ICommandHandler } from "../../shared/cqrs/CommandBus";
-import { Event } from "../../domain/Event";
+import { Event, EventType } from "../../domain/Event";
 import { EventRequirements } from "../../domain/Event";
 export declare class CreateEventCommand implements ICommand {
     readonly name: string;
@@ -20,6 +20,7 @@ export declare class CreateEventCommand implements ICommand {
         quantity: number;
     }[];
     readonly statusId: string;
+    readonly eventType: EventType;
     constructor(name: string, startDate: Date, endDate: Date, totalCapacity: number | null, organizationId: string, hasCost?: boolean, requirements?: EventRequirements, costs?: {
         name: string;
         amount: number;
@@ -28,7 +29,7 @@ export declare class CreateEventCommand implements ICommand {
         name: string;
         price: number;
         quantity: number;
-    }[], statusId?: string);
+    }[], statusId?: string, eventType?: EventType);
 }
 export interface IEventRepository {
     save(event: Event): Promise<void>;

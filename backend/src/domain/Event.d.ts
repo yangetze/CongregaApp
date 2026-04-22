@@ -11,6 +11,10 @@ export declare class TicketStructure {
     quantity: number;
     constructor(name: string, price: number, quantity: number);
 }
+export declare enum EventType {
+    REGULAR = "REGULAR",
+    JORNADA = "JORNADA"
+}
 export declare class Event {
     readonly id: string;
     readonly sequentialId: number;
@@ -24,7 +28,9 @@ export declare class Event {
     costs: CostStructure[];
     tickets: TicketStructure[];
     statusId: string;
-    constructor(id: string, sequentialId: number, name: string, startDate: Date, endDate: Date, totalCapacity: number | null, organizationId: string, hasCost?: boolean, requirements?: EventRequirements, costs?: CostStructure[], tickets?: TicketStructure[], statusId?: string);
+    eventType: EventType;
+    constructor(id: string, sequentialId: number, name: string, startDate: Date, endDate: Date, totalCapacity: number | null, organizationId: string, hasCost?: boolean, requirements?: EventRequirements, costs?: CostStructure[], tickets?: TicketStructure[], statusId?: string, // default status
+    eventType?: EventType);
 }
 export declare enum EnrollmentRole {
     STAFF = "STAFF",

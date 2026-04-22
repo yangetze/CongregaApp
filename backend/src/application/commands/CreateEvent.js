@@ -14,7 +14,8 @@ class CreateEventCommand {
     costs;
     tickets;
     statusId;
-    constructor(name, startDate, endDate, totalCapacity, organizationId, hasCost = false, requirements = {}, costs = [], tickets = [], statusId = "DRAFT") {
+    eventType;
+    constructor(name, startDate, endDate, totalCapacity, organizationId, hasCost = false, requirements = {}, costs = [], tickets = [], statusId = "DRAFT", eventType = Event_1.EventType.REGULAR) {
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -25,6 +26,7 @@ class CreateEventCommand {
         this.costs = costs;
         this.tickets = tickets;
         this.statusId = statusId;
+        this.eventType = eventType;
     }
 }
 exports.CreateEventCommand = CreateEventCommand;
@@ -43,7 +45,7 @@ class CreateEventCommandHandler {
         }
         const ticketStructures = finalTickets.map(t => new Event_1.TicketStructure(t.name, t.price, t.quantity));
         const calculatedTotalCapacity = ticketStructures.reduce((sum, t) => sum + t.quantity, 0);
-        const event = new Event_1.Event(id, sequentialId, command.name, command.startDate, command.endDate, calculatedTotalCapacity, command.organizationId, command.hasCost, command.requirements, costStructures, ticketStructures, command.statusId);
+        const event = new Event_1.Event(id, sequentialId, command.name, command.startDate, command.endDate, calculatedTotalCapacity, command.organizationId, command.hasCost, command.requirements, costStructures, ticketStructures, command.statusId, command.eventType);
         await this.eventRepository.save(event);
         return id;
     }

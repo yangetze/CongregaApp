@@ -1,6 +1,6 @@
 import { ICommand, ICommandHandler } from "../../shared/cqrs/CommandBus";
 import { randomUUID } from "node:crypto";
-import { Event, CostStructure, TicketStructure } from "../../domain/Event";
+import { Event, CostStructure, TicketStructure, EventType } from "../../domain/Event";
 
 import { EventRequirements } from "../../domain/Event";
 
@@ -15,7 +15,8 @@ export class CreateEventCommand implements ICommand {
         public readonly requirements: EventRequirements = {},
         public readonly costs: { name: string; amount: number; isMandatory: boolean }[] = [],
         public readonly tickets: { name: string; price: number; quantity: number }[] = [],
-        public readonly statusId: string = "DRAFT"
+        public readonly statusId: string = "DRAFT",
+        public readonly eventType: EventType = EventType.REGULAR
     ) {}
 }
 
@@ -61,7 +62,8 @@ export class CreateEventCommandHandler implements ICommandHandler<CreateEventCom
             command.requirements,
             costStructures,
             ticketStructures,
-            command.statusId
+            command.statusId,
+            command.eventType
         );
 
         await this.eventRepository.save(event);

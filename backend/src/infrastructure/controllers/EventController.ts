@@ -14,7 +14,7 @@ export class EventController {
 
     createEvent = async (req: Request, res: Response): Promise<void> => {
         try {
-            const { name, startDate, endDate, totalCapacity, organizationId, hasCost, requirements, costs, tickets, statusId, organizers, participants } = req.body;
+            const { name, startDate, endDate, totalCapacity, organizationId, hasCost, requirements, costs, tickets, statusId, eventType, organizers, participants } = req.body;
             const command = new CreateEventCommand(
                 name,
                 new Date(startDate),
@@ -25,7 +25,8 @@ export class EventController {
                 requirements,
                 costs,
                 tickets,
-                statusId
+                statusId,
+                eventType
             );
             const id = await this.commandBus.execute("CreateEventCommand", command);
 

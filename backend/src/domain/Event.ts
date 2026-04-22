@@ -16,6 +16,11 @@ export class TicketStructure {
     ) {}
 }
 
+export enum EventType {
+    REGULAR = 'REGULAR',
+    JORNADA = 'JORNADA'
+}
+
 export class Event {
     constructor(
         public readonly id: string,
@@ -29,7 +34,8 @@ export class Event {
         public requirements: EventRequirements = {},
         public costs: CostStructure[] = [],
         public tickets: TicketStructure[] = [],
-        public statusId: string = "DRAFT" // default status
+        public statusId: string = "DRAFT", // default status
+        public eventType: EventType = EventType.REGULAR
     ) {}
 }
 

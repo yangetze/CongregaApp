@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Enrollment = exports.EnrollmentRole = exports.Event = exports.TicketStructure = exports.CostStructure = void 0;
+exports.Enrollment = exports.EnrollmentRole = exports.Event = exports.EventType = exports.TicketStructure = exports.CostStructure = void 0;
 class CostStructure {
     name;
     amount;
@@ -23,6 +23,11 @@ class TicketStructure {
     }
 }
 exports.TicketStructure = TicketStructure;
+var EventType;
+(function (EventType) {
+    EventType["REGULAR"] = "REGULAR";
+    EventType["JORNADA"] = "JORNADA";
+})(EventType || (exports.EventType = EventType = {}));
 class Event {
     id;
     sequentialId;
@@ -36,8 +41,9 @@ class Event {
     costs;
     tickets;
     statusId;
-    constructor(id, sequentialId, name, startDate, endDate, totalCapacity, organizationId, hasCost = false, requirements = {}, costs = [], tickets = [], statusId = "DRAFT" // default status
-    ) {
+    eventType;
+    constructor(id, sequentialId, name, startDate, endDate, totalCapacity, organizationId, hasCost = false, requirements = {}, costs = [], tickets = [], statusId = "DRAFT", // default status
+    eventType = EventType.REGULAR) {
         this.id = id;
         this.sequentialId = sequentialId;
         this.name = name;
@@ -50,6 +56,7 @@ class Event {
         this.costs = costs;
         this.tickets = tickets;
         this.statusId = statusId;
+        this.eventType = eventType;
     }
 }
 exports.Event = Event;

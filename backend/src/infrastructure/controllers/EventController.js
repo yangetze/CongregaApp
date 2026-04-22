@@ -14,8 +14,8 @@ class EventController {
     }
     createEvent = async (req, res) => {
         try {
-            const { name, startDate, endDate, totalCapacity, organizationId, hasCost, requirements, costs, tickets, statusId, organizers, participants } = req.body;
-            const command = new CreateEvent_1.CreateEventCommand(name, new Date(startDate), new Date(endDate), totalCapacity, organizationId, hasCost, requirements, costs, tickets, statusId);
+            const { name, startDate, endDate, totalCapacity, organizationId, hasCost, requirements, costs, tickets, statusId, eventType, organizers, participants } = req.body;
+            const command = new CreateEvent_1.CreateEventCommand(name, new Date(startDate), new Date(endDate), totalCapacity, organizationId, hasCost, requirements, costs, tickets, statusId, eventType);
             const id = await this.commandBus.execute("CreateEventCommand", command);
             // Enroll organizers if provided
             if (organizers && Array.isArray(organizers)) {
