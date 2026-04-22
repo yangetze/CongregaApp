@@ -13,6 +13,7 @@ describe("Events API", () => {
     it("should create an event", async () => {
         const response = await (0, supertest_1.default)(app)
             .post("/api/events")
+            .set("Authorization", "Bearer mock-token")
             .send({
             name: "Summer Camp 2024",
             startDate: "2024-07-15T00:00:00Z",
@@ -33,9 +34,31 @@ describe("Events API", () => {
         expect(response.body).toHaveProperty("id");
         expect(response.body.message).toBe("Event created successfully");
     });
+    it("should create a JORNADA event", async () => {
+        const response = await (0, supertest_1.default)(app)
+            .post("/api/events")
+            .set("Authorization", "Bearer mock-token")
+            .send({
+            name: "Medical Day 2024",
+            startDate: "2024-07-15T00:00:00Z",
+            endDate: "2024-07-20T00:00:00Z",
+            totalCapacity: 150,
+            organizationId: "org-1",
+            hasCost: false,
+            requirements: {},
+            costs: [],
+            tickets: [],
+            statusId: "status-draft",
+            eventType: "JORNADA"
+        });
+        expect(response.status).toBe(201);
+        expect(response.body).toHaveProperty("id");
+        expect(response.body.message).toBe("Event created successfully");
+    });
     it("should list events for an organization", async () => {
         await (0, supertest_1.default)(app)
             .post("/api/events")
+            .set("Authorization", "Bearer mock-token")
             .send({
             name: "Retreat 2024",
             startDate: "2024-08-15T00:00:00Z",
@@ -43,7 +66,9 @@ describe("Events API", () => {
             totalCapacity: 50,
             organizationId: "org-1"
         });
-        const response = await (0, supertest_1.default)(app).get("/api/events?organizationId=org-1");
+        const response = await (0, supertest_1.default)(app)
+            .get("/api/events?organizationId=org-1")
+            .set("Authorization", "Bearer mock-token");
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body)).toBe(true);
         expect(response.body.length).toBe(1);
@@ -53,6 +78,7 @@ describe("Events API", () => {
         // Create an organizer
         const createOrganizerRes = await (0, supertest_1.default)(app)
             .post("/api/persons")
+            .set("Authorization", "Bearer mock-token")
             .send({
             firstName: "John",
             lastName: "Organizer",
@@ -63,6 +89,7 @@ describe("Events API", () => {
         // Create a participant
         const createParticipantRes = await (0, supertest_1.default)(app)
             .post("/api/persons")
+            .set("Authorization", "Bearer mock-token")
             .send({
             firstName: "Jane",
             lastName: "Participant",
@@ -73,6 +100,7 @@ describe("Events API", () => {
         // Create Event with automatic enrollment
         const createEventRes = await (0, supertest_1.default)(app)
             .post("/api/events")
+            .set("Authorization", "Bearer mock-token")
             .send({
             name: "Seminar 2024",
             startDate: "2024-09-15T00:00:00Z",
@@ -85,13 +113,17 @@ describe("Events API", () => {
         expect(createEventRes.status).toBe(201);
         const eventId = createEventRes.body.id;
         // Now verify the enrollments exist for the organizer
-        const orgEnrollmentsRes = await (0, supertest_1.default)(app).get(`/api/persons/${organizerId}/enrollments`);
+        const orgEnrollmentsRes = await (0, supertest_1.default)(app)
+            .get(`/api/persons/${organizerId}/enrollments`)
+            .set("Authorization", "Bearer mock-token");
         expect(orgEnrollmentsRes.status).toBe(200);
         expect(orgEnrollmentsRes.body.length).toBe(1);
         expect(orgEnrollmentsRes.body[0].eventId).toBe(eventId);
         expect(orgEnrollmentsRes.body[0].role).toBe("STAFF");
         // Verify the enrollments exist for the participant
-        const partEnrollmentsRes = await (0, supertest_1.default)(app).get(`/api/persons/${participantId}/enrollments`);
+        const partEnrollmentsRes = await (0, supertest_1.default)(app)
+            .get(`/api/persons/${participantId}/enrollments`)
+            .set("Authorization", "Bearer mock-token");
         expect(partEnrollmentsRes.status).toBe(200);
         expect(partEnrollmentsRes.body.length).toBe(1);
         expect(partEnrollmentsRes.body[0].eventId).toBe(eventId);
@@ -101,6 +133,7 @@ describe("Events API", () => {
         // Create an event
         const createEventRes = await (0, supertest_1.default)(app)
             .post("/api/events")
+            .set("Authorization", "Bearer mock-token")
             .send({
             name: "Workshop 2024",
             startDate: "2024-10-15T00:00:00Z",
@@ -112,6 +145,7 @@ describe("Events API", () => {
         // Create a person
         const createPersonRes = await (0, supertest_1.default)(app)
             .post("/api/persons")
+            .set("Authorization", "Bearer mock-token")
             .send({
             firstName: "Alice",
             lastName: "Student",
@@ -122,6 +156,7 @@ describe("Events API", () => {
         // Enroll person
         const enrollRes = await (0, supertest_1.default)(app)
             .post(`/api/events/${eventId}/enroll`)
+            .set("Authorization", "Bearer mock-token")
             .send({
             personId: personId,
             role: "ATTENDEE"
@@ -129,7 +164,9 @@ describe("Events API", () => {
         expect(enrollRes.status).toBe(201);
         expect(enrollRes.body.message).toBe("Person enrolled successfully");
         // Verify enrollment
-        const enrollmentsRes = await (0, supertest_1.default)(app).get(`/api/persons/${personId}/enrollments`);
+        const enrollmentsRes = await (0, supertest_1.default)(app)
+            .get(`/api/persons/${personId}/enrollments`)
+            .set("Authorization", "Bearer mock-token");
         expect(enrollmentsRes.status).toBe(200);
         expect(enrollmentsRes.body.length).toBe(1);
         expect(enrollmentsRes.body[0].eventId).toBe(eventId);

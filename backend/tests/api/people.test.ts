@@ -11,16 +11,34 @@ describe("People API", () => {
         app = createApp();
     });
 
-    it("should create a person", async () => {
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    it("should return 401 when missing Authorization header", async () => {
+        const response = await request(app).get("/api/persons?organizationId=org-1");
+        expect(response.status).toBe(401);
+    });
+
+    it("should return 403 when Authorization header is invalid", async () => {
+        const response = await request(app)
+            .get("/api/persons?organizationId=org-1")
+            .set("Authorization", "Bearer invalid-token");
+        expect(response.status).toBe(403);
+    });
+
+    it("should create a new person", async () => {
         const response = await request(app)
             .post("/api/persons")
+            .set("Authorization", "Bearer mock-token")
             .send({
+                documentId: "V-12345678",
                 firstName: "John",
                 lastName: "Doe",
                 email: "john.doe@example.com",
-                organizationId: "org-1",
-                documentId: "V-12345678",
-                phone: "+1234567890"
+                phone: "+1234567890",
+                birthDate: "1990-01-01T00:00:00Z",
+                organizationId: "org-1"
             });
 
         expect(response.status).toBe(201);
@@ -28,106 +46,127 @@ describe("People API", () => {
         expect(response.body.message).toBe("Person created successfully");
     });
 
-    it("should list people for an organization", async () => {
+    it("should list persons for an organization", async () => {
+        // Create first person
         await request(app)
             .post("/api/persons")
+            .set("Authorization", "Bearer mock-token")
             .send({
-                firstName: "John",
-                lastName: "Doe",
-                email: "john.doe@example.com",
-                organizationId: "org-1"
+                firstName: "Alice",
+                lastName: "Smith",
+                organizationId: "org-2"
             });
 
-        const response = await request(app).get("/api/persons?organizationId=org-1");
+        // Fetch
+        const response = await request(app)
+            .get("/api/persons?organizationId=org-2")
+            .set("Authorization", "Bearer mock-token");
 
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body)).toBe(true);
         expect(response.body.length).toBe(1);
-        expect(response.body[0].firstName).toBe("John");
+        expect(response.body[0].firstName).toBe("Alice");
+    });
+
+    it("should return 400 when fetching persons without organizationId", async () => {
+        const response = await request(app)
+            .get("/api/persons")
+            .set("Authorization", "Bearer mock-token");
+        expect(response.status).toBe(400);
+        expect(response.body.error).toBe("organizationId is required");
     });
 
     it("should get a person by documentId", async () => {
-        const createRes = await request(app)
+        await request(app)
             .post("/api/persons")
+            .set("Authorization", "Bearer mock-token")
             .send({
-                firstName: "Jane",
-                lastName: "Smith",
-                email: "jane@example.com",
-                organizationId: "org-2",
-                documentId: "V-87654321"
+                documentId: "E-87654321",
+                firstName: "Bob",
+                lastName: "Builder",
+                organizationId: "org-1"
             });
 
-        const response = await request(app).get("/api/persons/document/V-87654321?organizationId=org-2");
+        const response = await request(app)
+            .get("/api/persons/document/E-87654321?organizationId=org-1")
+            .set("Authorization", "Bearer mock-token");
+
         expect(response.status).toBe(200);
-        expect(response.body.firstName).toBe("Jane");
-        expect(response.body.documentId).toBe("V-87654321");
+        expect(response.body.firstName).toBe("Bob");
     });
 
     it("should return 404 if person by documentId is not found", async () => {
-        const response = await request(app).get("/api/persons/document/V-000?organizationId=org-2");
+        const response = await request(app)
+            .get("/api/persons/document/V-000?organizationId=org-2")
+            .set("Authorization", "Bearer mock-token");
         expect(response.status).toBe(404);
         expect(response.body.error).toBe("Person not found");
     });
 
     it("should get enrollments for a person", async () => {
-        // Create a person
+        // Create person
         const createRes = await request(app)
             .post("/api/persons")
+            .set("Authorization", "Bearer mock-token")
             .send({
-                firstName: "Mark",
-                lastName: "Twain",
-                email: "mark@example.com",
-                organizationId: "org-1"
+                firstName: "Charlie",
+                lastName: "Chaplin",
+                organizationId: "org-3"
             });
         const personId = createRes.body.id;
 
-        // Note: For now we just test the endpoint responds since we don't have enrollments setup here,
         // we'll setup a proper enrollment in the events test, but we can verify it returns an empty array.
-        const response = await request(app).get(`/api/persons/${personId}/enrollments`);
+        const response = await request(app)
+            .get(`/api/persons/${personId}/enrollments`)
+            .set("Authorization", "Bearer mock-token");
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body)).toBe(true);
         expect(response.body.length).toBe(0);
     });
 
     it("should return 500 when getPersons query fails with an Error", async () => {
-        jest.spyOn(QueryBus.prototype, "execute").mockRejectedValueOnce(new Error("Query failed"));
+        jest.spyOn(QueryBus.prototype, "execute").mockRejectedValue(new Error("Query failed"));
 
-        const response = await request(app).get("/api/persons?organizationId=org-1");
+        const response = await request(app)
+            .get("/api/persons?organizationId=org-1")
+            .set("Authorization", "Bearer mock-token");
 
         expect(response.status).toBe(500);
         expect(response.body.error).toBe("Query failed");
     });
 
     it("should return 500 when getPersons query fails with a non-Error", async () => {
-        jest.spyOn(QueryBus.prototype, "execute").mockRejectedValueOnce("Unknown error");
+        jest.spyOn(QueryBus.prototype, "execute").mockRejectedValue("String error");
 
-        const response = await request(app).get("/api/persons?organizationId=org-1");
+        const response = await request(app)
+            .get("/api/persons?organizationId=org-1")
+            .set("Authorization", "Bearer mock-token");
 
         expect(response.status).toBe(500);
         expect(response.body.error).toBe("An unknown error occurred");
     });
 
     it("should return 400 when establishRelationship command fails with an Error", async () => {
-        jest.spyOn(CommandBus.prototype, "execute").mockRejectedValueOnce(new Error("Relationship failed"));
+        jest.spyOn(CommandBus.prototype, "execute").mockRejectedValue(new Error("Relationship failed"));
 
         const response = await request(app)
             .post("/api/persons/person-1/relationships")
+            .set("Authorization", "Bearer mock-token")
             .send({ relatedPersonId: "person-2", relationshipType: "PARENT" });
 
         expect(response.status).toBe(400);
         expect(response.body.error).toBe("Relationship failed");
-        jest.restoreAllMocks();
     });
 
     it("should return 400 when establishRelationship command fails with a non-Error", async () => {
-        jest.spyOn(CommandBus.prototype, "execute").mockRejectedValueOnce("Unknown error");
+        jest.spyOn(CommandBus.prototype, "execute").mockRejectedValue("String error");
 
         const response = await request(app)
             .post("/api/persons/person-1/relationships")
+            .set("Authorization", "Bearer mock-token")
             .send({ relatedPersonId: "person-2", relationshipType: "PARENT" });
 
         expect(response.status).toBe(400);
         expect(response.body.error).toBe("An unknown error occurred");
-        jest.restoreAllMocks();
     });
 });

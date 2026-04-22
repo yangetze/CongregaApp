@@ -11,7 +11,9 @@ describe("Admin Global API", () => {
         app = (0, app_1.createApp)();
     });
     it("should retrieve default payment methods", async () => {
-        const response = await (0, supertest_1.default)(app).get("/api/admin/payment-methods");
+        const response = await (0, supertest_1.default)(app)
+            .get("/api/admin/payment-methods")
+            .set("Authorization", "Bearer mock-token");
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body)).toBe(true);
         // By default InMemoryGlobalConfigRepository has Zelle and Binance
@@ -21,6 +23,7 @@ describe("Admin Global API", () => {
     it("should create a new payment method", async () => {
         const createRes = await (0, supertest_1.default)(app)
             .post("/api/admin/payment-methods")
+            .set("Authorization", "Bearer mock-token")
             .send({
             name: "PayPal",
             currency: "USD"
@@ -29,7 +32,9 @@ describe("Admin Global API", () => {
         expect(createRes.body).toHaveProperty("id");
         expect(createRes.body.message).toBe("Payment method created successfully");
         // Verify it was added
-        const getRes = await (0, supertest_1.default)(app).get("/api/admin/payment-methods");
+        const getRes = await (0, supertest_1.default)(app)
+            .get("/api/admin/payment-methods")
+            .set("Authorization", "Bearer mock-token");
         expect(getRes.status).toBe(200);
         const methods = getRes.body;
         const paypal = methods.find((m) => m.name === "PayPal" && m.currency === "USD");
@@ -38,6 +43,7 @@ describe("Admin Global API", () => {
     it("should return 400 when creating payment method without required fields", async () => {
         const response = await (0, supertest_1.default)(app)
             .post("/api/admin/payment-methods")
+            .set("Authorization", "Bearer mock-token")
             .send({
             name: "Stripe"
             // Missing currency
@@ -46,7 +52,9 @@ describe("Admin Global API", () => {
         expect(response.body.error).toBe("Name and currency are required");
     });
     it("should retrieve default event statuses", async () => {
-        const response = await (0, supertest_1.default)(app).get("/api/admin/event-statuses");
+        const response = await (0, supertest_1.default)(app)
+            .get("/api/admin/event-statuses")
+            .set("Authorization", "Bearer mock-token");
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body)).toBe(true);
         // By default InMemoryGlobalConfigRepository has Borrador, Activo, etc.
