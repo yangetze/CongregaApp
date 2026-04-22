@@ -6,7 +6,8 @@ export class EnrollPersonCommand implements ICommand {
     constructor(
         public readonly eventId: string,
         public readonly personId: string,
-        public readonly role: string
+        public readonly role: string,
+        public readonly ticketNumber?: string
     ) {}
 }
 
@@ -27,7 +28,9 @@ export class EnrollPersonCommandHandler implements ICommandHandler<EnrollPersonC
             id,
             command.eventId,
             command.personId,
-            role
+            role,
+            undefined,
+            command.ticketNumber
         );
 
         await this.enrollmentRepository.save(enrollment);

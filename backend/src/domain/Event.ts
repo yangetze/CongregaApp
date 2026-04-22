@@ -50,6 +50,7 @@ export class Enrollment {
         public readonly eventId: string,
         public readonly personId: string,
         public role: EnrollmentRole = EnrollmentRole.PARTICIPANT,
-        public createdAt: Date = new Date()
+        public createdAt: Date = new Date(),
+        public ticketNumber?: string
     ) {}
 }
