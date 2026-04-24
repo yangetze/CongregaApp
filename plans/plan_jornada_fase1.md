@@ -8,7 +8,7 @@
   - Agregar un mecanismo para identificar si un evento es una "Jornada" (Ej: un campo `eventType: EventType` o `isJornada: Boolean`). Esto permitirá a la interfaz de usuario habilitar los módulos de servicios.
 - [x] **Extensión del Modelo `Enrollment`:**
   - Agregar el campo `ticketNumber` (String, opcional) para la logística física (pulseras, tickets).
-- [ ] **Crear Modelo `EventServiceArea` (Áreas de Servicio de la Jornada):**
+- [x] **Crear Modelo `EventServiceArea` (Áreas de Servicio de la Jornada):**
   - Campos:
     - `id` (UUID).
     - `eventId` (FK a Event).
@@ -36,3 +36,10 @@
 - [ ] **Tests de Modelos:** Validar que un `Enrollment` puede guardar un `ticketNumber` de forma opcional.
 - [ ] **Tests de Relación:** Asegurar que eliminar un `Event` elimina (en cascada o restringe) sus `EventServiceArea` correspondientes, y que lo mismo ocurre con los `ServiceAssignment` si se elimina un `Enrollment`.
 - [ ] **Verificación de Compilación:** Asegurar que el backend compila sin errores tras actualizar el esquema de Prisma y generar los tipos correspondientes.
+
+---
+
+## Aprendizajes (Learnings) Generales
+* **Desarrollo del Frontend sin `schema.prisma`**: Dada la arquitectura "InMemory" actual de la base de datos (con `db.json`), no fue necesario ejecutar migraciones de Prisma. Todo el modelo de `EventServiceArea` fue adaptado dentro del objeto `Event` principal manejando sus tipos.
+* **Componentes React Controlados**: La validación manual en los array types (`serviceAreas.map()`) durante el renderizado es fundamental para manejar campos dinámicos sin crashear el estado.
+* **TypeScript & CQRS**: Cada actualización de un modelo secundario atado a un Root Aggregate (como `EventServiceArea` dentro de `Event`) ameritaba su propio Command y Handler para mantener la segregación. Separamos un `UpdateEventServiceAreasCommand` exclusivamente para esto.
