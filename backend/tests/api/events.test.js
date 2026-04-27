@@ -5,10 +5,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const supertest_1 = __importDefault(require("supertest"));
 const app_1 = require("../../src/app");
+const QueryBus_1 = require("../../src/shared/cqrs/QueryBus");
 describe("Events API", () => {
     let app;
     beforeEach(() => {
         app = (0, app_1.createApp)();
+    });
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
     it("should create an event", async () => {
         const response = await (0, supertest_1.default)(app)
@@ -171,6 +175,40 @@ describe("Events API", () => {
         expect(enrollmentsRes.body.length).toBe(1);
         expect(enrollmentsRes.body[0].eventId).toBe(eventId);
         expect(enrollmentsRes.body[0].role).toBe("ATTENDEE");
+    });
+
+    it("should return an empty array when no persons are enrolled in an event", async () => {
+        const createEventRes = await (0, supertest_1.default)(app)
+            .post("/api/events")
+            .set("Authorization", "Bearer mock-token")
+            .send({
+                name: "Empty Event",
+                startDate: "2024-11-15T00:00:00Z",
+                endDate: "2024-11-15T00:00:00Z",
+                totalCapacity: 50,
+                organizationId: "org-empty"
+            });
+        const eventId = createEventRes.body.id;
+
+        const response = await (0, supertest_1.default)(app)
+            .get(`/api/events/${eventId}/enrollments`)
+            .set("Authorization", "Bearer mock-token");
+
+        expect(response.status).toBe(200);
+        expect(Array.isArray(response.body)).toBe(true);
+        expect(response.body.length).toBe(0);
+    });
+
+    it("should return 500 when getEventEnrollments query fails", async () => {
+
+        jest.spyOn(QueryBus_1.QueryBus.prototype, "execute").mockRejectedValue(new Error("Query failed"));
+
+        const response = await (0, supertest_1.default)(app)
+            .get("/api/events/some-event-id/enrollments")
+            .set("Authorization", "Bearer mock-token");
+
+        expect(response.status).toBe(500);
+        expect(response.body.error).toBe("Query failed");
     });
 });
 //# sourceMappingURL=events.test.js.map
