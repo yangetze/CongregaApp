@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminController = void 0;
 const node_crypto_1 = require("node:crypto");
 const GlobalConfig_1 = require("../../../domain/admin/GlobalConfig");
+const errorHandler_1 = require("../../utils/errorHandler");
 class AdminController {
     configRepo;
     constructor(configRepo) {
@@ -14,8 +15,7 @@ class AdminController {
             res.status(200).json(methods);
         }
         catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            (0, errorHandler_1.handleControllerError)(res, error);
         }
     };
     createPaymentMethod = async (req, res) => {
@@ -31,8 +31,7 @@ class AdminController {
             res.status(201).json({ id, message: "Payment method created successfully" });
         }
         catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            (0, errorHandler_1.handleControllerError)(res, error);
         }
     };
     getEventStatuses = async (req, res) => {
@@ -41,8 +40,7 @@ class AdminController {
             res.status(200).json(statuses);
         }
         catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            (0, errorHandler_1.handleControllerError)(res, error);
         }
     };
 }

@@ -5,6 +5,7 @@ import { CreateEventCommand } from "../../application/commands/CreateEvent";
 import { GetEventsQuery } from "../../application/queries/GetEvents";
 import { GetEventEnrollmentsQuery } from "../../application/queries/GetEventEnrollments";
 import { EnrollPersonCommand } from "../../application/commands/EnrollPerson";
+import { handleControllerError } from "../utils/errorHandler";
 
 export class EventController {
     constructor(
@@ -50,8 +51,7 @@ export class EventController {
 
             res.status(201).json({ id, message: "Event created successfully" });
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            handleControllerError(res, error);
         }
     };
 
@@ -66,8 +66,7 @@ export class EventController {
             const events = await this.queryBus.execute("GetEventsQuery", query);
             res.status(200).json(events);
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            handleControllerError(res, error);
         }
     };
 
@@ -85,8 +84,7 @@ export class EventController {
 
             res.status(200).json(enrollments);
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            handleControllerError(res, error);
         }
     };
 
@@ -105,8 +103,7 @@ export class EventController {
 
             res.status(201).json({ id, message: "Person enrolled successfully" });
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            handleControllerError(res, error);
         }
     }
 }
