@@ -6,6 +6,7 @@ const GetPersons_1 = require("../../application/queries/GetPersons");
 const GetPersonByDocument_1 = require("../../application/queries/GetPersonByDocument");
 const GetPersonEnrollments_1 = require("../../application/queries/GetPersonEnrollments");
 const EstablishRelationship_1 = require("../../application/commands/EstablishRelationship");
+const errorHandler_1 = require("../utils/errorHandler");
 class PersonController {
     commandBus;
     queryBus;
@@ -26,8 +27,7 @@ class PersonController {
             res.status(201).json({ id, message: "Person created successfully" });
         }
         catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            (0, errorHandler_1.handleControllerError)(res, error);
         }
     };
     getPersons = async (req, res) => {
@@ -55,8 +55,7 @@ class PersonController {
             res.status(200).json(formattedPersons);
         }
         catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            (0, errorHandler_1.handleControllerError)(res, error);
         }
     };
     getByDocument = async (req, res) => {
@@ -87,8 +86,7 @@ class PersonController {
             res.status(200).json(formattedPerson);
         }
         catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            (0, errorHandler_1.handleControllerError)(res, error);
         }
     };
     getEnrollments = async (req, res) => {
@@ -99,8 +97,7 @@ class PersonController {
             res.status(200).json(enrollments);
         }
         catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            (0, errorHandler_1.handleControllerError)(res, error);
         }
     };
     establishRelationship = async (req, res) => {
@@ -116,8 +113,7 @@ class PersonController {
             res.status(201).json({ message: "Relationship established successfully" });
         }
         catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(400).json({ error: errorMessage });
+            (0, errorHandler_1.handleControllerError)(res, error, 400);
         }
     };
 }

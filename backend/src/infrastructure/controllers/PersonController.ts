@@ -6,6 +6,7 @@ import { GetPersonsQuery } from "../../application/queries/GetPersons";
 import { GetPersonByDocumentQuery } from "../../application/queries/GetPersonByDocument";
 import { GetPersonEnrollmentsQuery } from "../../application/queries/GetPersonEnrollments";
 import { EstablishRelationshipCommand } from "../../application/commands/EstablishRelationship";
+import { handleControllerError } from "../utils/errorHandler";
 
 export class PersonController {
     constructor(
@@ -27,8 +28,7 @@ export class PersonController {
             const id = await this.commandBus.execute("CreatePersonCommand", command);
             res.status(201).json({ id, message: "Person created successfully" });
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            handleControllerError(res, error);
         }
     };
 
@@ -59,8 +59,7 @@ export class PersonController {
 
             res.status(200).json(formattedPersons);
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            handleControllerError(res, error);
         }
     };
 
@@ -96,8 +95,7 @@ export class PersonController {
 
             res.status(200).json(formattedPerson);
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            handleControllerError(res, error);
         }
     };
 
@@ -110,8 +108,7 @@ export class PersonController {
 
             res.status(200).json(enrollments);
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            handleControllerError(res, error);
         }
     };
 
@@ -130,8 +127,7 @@ export class PersonController {
 
             res.status(201).json({ message: "Relationship established successfully" });
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(400).json({ error: errorMessage });
+            handleControllerError(res, error, 400);
         }
     };
 }
