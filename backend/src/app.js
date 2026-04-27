@@ -78,10 +78,8 @@ const createApp = () => {
     const eventController = new EventController_1.EventController(commandBus, queryBus);
     // Routes
     const apiRouter = express_1.default.Router();
-    // Protected Routes
-    apiRouter.use("/persons", authMiddleware_1.authMiddleware);
-    apiRouter.use("/events", authMiddleware_1.authMiddleware);
-    apiRouter.use("/admin", authMiddleware_1.authMiddleware);
+    // Global Authentication for all API routes
+    apiRouter.use(authMiddleware_1.authMiddleware);
     apiRouter.post("/persons", (req, res) => personController.createPerson(req, res));
     apiRouter.get("/persons/document/:documentId", (req, res) => personController.getByDocument(req, res));
     apiRouter.get("/persons/:personId/enrollments", (req, res) => personController.getEnrollments(req, res));
@@ -100,15 +98,15 @@ const createApp = () => {
         const dataPath = path_1.default.join(__dirname, "infrastructure", "data", "db.json");
         return JSON.parse(fs_1.default.readFileSync(dataPath, "utf-8"));
     };
-    apiRouter.get("/organizations", authMiddleware_1.authMiddleware, (req, res) => {
+    apiRouter.get("/organizations", (req, res) => {
         const data = getMockData();
         res.json(data.organizations);
     });
-    apiRouter.get("/users", authMiddleware_1.authMiddleware, (req, res) => {
+    apiRouter.get("/users", (req, res) => {
         const data = getMockData();
         res.json(data.users);
     });
-    apiRouter.get("/transactions", authMiddleware_1.authMiddleware, (req, res) => {
+    apiRouter.get("/transactions", (req, res) => {
         const data = getMockData();
         let transactions = data.transactions;
         if (req.query.organizationId) {

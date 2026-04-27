@@ -89,10 +89,8 @@ export const createApp = () => {
     // Routes
     const apiRouter = express.Router();
 
-    // Protected Routes
-    apiRouter.use("/persons", authMiddleware);
-    apiRouter.use("/events", authMiddleware);
-    apiRouter.use("/admin", authMiddleware);
+    // Global Authentication for all API routes
+    apiRouter.use(authMiddleware);
 
     apiRouter.post("/persons", (req, res) => personController.createPerson(req, res));
     apiRouter.get("/persons/document/:documentId", (req, res) => personController.getByDocument(req, res));
@@ -116,17 +114,17 @@ export const createApp = () => {
       return JSON.parse(fs.readFileSync(dataPath, "utf-8"));
     };
 
-    apiRouter.get("/organizations", authMiddleware, (req, res) => {
+    apiRouter.get("/organizations", (req, res) => {
       const data = getMockData();
       res.json(data.organizations);
     });
 
-    apiRouter.get("/users", authMiddleware, (req, res) => {
+    apiRouter.get("/users", (req, res) => {
       const data = getMockData();
       res.json(data.users);
     });
 
-    apiRouter.get("/transactions", authMiddleware, (req, res) => {
+    apiRouter.get("/transactions", (req, res) => {
       const data = getMockData();
       let transactions = data.transactions;
 
