@@ -111,23 +111,24 @@ export const createApp = () => {
     apiRouter.get("/admin/event-statuses", adminController.getEventStatuses);
 
     // --- MOCK API FOR UI DEMO ---
-    const getMockData = () => {
+    const getMockData = async () => {
       const dataPath = path.join(__dirname, "infrastructure", "data", "db.json");
-      return JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+      const content = await fs.promises.readFile(dataPath, "utf-8");
+      return JSON.parse(content);
     };
 
-    apiRouter.get("/organizations", authMiddleware, (req, res) => {
-      const data = getMockData();
+    apiRouter.get("/organizations", authMiddleware, async (req, res) => {
+      const data = await getMockData();
       res.json(data.organizations);
     });
 
-    apiRouter.get("/users", authMiddleware, (req, res) => {
-      const data = getMockData();
+    apiRouter.get("/users", authMiddleware, async (req, res) => {
+      const data = await getMockData();
       res.json(data.users);
     });
 
-    apiRouter.get("/transactions", authMiddleware, (req, res) => {
-      const data = getMockData();
+    apiRouter.get("/transactions", authMiddleware, async (req, res) => {
+      const data = await getMockData();
       let transactions = data.transactions;
 
       if (req.query.organizationId) {
