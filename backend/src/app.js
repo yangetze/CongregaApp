@@ -78,10 +78,8 @@ const createApp = () => {
     const eventController = new EventController_1.EventController(commandBus, queryBus);
     // Routes
     const apiRouter = express_1.default.Router();
-    // Protected Routes
-    apiRouter.use("/persons", authMiddleware_1.authMiddleware);
-    apiRouter.use("/events", authMiddleware_1.authMiddleware);
-    apiRouter.use("/admin", authMiddleware_1.authMiddleware);
+    // Global Authentication for all API routes
+    apiRouter.use(authMiddleware_1.authMiddleware);
     apiRouter.post("/persons", (req, res) => personController.createPerson(req, res));
     apiRouter.get("/persons/document/:documentId", (req, res) => personController.getByDocument(req, res));
     apiRouter.get("/persons/:personId/enrollments", (req, res) => personController.getEnrollments(req, res));

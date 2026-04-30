@@ -89,10 +89,8 @@ export const createApp = () => {
     // Routes
     const apiRouter = express.Router();
 
-    // Protected Routes
-    apiRouter.use("/persons", authMiddleware);
-    apiRouter.use("/events", authMiddleware);
-    apiRouter.use("/admin", authMiddleware);
+    // Global Authentication for all API routes
+    apiRouter.use(authMiddleware);
 
     apiRouter.post("/persons", (req, res) => personController.createPerson(req, res));
     apiRouter.get("/persons/document/:documentId", (req, res) => personController.getByDocument(req, res));
