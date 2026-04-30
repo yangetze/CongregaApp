@@ -94,20 +94,21 @@ const createApp = () => {
     apiRouter.post("/admin/payment-methods", adminController.createPaymentMethod);
     apiRouter.get("/admin/event-statuses", adminController.getEventStatuses);
     // --- MOCK API FOR UI DEMO ---
-    const getMockData = () => {
+    const getMockData = async () => {
         const dataPath = path_1.default.join(__dirname, "infrastructure", "data", "db.json");
-        return JSON.parse(fs_1.default.readFileSync(dataPath, "utf-8"));
+        const content = await fs_1.default.promises.readFile(dataPath, "utf-8");
+        return JSON.parse(content);
     };
-    apiRouter.get("/organizations", (req, res) => {
-        const data = getMockData();
+    apiRouter.get("/organizations", async (req, res) => {
+        const data = await getMockData();
         res.json(data.organizations);
     });
-    apiRouter.get("/users", (req, res) => {
-        const data = getMockData();
+    apiRouter.get("/users", async (req, res) => {
+        const data = await getMockData();
         res.json(data.users);
     });
-    apiRouter.get("/transactions", (req, res) => {
-        const data = getMockData();
+    apiRouter.get("/transactions", async (req, res) => {
+        const data = await getMockData();
         let transactions = data.transactions;
         if (req.query.organizationId) {
             transactions = transactions.filter((t) => t.organizationId === req.query.organizationId);
