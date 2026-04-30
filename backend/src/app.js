@@ -99,15 +99,15 @@ const createApp = () => {
         const content = await fs_1.default.promises.readFile(dataPath, "utf-8");
         return JSON.parse(content);
     };
-    apiRouter.get("/organizations", async (req, res) => {
+    apiRouter.get("/organizations", authMiddleware_1.authMiddleware, async (req, res) => {
         const data = await getMockData();
         res.json(data.organizations);
     });
-    apiRouter.get("/users", async (req, res) => {
+    apiRouter.get("/users", authMiddleware_1.authMiddleware, async (req, res) => {
         const data = await getMockData();
         res.json(data.users);
     });
-    apiRouter.get("/transactions", async (req, res) => {
+    apiRouter.get("/transactions", authMiddleware_1.authMiddleware, async (req, res) => {
         const data = await getMockData();
         let transactions = data.transactions;
         if (req.query.organizationId) {

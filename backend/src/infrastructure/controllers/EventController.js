@@ -5,6 +5,7 @@ const CreateEvent_1 = require("../../application/commands/CreateEvent");
 const GetEvents_1 = require("../../application/queries/GetEvents");
 const GetEventEnrollments_1 = require("../../application/queries/GetEventEnrollments");
 const EnrollPerson_1 = require("../../application/commands/EnrollPerson");
+const errorHandler_1 = require("../utils/errorHandler");
 class EventController {
     commandBus;
     queryBus;
@@ -36,8 +37,7 @@ class EventController {
             res.status(201).json({ id, message: "Event created successfully" });
         }
         catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            (0, errorHandler_1.handleControllerError)(res, error);
         }
     };
     getEvents = async (req, res) => {
@@ -52,8 +52,7 @@ class EventController {
             res.status(200).json(events);
         }
         catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            (0, errorHandler_1.handleControllerError)(res, error);
         }
     };
     getEventEnrollments = async (req, res) => {
@@ -68,8 +67,7 @@ class EventController {
             res.status(200).json(enrollments);
         }
         catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            (0, errorHandler_1.handleControllerError)(res, error);
         }
     };
     enrollPerson = async (req, res) => {
@@ -85,8 +83,7 @@ class EventController {
             res.status(201).json({ id, message: "Person enrolled successfully" });
         }
         catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            (0, errorHandler_1.handleControllerError)(res, error);
         }
     };
 }

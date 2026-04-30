@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { randomUUID } from "node:crypto";
 import { PaymentMethod } from "../../../domain/admin/GlobalConfig";
 import { IGlobalConfigRepository } from "../../../infrastructure/repositories/admin/InMemoryGlobalConfigRepository";
+import { handleControllerError } from "../../utils/errorHandler";
 
 export class AdminController {
     constructor(private readonly configRepo: IGlobalConfigRepository) {}
@@ -11,8 +12,7 @@ export class AdminController {
             const methods = await this.configRepo.getPaymentMethods();
             res.status(200).json(methods);
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            handleControllerError(res, error);
         }
     };
 
@@ -28,8 +28,7 @@ export class AdminController {
             await this.configRepo.savePaymentMethod(method);
             res.status(201).json({ id, message: "Payment method created successfully" });
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            handleControllerError(res, error);
         }
     };
 
@@ -38,8 +37,7 @@ export class AdminController {
             const statuses = await this.configRepo.getEventStatuses();
             res.status(200).json(statuses);
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            res.status(500).json({ error: errorMessage });
+            handleControllerError(res, error);
         }
     };
 }

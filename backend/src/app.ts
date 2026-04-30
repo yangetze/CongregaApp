@@ -115,17 +115,17 @@ export const createApp = () => {
       return JSON.parse(content);
     };
 
-    apiRouter.get("/organizations", async (req, res) => {
+    apiRouter.get("/organizations", authMiddleware, async (req, res) => {
       const data = await getMockData();
       res.json(data.organizations);
     });
 
-    apiRouter.get("/users", async (req, res) => {
+    apiRouter.get("/users", authMiddleware, async (req, res) => {
       const data = await getMockData();
       res.json(data.users);
     });
 
-    apiRouter.get("/transactions", async (req, res) => {
+    apiRouter.get("/transactions", authMiddleware, async (req, res) => {
       const data = await getMockData();
       let transactions = data.transactions;
 
