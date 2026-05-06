@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { MOCK_USERS } from '@/data/mock';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -5,6 +6,17 @@ import { Users, Search, Plus, ShieldCheck, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function AdminUsersPage() {
+  const stats = useMemo(() => {
+    return MOCK_USERS.reduce(
+      (acc, user) => {
+        if (user.role === 'ADMIN') acc.adminCount++;
+        if (user.status === 'ACTIVE') acc.activeUsersCount++;
+        return acc;
+      },
+      { adminCount: 0, activeUsersCount: 0 }
+    );
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -36,7 +48,7 @@ export default function AdminUsersPage() {
             <ShieldCheck className="w-4 h-4 text-status-info" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{MOCK_USERS.filter(u => u.role === 'ADMIN').length}</div>
+            <div className="text-2xl font-bold">{stats.adminCount}</div>
             <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">Con acceso total</p>
           </CardContent>
         </Card>
@@ -46,7 +58,7 @@ export default function AdminUsersPage() {
             <User className="w-4 h-4 text-status-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{MOCK_USERS.filter(u => u.status === 'ACTIVE').length}</div>
+            <div className="text-2xl font-bold">{stats.activeUsersCount}</div>
             <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">Operando actualmente</p>
           </CardContent>
         </Card>
