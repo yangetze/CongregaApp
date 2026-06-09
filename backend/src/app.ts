@@ -30,8 +30,7 @@ import { AdminController } from "./infrastructure/controllers/admin/AdminControl
 // Middleware
 import { authMiddleware } from "./infrastructure/middleware/authMiddleware";
 
-import fs from "fs";
-import path from "path";
+import dbData from "./infrastructure/data/db.json";
 
 export const createApp = () => {
     const app = express();
@@ -109,25 +108,16 @@ export const createApp = () => {
     apiRouter.get("/admin/event-statuses", adminController.getEventStatuses);
 
     // --- MOCK API FOR UI DEMO ---
-    const getMockData = async () => {
-      const dataPath = path.join(__dirname, "infrastructure", "data", "db.json");
-      const content = await fs.promises.readFile(dataPath, "utf-8");
-      return JSON.parse(content);
-    };
-
-    apiRouter.get("/organizations", authMiddleware, async (req, res) => {
-      const data = await getMockData();
-      res.json(data.organizations);
+    apiRouter.get("/organizations", authMiddleware, (_req, res) => {
+      res.json(dbData.organizations);
     });
 
-    apiRouter.get("/users", authMiddleware, async (req, res) => {
-      const data = await getMockData();
-      res.json(data.users);
+    apiRouter.get("/users", authMiddleware, (_req, res) => {
+      res.json(dbData.users);
     });
 
-    apiRouter.get("/transactions", authMiddleware, async (req, res) => {
-      const data = await getMockData();
-      let transactions = data.transactions;
+    apiRouter.get("/transactions", authMiddleware, (req, res) => {
+      let transactions = dbData.transactions;
 
       if (req.query.organizationId) {
         transactions = transactions.filter((t: any) => t.organizationId === req.query.organizationId);
