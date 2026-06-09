@@ -14,7 +14,7 @@ export const EventsList: React.FC = () => {
 
     useEffect(() => {
         // Hardcoded org ID for demo purposes
-        fetch('http://localhost:3000/api/events?organizationId=org-123')
+        fetch('/api/events?organizationId=org-123')
             .then(res => res.json())
             .then(data => setEvents(data))
             .catch(err => console.error(err));
@@ -47,7 +47,7 @@ export const CreateEvent: React.FC = () => {
             ]
         };
 
-        await fetch('http://localhost:3000/api/events', {
+        await fetch('/api/events', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)

@@ -40,7 +40,7 @@ export default function OrgCreateEventPage() {
     const [people, setPeople] = useState<any[]>([]);
 
     useEffect(() => {
-        fetch(`http://localhost:3000/api/persons?organizationId=${orgId}`)
+        fetch(`/api/persons?organizationId=${orgId}`)
             .then(res => res.json())
             .then(data => setPeople(data))
             .catch(console.error);
@@ -91,7 +91,7 @@ export default function OrgCreateEventPage() {
         };
 
         try {
-            const res = await fetch('http://localhost:3000/api/events', {
+            const res = await fetch('/api/events', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)

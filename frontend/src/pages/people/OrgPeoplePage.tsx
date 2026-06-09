@@ -45,7 +45,7 @@ export default function OrgPeoplePage() {
 
     const fetchPeople = () => {
         setIsLoading(true);
-        fetch(`http://localhost:3000/api/people?organizationId=${orgId}`)
+        fetch(`/api/people?organizationId=${orgId}`)
             .then(res => res.json())
             .then(data => {
                 setPeople(data);
@@ -84,7 +84,7 @@ export default function OrgPeoplePage() {
         setPersonEnrollments([]);
 
         try {
-            const res = await fetch(`http://localhost:3000/api/people/${personId}/enrollments`);
+            const res = await fetch(`/api/people/${personId}/enrollments`);
             if (res.ok) {
                 const data = await res.json();
                 setPersonEnrollments(data);
@@ -110,7 +110,7 @@ export default function OrgPeoplePage() {
 
         setIsSaving(true);
         try {
-            const res = await fetch(`http://localhost:3000/api/persons`, {
+            const res = await fetch(`/api/persons`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

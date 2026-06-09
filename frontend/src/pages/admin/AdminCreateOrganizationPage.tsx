@@ -39,7 +39,7 @@ export default function AdminCreateOrganizationPage() {
         };
 
         try {
-            const res = await fetch('http://localhost:3000/api/organizations', {
+            const res = await fetch('/api/organizations', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
