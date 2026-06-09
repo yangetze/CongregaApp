@@ -12,7 +12,7 @@ export default function AdminOrganizationsPage() {
     const fetchAllEvents = async () => {
       try {
         const eventPromises = MOCK_ORGANIZATIONS.map(async (org) => {
-          const res = await fetch(`http://localhost:3000/api/events?organizationId=${org.id}`);
+          const res = await fetch(`/api/events?organizationId=${org.id}`);
           if (res.ok) {
             return await res.json();
           }

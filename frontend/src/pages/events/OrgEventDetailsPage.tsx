@@ -64,7 +64,7 @@ export default function OrgEventDetailsPage() {
         setIsLoading(true);
         try {
             // Fetch Event
-            const eventRes = await fetch(`http://localhost:3000/api/events?organizationId=${orgId}`);
+            const eventRes = await fetch(`/api/events?organizationId=${orgId}`);
             const eventData = await eventRes.json();
             const found = eventData.find((e: any) => e.id === eventId);
             setEvent(found || null);
@@ -78,14 +78,14 @@ export default function OrgEventDetailsPage() {
             }
 
             // Fetch Enrollments for this event
-            const enrollmentsRes = await fetch(`http://localhost:3000/api/events/${eventId}/enrollments`);
+            const enrollmentsRes = await fetch(`/api/events/${eventId}/enrollments`);
             if (enrollmentsRes.ok) {
                 const enrollmentsData = await enrollmentsRes.json();
                 setEnrollments(enrollmentsData);
             }
 
             // Fetch People to map names
-            const peopleRes = await fetch(`http://localhost:3000/api/people?organizationId=${orgId}`);
+            const peopleRes = await fetch(`/api/people?organizationId=${orgId}`);
             if (peopleRes.ok) {
                 const peopleData = await peopleRes.json();
                 setPeople(peopleData);
@@ -108,7 +108,7 @@ export default function OrgEventDetailsPage() {
         setIsCreatingNewPerson(false);
 
         try {
-            const res = await fetch(`http://localhost:3000/api/persons/document/${documentSearch}?organizationId=${orgId}`);
+            const res = await fetch(`/api/persons/document/${documentSearch}?organizationId=${orgId}`);
             if (res.ok) {
                 const data = await res.json();
                 setFoundPerson(data);
@@ -133,7 +133,7 @@ export default function OrgEventDetailsPage() {
                 type: sa.type,
                 maxCapacity: sa.maxCapacity ? Number(sa.maxCapacity) : null
             }));
-            const res = await fetch(`http://localhost:3000/api/events/${eventId}/service-areas`, {
+            const res = await fetch(`/api/events/${eventId}/service-areas`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ serviceAreas: payload })
@@ -155,7 +155,7 @@ export default function OrgEventDetailsPage() {
 
     const handleEnroll = async (personId: string) => {
         try {
-            const res = await fetch(`http://localhost:3000/api/events/${eventId}/enroll`, {
+            const res = await fetch(`/api/events/${eventId}/enroll`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ personId, role: selectedRole })
@@ -182,7 +182,7 @@ export default function OrgEventDetailsPage() {
         e.preventDefault();
         try {
             // 1. Create Person
-            const personRes = await fetch('http://localhost:3000/api/persons', {
+            const personRes = await fetch('/api/persons', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -199,7 +199,7 @@ export default function OrgEventDetailsPage() {
             }
 
             // 2. Enroll Person
-            const enrollRes = await fetch(`http://localhost:3000/api/events/${eventId}/enroll`, {
+            const enrollRes = await fetch(`/api/events/${eventId}/enroll`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ personId: personData.id, role: selectedRole })

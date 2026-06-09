@@ -60,10 +60,10 @@ export default function AdminMaintenancePage() {
         setIsLoading(true);
         try {
             const [varsRes, currRes, payRes, statRes] = await Promise.all([
-                fetch('http://localhost:3000/api/admin/global-variables'),
-                fetch('http://localhost:3000/api/admin/currencies'),
-                fetch('http://localhost:3000/api/admin/payment-methods'),
-                fetch('http://localhost:3000/api/admin/event-statuses')
+                fetch('/api/admin/global-variables'),
+                fetch('/api/admin/currencies'),
+                fetch('/api/admin/payment-methods'),
+                fetch('/api/admin/event-statuses')
             ]);
 
             if (varsRes.ok) setVariables(await varsRes.json());
@@ -79,7 +79,7 @@ export default function AdminMaintenancePage() {
 
     const handleEditVariable = async (id: string) => {
         try {
-            const res = await fetch(`http://localhost:3000/api/admin/global-variables/${id}`, {
+            const res = await fetch(`/api/admin/global-variables/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ description: editVarDesc })

@@ -24,7 +24,7 @@ export default function OrgEventsListPage() {
 
     useEffect(() => {
         setIsLoading(true);
-        fetch(`http://localhost:3000/api/events?organizationId=${orgId}`)
+        fetch(`/api/events?organizationId=${orgId}`)
             .then(res => res.json())
             .then(data => {
                 setEvents(data);

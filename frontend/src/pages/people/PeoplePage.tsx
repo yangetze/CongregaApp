@@ -13,7 +13,7 @@ export const PeopleList: React.FC = () => {
 
     useEffect(() => {
         // Hardcoded org ID for demo purposes
-        fetch('http://localhost:3000/api/people?organizationId=org-123')
+        fetch('/api/people?organizationId=org-123')
             .then(res => res.json())
             .then(data => setPeople(data))
             .catch(err => console.error(err));
@@ -42,7 +42,7 @@ export const CreatePerson: React.FC = () => {
             organizationId: 'org-123'
         };
 
-        await fetch('http://localhost:3000/api/people', {
+        await fetch('/api/people', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
